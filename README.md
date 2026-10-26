@@ -36,6 +36,10 @@ The installer checks prerequisites, extracts the discs into `roms\`, fetches obj
 | Path | What |
 |---|---|
 | `analysis/` | Python scripts: ISO reader, `SO2.BIN` table decoder, SLZ decompressor, extraction, code scans |
+| `docs/` | Format specs: `SLZ.md`, `SO2BIN_TOC.md`, `overlay_schema.md` |
+| `tests/slz/` | Synthetic SLZ test vectors + round-trip runner (`python -I tests/slz/run_tests.py`) |
+| `config/` | `overlays.tsv`/`overlays.json` (overlay map), `seeds*.txt`, `symbols.toml`, `matches.tsv` |
+| `recomp/` | psxrecomp scaffold (`game.toml`, AOT profile, first-run steps); not yet run |
 | `docker/` | `Dockerfile` for the compiler image and `run.ps1` wrapper |
 | `ANALYSIS.md` | Disc, archive, overlay and compiler findings |
 | `TOOLCHAIN.md` | Tools, versions, sources and related projects |

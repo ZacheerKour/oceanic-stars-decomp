@@ -1,0 +1,36 @@
+# psxrecomp game.toml scaffold for Star Ocean: The Second Story (USA), 2 discs.
+# Schema: tools/ref/psxrecomp/docs/config_schema.md. NOTHING HERE HAS BEEN RUN through psxrecomp yet.
+# Every value not checked by a tool is marked TODO(verify). Paths are relative to the *title project root* (a separate,
+# private repo that pins psxrecomp as a submodule), not to this repo; see recomp/README.md.
+
+[game]
+name = "Star Ocean - The Second Story (USA)"
+id = "SCUS-94421"                       # TODO(verify): from SYSTEM.CNF BOOT = cdrom:\SCUS_944.21;1 (disc 1); psxrecomp probe_disc.py should confirm
+exe = "disc/SCUS_944.21"                # TODO(verify): path after `prepare_disc` copies the boot exe out
+discs = ["disc/SO2 (Disc 1).cue", "disc/SO2 (Disc 2).cue"]   # TODO(verify): your own cue files
+disc_serials = ["SCUS-94421", "SCUS-94422"]                  # TODO(verify): disc 2 SYSTEM.CNF says SCUS_944.22 (the exe bytes are identical on both)
+load_address = "0x80010000"             # TODO(verify): PS-X header +0x18 reads 0x80010000 on our local copy
+entry_pc = "0x80010008"                 # TODO(verify): PS-X header +0x10 reads 0x80010008 locally (the game's main() is at 0x80010650)
+text_size = "0x1F800"                   # TODO(verify): header +0x1C reads 0x1F800 (129024 B); file is 131072 B incl. 0x800 header
+stack_base = "0x801FFF00"               # TODO(verify): SYSTEM.CNF STACK = 801fff00 (psxrecomp default is 0x801FFFF0)
+
+[recompiler]
+seeds = "seeds/seeds.txt"               # copy of config/seeds.txt (boot exe only, heuristic: jal targets + prologues) TODO(verify)
+out_dir = "generated"
+strict = true                           # TODO(verify): upstream says "currently always true"
+discovery = "whole-image"               # TODO(verify): "reachable" is the stricter alternative once seeds are trusted
+
+[prepare_disc]                          # TODO(verify): digests are produced by psxrecomp probe_disc.py / verify-disc; not computed here
+# out_dir = "disc"
+# boot_exe = "SCUS_944.21"
+# known_sizes = [ ... ]                 # TODO(verify)
+# known_md5   = [ ... ]                 # TODO(verify)
+# known_sha1  = [ ... ]                 # TODO(verify)
+
+[runtime]
+overlay_cache = false                   # TODO(verify): Xenogears pattern (AOT only); keep true while overlays are not yet in the AOT profile
+disc_speed = "1x"                       # TODO(verify): Xenogears needed 1x ("instant" hung); SO2 untested
+# bios_hle = false                      # TODO(verify)
+# XA / CD / STR (MDEC) settings: nothing to set yet.
+# TODO(verify): SO2 XA is 4-bit? (psxrecomp drops 8-bit XA, cdrom.c:1401). STR frames at SO2.BIN raw entries; CD-DA unknown.
+# TODO(verify): [video]/[widescreen] left at upstream defaults.

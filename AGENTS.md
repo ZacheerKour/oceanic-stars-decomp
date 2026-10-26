@@ -19,6 +19,7 @@ This file overrides the skills' defaults.
 - GCC 2.8.x and 2.7.2-cdk do not fit the game's leaf-function shape (ANALYSIS.md section 4).
 
 ## Next steps
+0. recomp track (RECOMP_NOTES.md, recomp/README.md): resolve the `TODO(verify)` values in `recomp/game.toml`, run psxrecomp `analyze` on the boot exe, then decide how to get SLZ overlays into its AOT pipeline (captures file vs. `slz_members` fork). Tests: `python -I tests/slz/run_tests.py`.
 1. Place the unplaced overlays (ANALYSIS.md) and pick the first overlay to split with splat.
 2. DONE 2026-10-26 (ANALYSIS.md section 5): 10 leaf functions match with gcc-2.7.2-psx -O2 -G0 via `scripts\match.ps1`. Next: widen the splat segment beyond 0x10000.
 3. DONE 2026-10-26 (ANALYSIS.md section 5b): +19 functions with frames/calls/loops match with 2.7.2-psx (29/29; 2.6.0-psx 24/29). Two non-rotated loops (0x800361CC, 0x800386FC) unmatched. Next: switch tables, larger frames, `.rodata`.
