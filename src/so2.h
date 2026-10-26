@@ -53,7 +53,7 @@ typedef struct {
 	char pad7C6[6];
 } S_8003818C;
 typedef struct { int w0; void *p4; } S_80038228;
-typedef struct { char pad0[0x5C]; int w5C; char pad60[0x10]; } S_8003BE84;
+typedef struct { char pad0[0x5C]; int w5C; char pad60[4]; short h64, h66, h68, h6A; char pad6C[4]; } S_8003BE84;
 typedef struct { char pad0[4]; short h4; short h6; char pad8[8]; short h10; short h12; } S_8003C8D8;
 typedef struct { char pad0[0x10]; int w10; int w14; int w18; } S_8003E86C;
 typedef struct { char pad0[0x26]; unsigned short h26; } S_8003B3D4;
@@ -311,7 +311,7 @@ typedef struct { int w0; unsigned char b4; unsigned char b5; unsigned char b6; u
 void func_8003E8C4();
 void func_80012DB0();
 void func_80012D78();
-void func_8003BDAC();
+void func_8003BDAC(S_8003BE84 *, int, int, int, int, int, int, int, int);
 void func_8003BBC4();
 void func_8003BCB8();
 int func_800104D4();
@@ -497,3 +497,4 @@ extern S_800368EC *D_8004EFB4;
 typedef struct { char pad0[0x184]; short h184, h186; } S_8003A5AC;
 extern S_8003A5AC *D_8004EBFC;
 int func_80038A1C();
+typedef struct { short x, y, w, h; } S_8003BDAC_r;
