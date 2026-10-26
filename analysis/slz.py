@@ -21,3 +21,11 @@ def dec(d,off=0):
         for _ in range(ln): out.append(out[-f])
         p+=2
     return bytes(out),nxt
+
+def dec_all(d):
+    """Decode every chunk of a (possibly multi-chunk) entry -> list of bytes. next offset is relative to the chunk start."""
+    out=[]; off=0
+    while True:
+        o,nx=dec(d,off); out.append(o)
+        if not nx: return out
+        off+=nx

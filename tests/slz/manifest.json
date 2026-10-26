@@ -1,0 +1,260 @@
+[
+ {
+  "name": "empty_v0",
+  "file": "empty_v0.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 0,
+    "expected": "empty_v0.0.out",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  ]
+ },
+ {
+  "name": "empty_v1",
+  "file": "empty_v1.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "empty_v1.0.out",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  ]
+ },
+ {
+  "name": "empty_v2",
+  "file": "empty_v2.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "empty_v2.0.out",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  ]
+ },
+ {
+  "name": "literals_v0",
+  "file": "literals_v0.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 0,
+    "expected": "literals_v0.0.out",
+    "size": 100,
+    "sha256": "bce0aff19cf5aa6a7469a30d61d04e4376e4bbf6381052ee9e7f33925c954d52"
+   }
+  ]
+ },
+ {
+  "name": "literals_v1",
+  "file": "literals_v1.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "literals_v1.0.out",
+    "size": 100,
+    "sha256": "bce0aff19cf5aa6a7469a30d61d04e4376e4bbf6381052ee9e7f33925c954d52"
+   }
+  ]
+ },
+ {
+  "name": "literals_v2",
+  "file": "literals_v2.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "literals_v2.0.out",
+    "size": 100,
+    "sha256": "bce0aff19cf5aa6a7469a30d61d04e4376e4bbf6381052ee9e7f33925c954d52"
+   }
+  ]
+ },
+ {
+  "name": "overlap_v1",
+  "file": "overlap_v1.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "overlap_v1.0.out",
+    "size": 203,
+    "sha256": "a02b4ec1eef33c4f39712bdc824bbea234e5e743beb90b616a5724b46e2ce334"
+   }
+  ]
+ },
+ {
+  "name": "overlap_v2",
+  "file": "overlap_v2.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "overlap_v2.0.out",
+    "size": 241,
+    "sha256": "01ae563158c7f84802fe4607f80aebfbd7257c217a5181853c885bd412256a38"
+   }
+  ]
+ },
+ {
+  "name": "long_len18_v1",
+  "file": "long_len18_v1.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "long_len18_v1.0.out",
+    "size": 49,
+    "sha256": "c7cb41ef11ef5ae227ac0e6b285913ca5df2560d5329830c94237872c16bf0b0"
+   }
+  ]
+ },
+ {
+  "name": "fill_v2",
+  "file": "fill_v2.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "fill_v2.0.out",
+    "size": 355,
+    "sha256": "ad8285d1f81ef63ddcf1127869bbb027423cca5a19f30f238886d3dce3f9eaf4"
+   }
+  ]
+ },
+ {
+  "name": "maxdist_v1",
+  "file": "maxdist_v1.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "maxdist_v1.0.out",
+    "size": 4098,
+    "sha256": "253dc6c9cc4eb2538d787983f87feffbb2bc6984b8ac5dc90cb58e77726fb491"
+   }
+  ]
+ },
+ {
+  "name": "maxdist_v2",
+  "file": "maxdist_v2.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "maxdist_v2.0.out",
+    "size": 4098,
+    "sha256": "253dc6c9cc4eb2538d787983f87feffbb2bc6984b8ac5dc90cb58e77726fb491"
+   }
+  ]
+ },
+ {
+  "name": "beyond_window_v1",
+  "file": "beyond_window_v1.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "beyond_window_v1.0.out",
+    "size": 4099,
+    "sha256": "364c628438a616d387791d270e3598f2bd8211f7e613fd31b73e02eefdb9b1d1"
+   }
+  ]
+ },
+ {
+  "name": "multichunk_mixed",
+  "file": "multichunk_mixed.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 0,
+    "expected": "multichunk_mixed.0.out",
+    "size": 50,
+    "sha256": "0ec91af1dd4d6a7b59c7f49a0c6832731cec8db54d8bca74783be54d4a29eb4c"
+   },
+   {
+    "ver": 1,
+    "expected": "multichunk_mixed.1.out",
+    "size": 200,
+    "sha256": "e5fc36b425ab5c038462ca88841907340eefb02b63efc9d35abf0617154f1530"
+   },
+   {
+    "ver": 2,
+    "expected": "multichunk_mixed.2.out",
+    "size": 133,
+    "sha256": "d92159962e61d6d2bc7802525666db1eeb0a1337846135acbb433c6ab7bf4443"
+   },
+   {
+    "ver": 2,
+    "expected": "multichunk_mixed.3.out",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  ]
+ },
+ {
+  "name": "multichunk_v2_pair",
+  "file": "multichunk_v2_pair.slz",
+  "encoder_reproduces": true,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "multichunk_v2_pair.0.out",
+    "size": 24,
+    "sha256": "1b342c2b9669afd19e5ac7ddfb09dc6beb1144fc6959dca5a56ff4198d682be0"
+   },
+   {
+    "ver": 2,
+    "expected": "multichunk_v2_pair.1.out",
+    "size": 24,
+    "sha256": "bad9654731fb5dc40a9d1ad3819b80d9f1b9e3bd4d94a00c75e93a37a067fc01"
+   }
+  ]
+ },
+ {
+  "name": "hand_v1_ref_term",
+  "file": "hand_v1_ref_term.slz",
+  "encoder_reproduces": false,
+  "chunks": [
+   {
+    "ver": 1,
+    "expected": "hand_v1_ref_term.0.out",
+    "size": 6,
+    "sha256": "69dc6c3210e25e62c5938ff4e841e81ce3c7d2cde583553478a77d7fcb389f30"
+   }
+  ]
+ },
+ {
+  "name": "hand_v2_fill3",
+  "file": "hand_v2_fill3.slz",
+  "encoder_reproduces": false,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "hand_v2_fill3.0.out",
+    "size": 20,
+    "sha256": "a27c4959b920f80dca2d6961909026824391d1e9881eb0cafa34b2c9317d2fc5"
+   }
+  ]
+ },
+ {
+  "name": "hand_v2_fill2",
+  "file": "hand_v2_fill2.slz",
+  "encoder_reproduces": false,
+  "chunks": [
+   {
+    "ver": 2,
+    "expected": "hand_v2_fill2.0.out",
+    "size": 9,
+    "sha256": "0be8096331298ee6db9f1b0e1652997aa060b341bf68f29089a13cb9139967f0"
+   }
+  ]
+ }
+]
