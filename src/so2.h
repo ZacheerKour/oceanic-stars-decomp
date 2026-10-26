@@ -189,4 +189,3 @@ S_8003C57C *func_8001FD94();
 extern int D_8004B808[], D_8004DDA0;
 int func_8003A8D8();
 void func_8001445C();
-void func_80036B2C();
