@@ -268,7 +268,7 @@ void func_80021108();
 void func_80012F28();
 typedef struct { int w0; int w4; } S_80033FD0p;
 void *func_8001FE30();
-void func_80038354();
+unsigned char *func_80038354();
 typedef struct { char pad0[0xFF0]; int wFF0; int wFF4; int wFF8; int wFFC; int w1000; } S_800317E0;
 extern int D_8004EBE4;
 int func_80011B98();
