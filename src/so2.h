@@ -396,3 +396,11 @@ typedef struct { S_8003A3C4d *p0; } S_8003A3C4;
 typedef struct { char pad0[0x800]; unsigned short h800[16]; char pad820[0x404]; unsigned char bC24; } S_8003B7B0;
 /* lane 3 wave 4 additions */
 extern void *D_800749B8[], *D_80074A38[];
+typedef struct { char pad0[0x30]; short h30; char pad32[2]; void (*fn34)(); } S_80073A6C_vt;
+typedef struct { char pad0[4]; S_80073A6C_vt *p4; char pad8[8]; } S_80073A6C;
+typedef struct { char pad0[0x38]; short h38; char pad3A[2]; void (*fn3C)(); } S_80073AA0_vt;
+typedef struct { char pad0[4]; S_80073AA0_vt *p4; char pad8[8]; } S_80073AA0;
+extern void *D_8004D4B8[], *D_8004D488[], *D_8004D428[];
+extern int D_8004EBF8, D_8004EBF0;
+typedef struct { char pad0[0x32]; signed char b32; } S_8004711C_r;
+S_8004711C_r *func_8001AB30();
