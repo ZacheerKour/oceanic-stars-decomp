@@ -35,8 +35,8 @@ known_sha1  = ["ccd092233b353d2aa7bb80ecdb2b76f456430b41", "68178c55a430eab3e97e
 
 [runtime]
 overlay_cache = true                    # psxrecomp scaffold default (probe_disc.py) and required by the packager (GAME_PROJECT_SETUP.md); records the SLZ overlays it interprets
-disc_speed = "1x"                       # TODO(verify): runtime behaviour; Xenogears needed 1x ("instant" hung); SO2 untested
-# bios_hle = false                      # TODO(verify): runtime behaviour, needs a boot test
+disc_speed = "1x"                       # = runtime default ("default: authentic 1x timing", runtime/src/main.cpp f42d2c0); faster ("2x"/"4x"/"instant") is a later tuning step that needs a boot test
+# bios_hle = false                      # off = pure LLE, the runtime default (opt-in, runtime/include/bios_hle.h); keep it: the game hooks BIOS device handlers (DCB+0x34, A 0x8004B344), so the real kernel must run
 # Audio/video: no XA and no CD-DA to configure. Sector census 2026-10-26: no sector on either disc has the XA audio (0x04) or
 # video (0x02) submode bit (disc 1: 236155 data, 216 Form 2, 160 other), and both cues are single-track (no CD-DA).
 # STR movies are plain data entries inside SO2.BIN (ANALYSIS.md), decoded by the game through MDEC.

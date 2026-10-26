@@ -293,7 +293,7 @@
 800425b8	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
 800425e8	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
 80042608	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
-800443b0	B	static_slot_unassigned		none	slot 8006fe04: zero/bss, no const store in image
+800443b0	B	static_slot_dead		high	slot 8006fe04: the only store in any module is `sw $zero` (80074dc4); call is beqz-guarded (null hook)
 80045f7c	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
 800461c8	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
 8004628c	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
@@ -317,7 +317,7 @@
 8004da98	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 8004dad4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 8004db0c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
-8004e058	B	static_slot_unassigned		none	slot 8006fe04: zero/bss, no const store in image
+8004e058	B	static_slot_dead		high	slot 8006fe04: the only store in any module is `sw $zero` (80074dc4); call is beqz-guarded (null hook)
 80050244	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 80050268	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 800502dc	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
@@ -408,7 +408,7 @@
 8005401c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 80054058	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 8005407c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
-800545b0	B	table_unreadable		none	table 8006fea8 stride 4 n=0 (no sltiu guard found)
+800545b0	B	fnptr_table	8005566c,800558d0,80055d10,80055e74,80055fc4,800562a4,8005652c,80056a44,80056d24,800570a0,800577e8,80057ad0,80057e20,80058270,800585cc,80058a7c,80058b78,80059310,8005978c,80059be0,8005a4d8,8005aee0,8005b530,8005b558,8005b6d0,8005b9d0,8005bb50,8005c5a0,8005cac4,8005d110,8005d2d0,8008c1f4	medium	table 8006fea8 stride 4 n=52 by object type (lhu 0x108); [0]=0; [52] is data. Also holds overlay-slot pointers not listed: 801efa88 801efb70 801f02e8 801f0438 (2131 family), 8008c2ac 8008c280 8008c2d0 8008c320 8008c290 8008c47c 8008c270 8008c2f8 (1984 handler slot), 8008a30c 80088cb0
 80054928	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 80054970	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 800549c8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
@@ -438,12 +438,12 @@
 800555b4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 8005563c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 8005815c	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
-8005b540	B	struct_member		none	off 312 base a0
+8005b540	B	member_setter_unreferenced		medium	obj+0x138 is set only from a0 of 8005b4b0 (type 0x21) / 8005b4f0 (type 0x33), which no module references; 8005b530 is table 8006fea8 entries 33 and 51
 8005b668	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8005c29c	B	vtable_dispatch	8003bb7c,80051fdc,8005287c,800540d8,800679ac	low	vptr@+4 slot@+172; 54 vtable bases stored at +4, 5 distinct targets
 8005c300	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8005d760	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
-8005e238	B	struct_member		none	off -20 base v0+80070000
+8005e238	B	fnptr_table	8005e618,8005e7d8,8005e8f0,8005ee08,8005f128	medium	gcc 2.x pointer-to-member table 8006ffe8 stride 8 {delta,index,pfn}: entries 0-4 index -1 (non-virtual), 5-6 null
 80062904	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
 80062aa0	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
 800643b4	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
@@ -454,11 +454,11 @@
 80066ba0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
 800679e8	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
 80068004	B	vtable_dispatch	8003bb84,8003edbc,8003f37c,80051fdc,80069170	low	vptr@+4 slot@+44; 54 vtable bases stored at +4, 5 distinct targets
-8006a038	B	static_slot_unassigned		none	slot 80070b2c: zero/bss, no const store in image
+8006a038	B	static_slot_dead		high	slot 80070b2c set only by setter 8006a10c, which no module references (no jal, pointer or lui/addiu); cleared at init, call is beqz-guarded
 8006af68	B	bios_dispatch		high	BIOS vector b0 (function number in $t1)
-800719a4	B	complex		none	ld(('add', ('reg', 'at'), ('reg', 's2')))
+800719a4	B	jump_table_unguarded	800719ac,800719e8,800719fc,80071a10,80071a24,80071a38,80071a60,80071a74,80071a88,80071a9c,80071ac4,80071af4	high	table 80078f38 n=12 (next table 80078f68 is referenced at 80071c00); index s2 += 4 per loop pass
 800722dc	B	jump_table_unguarded	800722e4,80072484,800722e4,800724f0,800725ec,80072648,800726fc,8007273c,80072824,8007287c,800729e4,80072ac4,80072b00,80072c94,80072e20,80072ef0,800729e4	medium	table 80079020 stride 4 n=17 guard 17
-8007ad98	B	struct_member		none	off 76 base v0
+8007ad98	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76 (checked by hand); 54 vtable bases stored at +4, 6 distinct targets
 8007bac4	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
 8007baf0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8007bd98	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
@@ -471,7 +471,7 @@
 8007d930	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8007da20	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
 8007da98	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
-8007e46c	B	table_unreadable		none	table 801f9774 stride 4 n=0 guard 5
+8007e46c	B	table_unreadable		none	table 801f9774 guard 5 lies in the 0x801f6000 enemy-slot RAM; no module holds targets inside this function there, and B bytes >= 0x800715d0 are overlaid by 1984 / 0x8007e000 overlays (stale code?)
 8007e928	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8007e960	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
 8007e984	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
@@ -488,10 +488,10 @@
 8007fb1c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8007fc34	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
 8007fd74	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
-8007fda0	B	struct_member		none	off 100 base v0
+8007fda0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100 (checked by hand); 54 vtable bases stored at +4, 5 distinct targets
 80081b40	B	jump_table_unguarded	80081f34,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80081b48,80081b5c,80081b70,80081b84,80081b98,80081bac,80081bc0,80081be0,80081bf4,80082144,80081c08,80081c1c,80081c30,80081c44,80081c58,80081c6c,80082318,80081cbc,80081c80,80081c94,80081c94,80081ca8,80081cbc,80081e74,8008206c,80082318,80081cd0,80082318,80081ce4,80081cf0,80081d00,80081d20,80081d34,80082318,80082318,80081d40,80082318,80081d4c,80081d58,80082318,80081d64,80081d84,80082318,80081e00,80081e0c,80081e18,80081e38,80081e44,80081e50,80081e5c,80081e68,80082318,80082318,80081e74,80081e88,80081e94,80081ea8,80081ebc,80081ed0,80081ee4,80081ef8,80081f0c,80081f20,80082318,80081f48,80082318,80081f5c,80082110,80081f70,80081f90,80082318,80082318,80082318,80081fa4,80081fc4,80081fd8,80081fec,80082000,80082014,80082020,80082318,80082034,80082040,8008204c,8008206c,80082080,80082094,80082318,80082318,800820a0,80082318,800820ac,800820b8,800820c4,800820d0,800820dc,800820e8,80082318,800820f4,80082110,80082124,80082318,80082138,80082110,80082144,80082158,80081e38,80082124,80082164,80082170,80082318,8008217c,80082190,8008219c,800821a8,800821bc,800821c8,800821d4,800821e0,800821ec,800821f8,80082204,80082318,80082210,8008221c,80082228,80082234,80082240,8008224c,80082258,80082264,80082270,80082284,80082290,800822a4,800822b8,800822c4,800822d0,800822dc,800822e8,800822f4,80082318,80082318,800822fc,80082318,80082308	medium	table 80084b20 stride 4 n=187 guard 187
 80082d98	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
-80084020	B	table_unreadable		none	table 800851b0 stride 4 n=0 (no sltiu guard found)
+80084020	B	overlay_entry_table	801ee000,801f2000,801f6000,801fa000	high	table 800851b0 = the 4 enemy-set slot bases (2131 family), index a0 0..3; next word is code
 80085bf4	B	fnptr_table	80085b0c,80087730,80087c98	low	table 80088020 stride 4 n=3 (no sltiu guard found)
 800861c0	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
 80086ddc	B	jump_table_unguarded	80087404,80087404,80086de4,80086e6c,80086ff0,80087044,80087058,800871a4,80087050	medium	table 80087fec stride 4 n=9 guard 9
@@ -537,9 +537,9 @@
 80038798	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 8003a12c	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 8003d3f4	C	static_slot_dead		high	slot 80074368 set only by setter 8003d4c8, which no module references (no jal, pointer or lui/addiu); cleared at init, call is beqz-guarded
-8003da20	C	vtable_dispatch		none	vptr@+1016 slot@+20; 1 vtable bases stored at +1016, 0 distinct targets
-8003ed5c	C	vtable_dispatch		none	vptr@+1016 slot@+36; 1 vtable bases stored at +1016, 0 distinct targets
-8003edb4	C	vtable_dispatch		none	vptr@+1016 slot@+28; 1 vtable bases stored at +1016, 0 distinct targets
+8003da20	C	vtable_dispatch	8006fe00,e3101c0:80082838,e3102c0:80085868	medium	 vptr@+0x3f8 slot@+0x14: base ctor 8003d4d8 vtable 80072dd4 (slot = 8006fe00 `break`, pure virtual), derived vtables 8008ebe0 (e3101c0) / 8008f460 (e3102c0)
+8003ed5c	C	vtable_dispatch	8006fe00,e3101c0:80081cc8,e3102c0:80084e04	medium	 vptr@+0x3f8 slot@+0x24: base ctor 8003d4d8 vtable 80072dd4 (slot = 8006fe00 `break`, pure virtual), derived vtables 8008ebe0 (e3101c0) / 8008f460 (e3102c0)
+8003edb4	C	vtable_dispatch	8006fe00,e3101c0:80081b54,e3102c0:80084da8	medium	 vptr@+0x3f8 slot@+0x1c: base ctor 8003d4d8 vtable 80072dd4 (slot = 8006fe00 `break`, pure virtual), derived vtables 8008ebe0 (e3101c0) / 8008f460 (e3102c0)
 80043184	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 80046a3c	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
 80046a6c	C	vtable_dispatch	8002f890,80045a3c	low	vptr@+4 slot@+52; 18 vtable bases stored at +4, 2 distinct targets
@@ -549,26 +549,26 @@
 80046cb0	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
 80046ce8	C	vtable_dispatch	8002f890,80045a3c	low	vptr@+4 slot@+52; 18 vtable bases stored at +4, 2 distinct targets
 80046d18	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
-80047564	C	vtable_dispatch		none	vptr@+8 slot@+0; 0 vtable bases stored at +8, 0 distinct targets
-800477e8	C	struct_member		none	off 0 base s5
+80047564	C	jump_table_unguarded	8004756c,80047590,800475c0,800475d4,80047604,80047644,80047684,800476c8	high	hoisted table 80072f3c (+a2*4 kept at sp+8), guard sltiu 8
+800477e8	C	jump_table_unguarded	800477f0,80047814,80047840,80047854,80047884,800478c4,8004790c,80047950	high	hoisted table 80072f5c (s5 = table + a2*4), guard sltiu 8
 80049150	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 80049180	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 800491b0	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 8004929c	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
-800492cc	C	vtable_dispatch		none	vptr@+76 slot@+12; 0 vtable bases stored at +76, 0 distinct targets
+800492cc	C	vtable_dispatch	e3103c0:801eb480,e3103c0:801ebc38	high	obj *(800752c8) is only ever built by e3103c0 ctors 801eb2d8 (vtable 801ecacc) / 801ebb6c (vtable 801ecaf4); vptr@+0x4c slot@+0xc
 8004936c	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
 8004941c	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
-8004a088	C	vtable_dispatch		none	vptr@+76 slot@+12; 0 vtable bases stored at +76, 0 distinct targets
-8004a174	C	vtable_dispatch		none	vptr@+76 slot@+12; 0 vtable bases stored at +76, 0 distinct targets
+8004a088	C	vtable_dispatch	e3103c0:801eb480,e3103c0:801ebc38	high	obj *(800752c8) is only ever built by e3103c0 ctors 801eb2d8 (vtable 801ecacc) / 801ebb6c (vtable 801ecaf4); vptr@+0x4c slot@+0xc
+8004a174	C	vtable_dispatch	e3103c0:801eb480,e3103c0:801ebc38	high	obj *(800752c8) is only ever built by e3103c0 ctors 801eb2d8 (vtable 801ecacc) / 801ebb6c (vtable 801ecaf4); vptr@+0x4c slot@+0xc
 8004a6e4	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 8004a7fc	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 8004a99c	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 8004ad1c	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 8004b724	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 8004be40	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
-8004be74	C	vtable_dispatch		none	vptr@+44 slot@+20; 0 vtable bases stored at +44, 0 distinct targets
-8004bea8	C	vtable_dispatch		none	vptr@+84 slot@+20; 0 vtable bases stored at +84, 0 distinct targets
-8004bedc	C	vtable_dispatch		none	vptr@+124 slot@+20; 0 vtable bases stored at +124, 0 distinct targets
+8004be74	C	vtable_dispatch	800459c0	high	obj *(800752e4) = new[4] of 0x28-byte elements (8004cae0), element vptr@+4 = vtable 80072e5c; slot +0x14 (element 1)
+8004bea8	C	vtable_dispatch	800459c0	high	obj *(800752e4) = new[4] of 0x28-byte elements (8004cae0), element vptr@+4 = vtable 80072e5c; slot +0x14 (element 2)
+8004bedc	C	vtable_dispatch	800459c0	high	obj *(800752e4) = new[4] of 0x28-byte elements (8004cae0), element vptr@+4 = vtable 80072e5c; slot +0x14 (element 3)
 8004c1d0	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 8004c7d0	C	vtable_dispatch	8003877c,80043654,80045a90,800521e8,800573d0,800584f8,8005f604,8006ef28,8006ef48	low	vptr@+4 slot@+28; 18 vtable bases stored at +4, 9 distinct targets
 8004c874	C	jump_table_unguarded	8004c87c,8004d9e8,8004d944,8004da30,8004d95c,8004d998,8004e3cc,8004e4a4,8004e990,8004eb84,8004ed88,8004efa4,8004f090,8004f484,8004f4f8,8004f650,8004f8b4,8004f928,8004f95c,8004f980,8004f9e0,8004fa54,8004fb88,8004fc74,8004fce0,8004fd04,8004fd4c,8004fdfc,800501c4,800505cc,800509d4,80050b50,80050bd0,80050c74	medium	table 80072fe4 stride 4 n=34 guard 34

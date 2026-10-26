@@ -1,12 +1,13 @@
 # Per-module function-entry seeds (module id = overlays.json id). One address per line; a "# module" line starts a section.
 # NOT for psxrecomp [recompiler] seeds (it only accepts the exe image); feed per-overlay via the AOT profile entries.
-# module e1c0 load=0x8002f810 size=283604 seeds=799
+# module e1c0 load=0x8002f810 size=283604 seeds=800
 8002f810
 8002f890
 8002f898
 8002f8a4
 8002f8d0
 8002f8e0
+8002f8e4
 8002f974
 8002fa08
 8002fbf8
@@ -2930,7 +2931,7 @@
 801fc33c
 801fc4c0
 801fc8dc
-# module e2576c0 load=0x8002f810 size=313340 seeds=750
+# module e2576c0 load=0x8002f810 size=313340 seeds=751
 8002f810
 8002f890
 8002f8e4
@@ -3609,6 +3610,7 @@
 8006f958
 8006fc44
 8006fc64
+8006fe00
 8006fe04
 8006fe24
 8006ff3c

@@ -47,7 +47,7 @@ SEED_KINDS = {'const_target', 'static_slot_init', 'static_slot_stored', 'fnptr_t
 
 def indirect_seeds():
     """Call targets from config/indirect_targets.tsv (written by analysis/indirect.py) -> ({exe addrs}, {module id: {addrs}}).
-    A target token is `addr` (in the site's own image, or the exe) or `P:addr` (program P, from a boot-exe site)."""
+    A target token is `addr` (in the site's own image, or the exe), `P:addr` (program P, from a boot-exe site) or `<module id>:addr` (an overlay module)."""
     exe, mods = set(), {m: set() for m in MOD.values()}
     f = P('config', 'indirect_targets.tsv')
     if not os.path.exists(f): return exe, mods
@@ -58,7 +58,7 @@ def indirect_seeds():
         for t in tg.split(','):
             pp, a = (t.split(':') if ':' in t else (prog, t)); a = int(a, 16)
             if EXE_BASE <= a < EXE_END: exe.add(a)
-            elif pp in MOD and a >= 0x8002f810 and a % 4 == 0: mods[MOD[pp]].add(a)
+            elif (pp in MOD or pp.startswith('e')) and a >= 0x8002f810 and a % 4 == 0: mods.setdefault(MOD.get(pp, pp), set()).add(a)
     return exe, mods
 
 

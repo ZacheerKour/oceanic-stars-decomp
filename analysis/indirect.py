@@ -1,5 +1,6 @@
 """Classify + resolve the analyzer's unresolved indirect jalr/jr sites (static, best effort).  Run from the repo root:
     python -I analysis/indirect.py [summary.txt]      (default recomp/sandbox/_out_run2/summary.txt, "*_seeded" sections)
+From a worktree: SO2_DATA=<main checkout> (the gitignored inputs below are read from there; output goes to this checkout).
 Needs the LOCAL gitignored binaries (extracted/SCUS_944.21, analysis/out/d1/*.dec) and the sandbox functions.tsv per program.
 Writes config/indirect_targets.tsv (addresses/names only).  Method: per site, forward symbolic evaluation of the register from
 the nearest control-flow boundary (lui/addiu/ori/addu/sll/lw/move); the result is a constant, a load from a constant slot, a load
@@ -10,6 +11,7 @@ import os, re, sys, struct, collections
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 P = lambda *a: os.path.join(ROOT, *a)
+PD = lambda *a: os.path.join(os.environ.get('SO2_DATA', ROOT), *a)   # gitignored inputs (another checkout when run from a worktree)
 EXE_BASE, EXE_END, LOAD = 0x80010000, 0x8002f800, 0x8002f810
 PROGS = {'A': ('0001_312.dec', 'e1c0'), 'B': ('2129_24323.dec', 'e2129c0'), 'C': ('2576_30736.dec', 'e2576c0')}
 RN = ['zero', 'at', 'v0', 'v1', 'a0', 'a1', 'a2', 'a3', 't0', 't1', 't2', 't3', 't4', 't5', 't6', 't7',
@@ -102,7 +104,7 @@ def load_sites(path):
 
 
 def load_funcs(prog):
-    f = P('recomp', 'sandbox', '_out_run2', prog, 'seeded', 'functions.tsv')
+    f = PD('recomp', 'sandbox', '_out_run2', prog, 'seeded', 'functions.tsv')
     fs = []
     for l in list(open(f))[1:]:
         c = l.split('\t'); fs.append((int(c[0], 16), int(c[1])))
@@ -113,7 +115,7 @@ class Ctx:
     """one image (boot exe or program A/B/C): words, functions, branch targets, direct callers, constant stores"""
     def __init__(self, name, exe):
         self.name = name
-        self.prog = None if name == 'boot' else open(P('analysis', 'out', 'd1', PROGS[name][0]), 'rb').read()
+        self.prog = None if name == 'boot' else open(PD('analysis', 'out', 'd1', PROGS[name][0]), 'rb').read()
         self.img = Img(exe, self.prog)
         self.base, data = (EXE_BASE, exe) if self.prog is None else (LOAD, self.prog)
         self.words = words = list(struct.unpack('<%dI' % (len(data) // 4), data))
@@ -168,14 +170,14 @@ class Ctx:
 
 
 def load_tags(prog):
-    f = P('recomp', 'sandbox', '_out_run2', prog, 'seeded', 'functions.tsv')
+    f = PD('recomp', 'sandbox', '_out_run2', prog, 'seeded', 'functions.tsv')
     return {int(l.split('\t')[0], 16): l.split('\t')[10] for l in list(open(f))[1:] if len(l.split('\t')) > 10}
 
 
 def main():
-    summ = sys.argv[1] if len(sys.argv) > 1 else P('recomp', 'sandbox', '_out_run2', 'summary.txt')
+    summ = sys.argv[1] if len(sys.argv) > 1 else PD('recomp', 'sandbox', '_out_run2', 'summary.txt')
     sites = load_sites(summ)
-    exe = open(P('extracted', 'SCUS_944.21'), 'rb').read()[0x800:0x800 + 0x1f800]
+    exe = open(PD('extracted', 'SCUS_944.21'), 'rb').read()[0x800:0x800 + 0x1f800]
     C = {n: Ctx(n, exe) for n in ('boot', 'A', 'B', 'C')}
     # exe-range slots/args are shared by every image: a program's setter call can fill a boot-exe slot
     def exe_slot_targets(slot):
@@ -287,8 +289,53 @@ def main():
                 (0x8003d3f4, 'C'): ('static_slot_dead', 'high', dead % (0x80074368, 0x8003d4c8)),
                 (0x8004b344, 'A'): ('bios_dcb_hook', 'high', dcb % 0x8004efe4),
                 (0x800715c4, 'C'): ('bios_dcb_hook', 'high', dcb % 0x80078880)}
-    rows = [(pc, n, *VERIFIED[pc, n][:1], tg, *VERIFIED[pc, n][1:]) if (pc, n) in VERIFIED and k == 'static_slot_unassigned' else (pc, n, k, tg, cf, nt)
-            for pc, n, k, tg, cf, nt in rows]
+    # B/C sites settled by hand over all 89 modules (RECOMP_NOTES '2026-10-26 B/C indirect sites, split starts'): (kind, targets, confidence, note).
+    # A target `eXXXXcN:addr` names the overlay module whose own vtable/table holds it; plain = the site's own image.
+    zero = 'slot %08x: the only store in any module is `sw $zero` (%08x); call is beqz-guarded (null hook)'
+    VT3F8 = ' vptr@+0x3f8 slot@+%#x: base ctor 8003d4d8 vtable 80072dd4 (slot = 8006fe00 `break`, pure virtual), derived vtables 8008ebe0 (e3101c0) / 8008f460 (e3102c0)'
+    VT4C = 'obj *(800752c8) is only ever built by e3103c0 ctors 801eb2d8 (vtable 801ecacc) / 801ebb6c (vtable 801ecaf4); vptr@+0x4c slot@+0xc'
+    VTARR = 'obj *(800752e4) = new[4] of 0x28-byte elements (8004cae0), element vptr@+4 = vtable 80072e5c; slot +0x14'
+    vt_c = lambda s, *t: ('vtable_dispatch', list(t), 'medium', VT3F8 % s)
+    VERIFIED.update({
+        (0x800443b0, 'B'): ('static_slot_dead', [], 'high', zero % (0x8006fe04, 0x80074dc4)),
+        (0x8004e058, 'B'): ('static_slot_dead', [], 'high', zero % (0x8006fe04, 0x80074dc4)),
+        (0x8006a038, 'B'): ('static_slot_dead', [], 'high', dead % (0x80070b2c, 0x8006a10c)),
+        (0x800545b0, 'B'): ('fnptr_table', [0x8005566c, 0x800558d0, 0x80055d10, 0x80055e74, 0x80055fc4, 0x800562a4, 0x8005652c, 0x80056a44,
+                                            0x80056d24, 0x800570a0, 0x800577e8, 0x80057ad0, 0x80057e20, 0x80058270, 0x800585cc, 0x80058a7c,
+                                            0x80058b78, 0x80059310, 0x8005978c, 0x80059be0, 0x8005a4d8, 0x8005aee0, 0x8005b530, 0x8005b558,
+                                            0x8005b6d0, 0x8005b9d0, 0x8005bb50, 0x8005c5a0, 0x8005cac4, 0x8005d110, 0x8005d2d0, 0x8008c1f4],
+                               'medium', 'table 8006fea8 stride 4 n=52 by object type (lhu 0x108); [0]=0; [52] is data. Also holds overlay-slot '
+                               'pointers not listed: 801efa88 801efb70 801f02e8 801f0438 (2131 family), 8008c2ac 8008c280 8008c2d0 8008c320 '
+                               '8008c290 8008c47c 8008c270 8008c2f8 (1984 handler slot), 8008a30c 80088cb0'),
+        (0x8005b540, 'B'): ('member_setter_unreferenced', [], 'medium', 'obj+0x138 is set only from a0 of 8005b4b0 (type 0x21) / 8005b4f0 '
+                            '(type 0x33), which no module references; 8005b530 is table 8006fea8 entries 33 and 51'),
+        (0x8005e238, 'B'): ('fnptr_table', [0x8005e618, 0x8005e7d8, 0x8005e8f0, 0x8005ee08, 0x8005f128], 'medium',
+                            'gcc 2.x pointer-to-member table 8006ffe8 stride 8 {delta,index,pfn}: entries 0-4 index -1 (non-virtual), 5-6 null'),
+        (0x800719a4, 'B'): ('jump_table_unguarded', [0x800719ac, 0x800719e8, 0x800719fc, 0x80071a10, 0x80071a24, 0x80071a38, 0x80071a60,
+                                                     0x80071a74, 0x80071a88, 0x80071a9c, 0x80071ac4, 0x80071af4], 'high',
+                            'table 80078f38 n=12 (next table 80078f68 is referenced at 80071c00); index s2 += 4 per loop pass'),
+        (0x8007e46c, 'B'): ('table_unreadable', [], 'none', 'table 801f9774 guard 5 lies in the 0x801f6000 enemy-slot RAM; no module holds '
+                            'targets inside this function there, and B bytes >= 0x800715d0 are overlaid by 1984 / 0x8007e000 overlays (stale code?)'),
+        (0x80084020, 'B'): ('overlay_entry_table', [0x801ee000, 0x801f2000, 0x801f6000, 0x801fa000], 'high',
+                            'table 800851b0 = the 4 enemy-set slot bases (2131 family), index a0 0..3; next word is code'),
+        (0x8003da20, 'C'): vt_c(0x14, 0x8006fe00, 'e3101c0:80082838', 'e3102c0:80085868'),
+        (0x8003ed5c, 'C'): vt_c(0x24, 0x8006fe00, 'e3101c0:80081cc8', 'e3102c0:80084e04'),
+        (0x8003edb4, 'C'): vt_c(0x1c, 0x8006fe00, 'e3101c0:80081b54', 'e3102c0:80084da8'),
+        (0x80047564, 'C'): ('jump_table_unguarded', [0x8004756c, 0x80047590, 0x800475c0, 0x800475d4, 0x80047604, 0x80047644, 0x80047684,
+                                                     0x800476c8], 'high', 'hoisted table 80072f3c (+a2*4 kept at sp+8), guard sltiu 8'),
+        (0x800477e8, 'C'): ('jump_table_unguarded', [0x800477f0, 0x80047814, 0x80047840, 0x80047854, 0x80047884, 0x800478c4, 0x8004790c,
+                                                     0x80047950], 'high', 'hoisted table 80072f5c (s5 = table + a2*4), guard sltiu 8'),
+        **{(pc, 'C'): ('vtable_dispatch', ['e3103c0:801eb480', 'e3103c0:801ebc38'], 'high', VT4C) for pc in (0x800492cc, 0x8004a088, 0x8004a174)},
+        **{(pc, 'C'): ('vtable_dispatch', [0x800459c0], 'high', VTARR + ' (element %d)' % e)
+           for pc, e in ((0x8004be74, 1), (0x8004bea8, 2), (0x8004bedc, 3))},
+    })
+    # 8007ad98 / 8007fda0 (B) stay with the generic vtable union (vptr +4); the evaluator saw a live-in v0, so set it here
+    for pc, o in ((0x8007ad98, 0x4c), (0x8007fda0, 0x64)):
+        cx = C['B']; cand = sorted({x for b in cx.vt_st.get(4, ()) for x in [cx.img.word(b + o)] if x and x in cx.starts})
+        VERIFIED[pc, 'B'] = ('vtable_dispatch', cand, 'low', f'vptr@+4 slot@+{o} (checked by hand); {len(cx.vt_st.get(4, ()))} vtable bases stored at +4, {len(cand)} distinct targets')
+    VERIFIED = {k: v if len(v) == 4 else (v[0], None, v[1], v[2]) for k, v in VERIFIED.items()}   # old rows keep the computed targets
+    rows = [(pc, n, VERIFIED[pc, n][0], tg if VERIFIED[pc, n][1] is None else VERIFIED[pc, n][1], *VERIFIED[pc, n][2:]) if (pc, n) in VERIFIED
+            else (pc, n, k, tg, cf, nt) for pc, n, k, tg, cf, nt in rows]
     with open(P('config', 'indirect_targets.tsv'), 'w', newline='\n') as f:
         f.write('# Indirect call/jump sites unresolved by psxrecomp-analyze (see analysis/indirect.py; RECOMP_NOTES.md "Indirect call resolution").\n'
                 '# site_pc\tprogram(boot|A|B|C)\tkind\ttargets\tconfidence\tnote\n')
