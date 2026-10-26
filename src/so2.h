@@ -474,3 +474,4 @@ typedef struct { char pad0[0x10]; int w10; } S_80036658;
 typedef struct { char pad0[0xC]; int wC; } S_800366F0;
 typedef struct { int w0; unsigned char b4[0x2C]; } S_8003B5DCe;
 typedef struct { char pad0[0x820]; S_8003B5DCe *p820; } S_8003B5DC;
+typedef struct { char pad0[0x4A]; short h4A; } S_8003B404;
