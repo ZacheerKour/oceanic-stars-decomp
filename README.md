@@ -22,8 +22,8 @@ of both USA discs. The scripts here read them locally.
 **Decomp**
 - Both discs and the boot executable analysed; the `SO2.BIN` archive (encrypted table of contents, SLZ compression) is
   understood, documented ([docs/](docs/)) and extractable. See [ANALYSIS.md](ANALYSIS.md).
-- 432 functions of the main overlay (program A) byte-match with GCC 2.7.2-psx `-O2 -G0` (`scripts\match.ps1`), 429 of them passing
-  the project's rule checker (`scripts\rules.py`, 1 failure and 2 more known pending, 433 files); that compiler is about 95% confident. Four loop functions
+- 438 functions of the main overlay (program A) byte-match with GCC 2.7.2-psx `-O2 -G0` (`scripts\match.ps1`), 433 of them passing
+  the project's rule checker (`scripts\rules.py`, 1 failure and 2 more known pending, 439 files); that compiler is about 95% confident. Four loop functions
   are parked as walls. Only leaf and simple frame/call/loop functions so far; switch tables, `.rodata` and larger frames are untested.
 - Every code overlay has a load address ([config/overlays.tsv](config/overlays.tsv)), found by static analysis only.
 - The game code lives mostly in overlays loaded from `SO2.BIN`, not in the 128 KB boot executable.
