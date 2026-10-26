@@ -5,7 +5,7 @@ S_80030CBC *func_80030B0C(S_80030CBC *o) {
 	D_8004DDC4 = o;
 	func_80023F10(o, 0, 56);
 	func_80013428(&a, &b);
-	o->w0 = b;
+	o->u0.w = b;
 	D_8004EBFC = func_80012108(D_8004EBE0, 2);
 	D_8004DDA4 = func_80012108(D_8004EBE0, 6);
 	D_8004DDA8 = func_80012108(D_8004EBE0, 3);
