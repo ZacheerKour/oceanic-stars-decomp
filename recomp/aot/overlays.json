@@ -2,7 +2,6 @@
  "schema": "psxrecomp AOT methods v1",
  "game_id": "SCUS-94421",
  "x_todo": [
-  "TODO(verify) disc_hashes: sha256 of each original data track",
   "GUESSED: images[].method \"slz_members\" does not exist upstream; it is the proposed SLZ-in-SO2.BIN extractor (docs/SLZ.md, docs/SO2BIN_TOC.md)",
   "GUESSED: expected_records = 1 exe + unique (load_addr, sha256) members; upstream may count compositions/aliases differently"
  ],
@@ -10,13 +9,13 @@
   {
    "name": "disc1",
    "disc_hashes": {
-    "sha256": "TODO(verify)"
+    "sha256": "ca9afe72699acd1994260fd00bedb0b017ac30678bfdc2b2b1022112fa872f33"
    }
   },
   {
    "name": "disc2",
    "disc_hashes": {
-    "sha256": "TODO(verify)"
+    "sha256": "a0ce7dd1d9dedbdfce6d706bcf15bc2a7bb497041eacee1df1af1f3cfdab5835"
    }
   }
  ],

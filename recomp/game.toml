@@ -1,18 +1,18 @@
 # psxrecomp game.toml scaffold for Star Ocean: The Second Story (USA), 2 discs.
 # Schema: tools/ref/psxrecomp/docs/config_schema.md. NOTHING HERE HAS BEEN RUN through psxrecomp yet.
-# Every value not checked by a tool is marked TODO(verify). Paths are relative to the *title project root* (a separate,
+# Values checked against the local discs (analysis/disc_facts.py, 2026-10-26) carry no TODO; the rest are marked TODO(verify) with a reason. Paths are relative to the *title project root* (a separate,
 # private repo that pins psxrecomp as a submodule), not to this repo; see recomp/README.md.
 
 [game]
 name = "Star Ocean - The Second Story (USA)"
-id = "SCUS-94421"                       # TODO(verify): from SYSTEM.CNF BOOT = cdrom:\SCUS_944.21;1 (disc 1); psxrecomp probe_disc.py should confirm
-exe = "disc/SCUS_944.21"                # TODO(verify): path after `prepare_disc` copies the boot exe out
-discs = ["disc/SO2 (Disc 1).cue", "disc/SO2 (Disc 2).cue"]   # TODO(verify): your own cue files
-disc_serials = ["SCUS-94421", "SCUS-94422"]                  # TODO(verify): disc 2 SYSTEM.CNF says SCUS_944.22 (the exe bytes are identical on both)
-load_address = "0x80010000"             # TODO(verify): PS-X header +0x18 reads 0x80010000 on our local copy
-entry_pc = "0x80010008"                 # TODO(verify): PS-X header +0x10 reads 0x80010008 locally (the game's main() is at 0x80010650)
-text_size = "0x1F800"                   # TODO(verify): header +0x1C reads 0x1F800 (129024 B); file is 131072 B incl. 0x800 header
-stack_base = "0x801FFF00"               # TODO(verify): SYSTEM.CNF STACK = 801fff00 (psxrecomp default is 0x801FFFF0)
+id = "SCUS-94421"                       # disc 1 SYSTEM.CNF: BOOT = cdrom:\SCUS_944.21;1
+exe = "disc/SCUS_944.21"                # TODO(verify): depends on the private title repo layout / what prepare_disc writes; not decidable from the discs
+discs = ["disc/SO2 (Disc 1).cue", "disc/SO2 (Disc 2).cue"]   # TODO(verify): file names are whatever the title repo uses for the user's own cues
+disc_serials = ["SCUS-94421", "SCUS-94422"]                  # SYSTEM.CNF BOOT: SCUS_944.21 (disc 1), SCUS_944.22 (disc 2); both exes have the same sha256
+load_address = "0x80010000"             # PS-X header +0x18
+entry_pc = "0x80010008"                 # PS-X header +0x10 (the game's main() is at 0x80010650)
+text_size = "0x1F800"                   # PS-X header +0x1C (129024 B); file is 131072 B incl. the 0x800 header; 4 KiB aligned
+stack_base = "0x801FFFF0"               # PS-X header initial sp (+0x30; header gp is 0). SYSTEM.CNF STACK = 801fff00 is the BIOS kernel stack, not the exe sp; equals psxrecomp default
 
 [recompiler]
 seeds = "seeds/seeds.txt"               # copy of config/seeds.txt (boot exe only, heuristic: jal targets + prologues) TODO(verify)
@@ -20,12 +20,12 @@ out_dir = "generated"
 strict = true                           # TODO(verify): upstream says "currently always true"
 discovery = "whole-image"               # TODO(verify): "reachable" is the stricter alternative once seeds are trusted
 
-[prepare_disc]                          # TODO(verify): digests are produced by psxrecomp probe_disc.py / verify-disc; not computed here
-# out_dir = "disc"
-# boot_exe = "SCUS_944.21"
-# known_sizes = [ ... ]                 # TODO(verify)
-# known_md5   = [ ... ]                 # TODO(verify)
-# known_sha1  = [ ... ]                 # TODO(verify)
+[prepare_disc]                          # parallel lists, disc 1 then disc 2: our local single-track .bin dumps (not compared with Redump: no offline DB)
+# out_dir = "disc"                      # TODO(verify): title-repo layout
+# boot_exe = "SCUS_944.21"              # TODO(verify): key name/semantics to be confirmed against prepare_disc.py when it may be run
+known_sizes = [556320912, 723338784]
+known_md5   = ["c560c795e534261f4a0df5c98099f905", "d501280365480367395073aeee4dc52c"]
+known_sha1  = ["ccd092233b353d2aa7bb80ecdb2b76f456430b41", "68178c55a430eab3e97eb51ec4a164d36f228aa1"]
 
 [runtime]
 overlay_cache = false                   # TODO(verify): Xenogears pattern (AOT only); keep true while overlays are not yet in the AOT profile
