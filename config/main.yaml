@@ -1,0 +1,29 @@
+name: SO2 main overlay (SO2.BIN entry 1)
+sha1: 186dcf874a4edb0c45ed5ce457f08a8e40e1bb70
+options:
+  basename: main
+  target_path: build/main.bin
+  base_path: ..
+  platform: psx
+  compiler: GCC
+  asm_path: build/asm
+  src_path: src
+  build_path: build
+  asm_inc_header: ""
+  symbol_addrs_path: config/symbols.txt
+  find_file_boundaries: false
+  create_asm_dependencies: false
+  disassemble_all: true
+  generate_asm_macros_files: false
+  ld_script_path: build/main.ld
+  section_order: [".text", ".data", ".rodata", ".bss"]
+segments:
+  - name: main
+    type: code
+    start: 0x0
+    vram: 0x8002f810
+    subalign: 4
+    subsegments:
+      - [0x0, asm, main_code]
+      - [0x10000, bin, rest]
+  - [0x453d4]
