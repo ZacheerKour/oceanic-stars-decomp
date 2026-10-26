@@ -1,4 +1,4 @@
-/* wall: non-rotated (top-tested) loop; retail hoists table consts above the loop and jumps back to the lbu at the bottom (same class as 800361CC/800386FC). Tried while(c=*src++), for(;;)+break, test-before-increment: all rotate. Semantics are right (text -> pair table D_8004B8C8, 64 = shift marker, 32 = skip pad), 109 bytes differ */
+/* wall: non-rotated (top-tested) loop, exit block at function end; 108-111 bytes differ. Retail hoists consts above the loop and jumps back to the lbu; ours rotates (duplicates lbu before loop). func_80038354 (same family) matched with unsigned char c (andi before the test blocks rotation) and dst[n++] (giv init move lands after hoisted consts); here c is a plain int so the test is a bare lbu+beqz and gcc rotates. Tried: dst[n++] vs out++, while(*src), c=*src++, goto, do-while, continue, return-in-loop (unrotated but exit inline), decl order (120 perms). Semantics: text -> pair table D_8004B8C8, 64 = shift marker, 32 = skip pad. */
 #include "so2.h"
 unsigned char *func_800382BC( unsigned char *src, unsigned char *dst ) {
     unsigned char *out;

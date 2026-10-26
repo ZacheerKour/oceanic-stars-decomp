@@ -112,7 +112,7 @@ extern S_8004A2BC *D_8004EC20;
 /* cleanup: shared types and declarations formerly local to func_*.c */
 typedef struct { short h0; short h2; int w4[7]; } S_80032918;
 typedef struct { unsigned short v; short pad2[3]; } S_80035AFC;
-typedef struct { unsigned short h0; short pad2; int w4; char pad8[8]; int w10; } S_80038DBC;
+typedef struct { unsigned short h0; short h2; int w4; char pad8[4]; unsigned short hC; short hE; int w10; } S_80038DBC;
 typedef struct {
 	char pad0[8];
 	void *p8;
@@ -174,7 +174,7 @@ typedef struct { int w0; int w4; int w8; } S_8003C57C;
 extern int D_8004B9F4[], D_8004B868[];
 void func_80038BC4();
 void func_8003823C();
-void func_80038960();
+int func_80038960(int, short, unsigned short, int, unsigned short, short);
 int func_8003BEBC();
 int func_8003BFBC();
 extern int *D_8004E0D8[][2];
@@ -496,3 +496,4 @@ S_800368EC *func_800368EC();
 extern S_800368EC *D_8004EFB4;
 typedef struct { char pad0[0x184]; short h184, h186; } S_8003A5AC;
 extern S_8003A5AC *D_8004EBFC;
+int func_80038A1C();
