@@ -392,3 +392,8 @@ extern int D_8004DED4;
 extern unsigned char D_8004E234[];
 extern int D_8004BCB4[];
 typedef struct { char pad0[0xFC0]; int wFC0, wFC4, wFC8, wFCC; } S_800380B8;
+extern void *D_8004DD9C;
+extern char D_8004BCC4[];
+typedef struct { unsigned char b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, bA, bB, bC, bD; } S_8003A3C4s;
+typedef struct { unsigned short h0, h2, h4, h6, h8, hA, hC, hE; } S_8003A3C4d;
+typedef struct { S_8003A3C4d *p0; } S_8003A3C4;
