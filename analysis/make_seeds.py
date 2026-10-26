@@ -3,7 +3,8 @@
 Writes config/seeds.txt (boot exe, psxrecomp seeds format: one hex address per line), config/seeds_overlays.txt (per-module
 sections) and config/symbols.toml (29 byte-matched functions = confirmed, splat function labels of the main overlay = guessed).
 Output has addresses and names only.  Heuristic: jal targets inside a module + `addiu sp,sp,-N` prologues (false positives
-possible in data; psxrecomp validates seeds).  Needs roms/disc1 + extracted/SCUS_944.21; splat labels need build/asm/main_code.s."""
+possible in data; psxrecomp validates seeds).  Also merges the call-type targets of config/indirect_targets.tsv
+(written by analysis/indirect.py; optional, idempotent).  Needs roms/disc1 + extracted/SCUS_944.21; splat labels need build/asm/main_code.s."""
 import os, re, sys, json, struct
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 sys.path.insert(0, os.path.join(ROOT, 'analysis'))
@@ -19,6 +20,28 @@ def scan(b, base):
     jal = {((x & 0x3ffffff) << 2) | 0x80000000 for x in w if x >> 26 == 3}
     pro = {base + 4 * i for i, x in enumerate(w) if x >> 16 == 0x27bd and x & 0x8000}
     return jal, pro
+
+
+MOD = {'A': 'e1c0', 'B': 'e2129c0', 'C': 'e2576c0'}
+SEED_KINDS = {'const_target', 'static_slot_init', 'static_slot_stored', 'fnptr_table', 'arg_register', 'struct_member',
+              'vtable_dispatch', 'global_struct_member'}   # call-type kinds only; jump_table_* targets are inside a function
+
+
+def indirect_seeds():
+    """Call targets from config/indirect_targets.tsv (written by analysis/indirect.py) -> ({exe addrs}, {module id: {addrs}}).
+    A target token is `addr` (in the site's own image, or the exe) or `P:addr` (program P, from a boot-exe site)."""
+    exe, mods = set(), {m: set() for m in MOD.values()}
+    f = P('config', 'indirect_targets.tsv')
+    if not os.path.exists(f): return exe, mods
+    for l in open(f):
+        if l.startswith('#'): continue
+        pc, prog, kind, tg = l.rstrip().split(chr(9))[:4]
+        if kind not in SEED_KINDS or not tg: continue
+        for t in tg.split(','):
+            pp, a = (t.split(':') if ':' in t else (prog, t)); a = int(a, 16)
+            if EXE_BASE <= a < EXE_END: exe.add(a)
+            elif pp in MOD and a >= 0x8002f810 and a % 4 == 0: mods[MOD[pp]].add(a)
+    return exe, mods
 
 
 def main():
@@ -38,6 +61,7 @@ def main():
     inexe = lambda t: EXE_BASE <= t < EXE_END and t % 4 == 0
     exe_seeds = {t for t in jal0 if inexe(t)} | pro0 | {0x80010008}
     sections, cross = [], 0
+    mods_by_id = [(o['id'], b) for o, b in mods]
     for o, b in mods:
         base = int(o['load_addr'], 16)
         jal, pro = scan(b, base)
@@ -45,6 +69,10 @@ def main():
         exe_seeds |= cross_t; cross += len(cross_t)
         own = {t for t in jal if base <= t < base + len(b) and t % 4 == 0} | pro
         sections.append((o, base, sorted(own)))
+    ix_exe, ix_mod = indirect_seeds()
+    exe_seeds |= ix_exe
+    sections = [(o, base, sorted(set(ents) | {a for a in ix_mod.get(o['id'], ()) if a < base + len(dict(mods_by_id)[o['id']])}))
+                for o, base, ents in sections]
     main_a = next(s for s in sections if s[0]['id'] == 'e1c0')
     # splat labels (local build/asm only)
     splat = set()
