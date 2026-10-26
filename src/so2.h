@@ -113,7 +113,7 @@ typedef struct { char pad0[8]; unsigned char b8[1]; } S_8004A2BC;
 extern S_8004A2BC *D_8004EC20;
 
 /* cleanup: shared types and declarations formerly local to func_*.c */
-typedef struct { int w[8]; } S_80032918;
+typedef struct { short h0; short h2; int w4[7]; } S_80032918;
 typedef struct { unsigned short v; short pad2[3]; } S_80035AFC;
 typedef struct { char b[20]; } S_80038DBC;
 typedef struct {
@@ -218,7 +218,7 @@ typedef struct { char pad0[8]; struct S_80071588b *p8; } S_80071588;
 typedef struct S_80071588b { char padE[0xE]; unsigned short hE; } S_80071588b;
 typedef struct { char pad0[0xC]; S_8003E86C *pC; } S_8006E6F8;
 extern short D_8004EC18, D_8004EC1A;
-void func_800493CC();
+void *func_800493CC();
 void func_8006E5E0();
 void func_8006F0D0();
 void func_800743E8();
@@ -312,3 +312,26 @@ void func_8003BCB8();
 int func_800104D4();
 typedef struct { unsigned short h0[0x412]; unsigned char b2084[1]; } S_8003B83C;
 int func_80012E04();
+/* wave3 lane3 */
+typedef struct { char pad0[4]; void *p4; char pad8[0x14]; S_80042BB0 *p1C; } S_80049458;
+typedef struct { char pad0[4]; void *p4; char pad8[0x10]; unsigned char b18; char pad19[3]; S_80042BB0 *p1C; } S_800493CC;
+typedef struct { char pad0[0x447C]; S_80042BB0 *p447C; } S_8004137C;
+extern char D_8004D548[];
+extern int D_8004EBE4, D_8004EC6C;
+extern short D_8004ECB0[];
+extern void *D_8004EBFC, *D_8004EC24;
+void func_8003C07C();
+void func_8003C0E0();
+void func_8003C57C();
+void func_8003C5B4();
+void func_80011B48();
+int func_80011B88();
+void func_80021108();
+int func_8004A6D4();
+void func_80048F7C();
+typedef struct { char pad0[0x20]; int w20; } S_80048D2C;
+typedef struct { int w[34]; } S_80041100r;
+typedef struct { S_80041100r r[128]; int w4400[24]; int w4460; int w4464; char pad4468[0x14]; S_80042BB0 *p447C; } S_80041100;
+void func_8004A438();
+void func_8004A500();
+void func_8004950C();
