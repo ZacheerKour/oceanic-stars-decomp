@@ -459,3 +459,8 @@ S_80038228 *func_80038228();
 S_80036540 *func_80036658();
 void func_80036124();
 S_8003A174 *func_8003A174();
+typedef struct { char *p0; short h4; char pad6[6]; } S_80031290e;
+typedef struct { char pad0[0xFD0]; S_80031290e e[2]; char padFE8[4]; short hFEC; short hFEE; } S_80031290;
+void func_800368EC();
+S_80031290 *func_80031290();
+void func_80031324();
