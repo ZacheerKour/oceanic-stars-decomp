@@ -1,0 +1,11 @@
+# Generator config for main program A (SO2.BIN entry 1) as a standalone image, used only to compare discovery modes
+# on the host (RECOMP_NOTES.md '2026-10-26 Host compile, A data region, overlay decoder'). Not the AOT path:
+# the real pipeline compiles overlays with --overlay (exact entries). A.exe = stage_overlays.py wrapper.
+[game]
+name = "SO2 program A"
+exe = "A.exe"
+
+[recompiler]
+seeds = "A.seeds.txt"
+out_dir = "generated"
+discovery = "reachable"   # f42d2c0 has no data-range exclusion key; exact-entry walk from seeds keeps 0x800509DC-0x80061C58 (data) out

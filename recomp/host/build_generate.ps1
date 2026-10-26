@@ -4,8 +4,10 @@ for the boot exe (recomp\game.toml) and main program A. Allowed only for the aud
 RECOMP_NOTES.md '2026-10-26 psxrecomp safety audit' (verdict SAFE WITH CAVEATS). Never run psxrecomp_cli.py, the codegen
 host, tools\*.py or any prebuilt exe of the clone (overlay_toolchain\, .cache\).
 Uses the installed VS 2022 Build Tools (MSVC + bundled CMake/Ninja), environment for this process only. Output: recomp\host\_out\ (gitignored).
-Usage: $env:SO2_DATA=<main checkout>; powershell -NoProfile -ExecutionPolicy Bypass -File recomp\host\build_generate.ps1
+Usage: $env:SO2_DATA=<main checkout>; powershell -NoProfile -ExecutionPolicy Bypass -File recomp\host\build_generate.ps1 [-OutName _out] [-ASeeds <file>]
+Nothing is deleted: reruns overwrite (the generator drops its own stale shards). Use a new -OutName for a clean run.
 #>
+param([string]$OutName = '_out', [string]$ASeeds = '')
 $ErrorActionPreference = 'Stop'
 $Commit = 'f42d2c004b3dd6ef6ccb83101b40ede55f24bf59'   # audited
 $ExeSha = 'b93e42462aceec120cfad1bfc3cf08f933196ab24a4e018b5f494c74e213abe7'   # SCUS_944.21
@@ -13,7 +15,7 @@ $here = $PSScriptRoot
 $repo = (Resolve-Path (Join-Path $here '..\..')).Path
 $data = if ($env:SO2_DATA) { (Resolve-Path $env:SO2_DATA).Path } else { $repo }
 $src = Join-Path $data 'tools\ref\psxrecomp'
-$O = Join-Path $here '_out'; $B = Join-Path $O 'build'; $P = Join-Path $O 'proj'
+$O = Join-Path $here $OutName; $B = Join-Path $O 'build'; $P = Join-Path $O 'proj'
 $vs = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools'
 function Sha($p) { (Get-FileHash -Algorithm SHA256 -LiteralPath $p).Hash.ToLower() }
 
@@ -35,7 +37,6 @@ if (& git -C $src status --porcelain --ignored) { throw 'the build wrote into th
 $gen = Join-Path $B 'psxrecomp-game.exe'
 
 # minimal project for the boot exe, same layout as the sandbox run (run_in_sandbox.ps1 step 7)
-Remove-Item -Recurse -Force $P -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force "$P\disc", "$P\seeds", "$P\bios", "$O\stage" | Out-Null
 $exe = Join-Path $data 'extracted\SCUS_944.21'
 if ((Sha $exe) -ne $ExeSha) { throw 'SCUS_944.21 SHA-256 mismatch' }
@@ -46,11 +47,19 @@ Copy-Item "$src\bios\SCPH1001.toml" "$P\bios\SCPH1001.toml"
 Set-Content "$P\.gitignore" 'generated/'   # find_project_root stops here
 & python -I (Join-Path $repo 'recomp\sandbox\stage_overlays.py') $repo "$O\stage"   # A.exe + A.seeds.txt (and B, C)
 if ($LASTEXITCODE) { throw 'stage_overlays.py failed' }
+if ($ASeeds) { Copy-Item $ASeeds "$O\stage\A.seeds.txt" }   # alternative A seed list (0x-prefixed)
+# program A again with [recompiler] discovery = "reachable" (exact-entry walk from the seeds; no data-as-code sweep)
+$R = Join-Path $O 'proj_reach'
+New-Item -ItemType Directory -Force "$R\bios" | Out-Null
+Copy-Item "$O\stage\A.exe", "$O\stage\A.seeds.txt" $R
+Copy-Item (Join-Path $here 'A_reachable.toml') "$R\game.toml"
+Copy-Item "$src\bios\SCPH1001.toml" "$R\bios\SCPH1001.toml"
+Set-Content "$R\.gitignore" 'generated/'
 
 $runs = @(@('boot', "$P\generated", @('--config', "$P\game.toml", '--project-root', $P)),
-          @('A', "$O\gen_A", @("$O\stage\A.exe", '--seeds', "$O\stage\A.seeds.txt", '--out-dir', "$O\gen_A", '--project-root', $P)))
+          @('A', "$O\gen_A", @("$O\stage\A.exe", '--seeds', "$O\stage\A.seeds.txt", '--out-dir', "$O\gen_A", '--project-root', $P)),
+          @('A_reach', "$R\generated", @('--config', "$R\game.toml", '--project-root', $R)))
 foreach ($r in $runs) {
-  Remove-Item -Recurse -Force $r[1] -ErrorAction SilentlyContinue
   & $gen @($r[2]) *> "$O\generate_$($r[0]).log"
   $rc = $LASTEXITCODE
   $f = @(Get-ChildItem $r[1] -File -ErrorAction SilentlyContinue)

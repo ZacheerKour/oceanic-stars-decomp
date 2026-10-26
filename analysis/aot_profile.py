@@ -28,7 +28,9 @@ def selftest():
         assert used == 16 + struct.unpack_from('<I', blob, 4)[0] <= len(blob), m['name']
     for bad in (b'XYZ\x00' + bytes(12), bytes.fromhex('534c5a0104000000040000000000000000' '0500'),
                 b'SLZ\x00' + (3).to_bytes(4, 'little') * 2 + bytes(4) + b'ab',          # v0 truncated
-                b'SLZ\x02' + (2).to_bytes(4, 'little') + (5).to_bytes(4, 'little') + bytes(4) + b'\xff\x41\x42'):  # payload overrun
+                b'SLZ\x02' + (2).to_bytes(4, 'little') + (5).to_bytes(4, 'little') + bytes(4) + b'\xff\x41\x42',  # payload overrun
+                b'SLZ\x03' + (2).to_bytes(4, 'little') * 2 + bytes(4) + b'\xff\x41',  # unknown version
+                b'SLZ\x02' + (2).to_bytes(4, 'little') + (0x200001).to_bytes(4, 'little') + bytes(4) + b'\xff\x41'):  # dsize > RAM
         try:
             slz.prepared(bad); raise AssertionError(f'accepted {bad.hex()}')
         except ValueError:
@@ -38,7 +40,7 @@ def selftest():
 
 def main():
     n = selftest()
-    print(f'self-test: slz.prepared OK on {n} vectors + 4 malformed inputs')
+    print(f'self-test: slz.prepared OK on {n} vectors + 6 malformed inputs')
     if not os.path.exists(DISC1):
         print('SKIP: no local disc 1 (roms/disc1); profile not written'); return 0
     import iso, toc

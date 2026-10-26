@@ -38,11 +38,15 @@ def prepared(d,spec=None):
     """psxrecomp prepared_files decoder contract (tools/prepared_files.py METHODS): one chunk at d[0] -> (output, consumed).
     consumed = 16 + csize (header + declared payload). Strict: bad magic/stream, size != dsize, or a stream that reads past
     the declared payload is a ValueError (the only error prepared_files turns into PreparedError)."""
+    # prepared_files passes the whole rest of the source file and hashes the input only after decoding, so the
+    # decoder sees unverified bytes: decode from the declared chunk alone and only versions 0-2 (v3+ never stops at dsize)
+    if len(d)<16 or bytes(d[:3])!=b'SLZ' or d[3]>2: raise ValueError('not a valid SLZ chunk: bad header or version')
+    csize,dsize=struct.unpack_from('<II',d,4)
+    if dsize>0x200000: raise ValueError(f'dsize {dsize:#x} exceeds PS1 main RAM')
     try:
-        out,_,end=_dec(d,0)
+        out,_,end=_dec(bytes(d[:16+csize]),0)
     except (AssertionError,IndexError,struct.error) as e:
         raise ValueError(f'not a valid SLZ chunk: {e!r}')
-    csize,dsize=struct.unpack_from('<II',d,4)
     if len(out)!=dsize: raise ValueError(f'decoded {len(out)} bytes, header says {dsize}')
     if end>16+csize: raise ValueError(f'stream reads {end-16} payload bytes, header declares {csize}')
     return out,16+csize
