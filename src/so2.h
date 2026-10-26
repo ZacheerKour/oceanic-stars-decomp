@@ -430,3 +430,6 @@ typedef struct { unsigned short h0; unsigned short h2; } S_8006F0D0_pt;
 /* lane 3 wave 5 additions */
 S_800733A8 *func_8003214C();
 void func_800322F8();
+typedef struct { char pad0[0x20]; short h20; char pad22[2]; void (*fn24)(); } S_800744DC_vt;
+typedef struct S_800744DC_o { char pad0[4]; S_800744DC_vt *p4; } S_800744DC_o;
+typedef struct { char pad0[0x14]; S_800744DC_o *p14; } S_800744DC;
