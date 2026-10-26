@@ -529,3 +529,6 @@ typedef struct { char pad0[0x14]; unsigned short h14; unsigned short h16; char p
 typedef struct { union { int w0; S_8003EC54_tag tag; } u; int w4; short h8, hA; int wC; short h10, h12; int w14; short h18, h1A; int w1C; short h20, h22; } S_80073204p;
 typedef struct { char pad0[0xC]; S_8003EC54_tag *pC; } S_80073204o;
 typedef struct { char pad0[0x58]; S_80073204o *p58; } S_80073204;
+typedef struct { char pad0[0x50]; short h50; char pad52[2]; void (*fn54)(); short h58; char pad5A[2]; void (*fn5C)(); } S_80073F24_vt;
+typedef struct { char pad0[0x2E]; unsigned short h2E; } S_80073F24_n;
+typedef struct { char pad0[4]; S_80073F24_vt *p4; char pad8[8]; void *p10; char pad14[0x10]; int w24; int w28; char pad2C[0xA]; short h36; char pad38[4]; S_80073F24_n *p3C; short h40; } S_80073F24;
