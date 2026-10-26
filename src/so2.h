@@ -340,7 +340,7 @@ short func_8006DAC0(int, int, int, short, short);
 extern short D_80074BD0, D_80074BD4;
 /* wave4 lane 1 additions */
 typedef struct S_80034BF0 { char pad0[8]; short h8; short hA; } S_80034BF0;
-void func_800315F4();
+int func_800315F4();
 void func_8003161C();
 void func_800316F4();
 int func_80034110();
@@ -535,3 +535,8 @@ typedef struct { char pad0[4]; S_80073F24_vt *p4; char pad8[8]; void *p10; char 
 typedef struct { int w0; int w4; } S_80046E64h;
 typedef union { S_80046E64h h; char b[1]; } S_80046E64;
 extern int D_8004EB18;
+
+/* wave 7 lane 1 */
+typedef struct { char pad0[8]; int w8; } S_8002F890;
+typedef struct { char pad0[0xFEC]; short hFEC; } S_800317CC;
+typedef struct { short h0; short h2; } S_80035A9C;
