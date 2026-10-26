@@ -1,0 +1,8 @@
+# wave7 lane2: addr	size	status
+0x8003C5EC	748	DONE (switch after an if(sel==1) pre-step: jump threading skips the dispatch; o->p4 stored before the call so buf is not kept in a saved reg)
+0x800378F0	624	OPEN (wip; register residue only: retail keeps q=&o in s0 with no reg for buf, ours caches the buf address in s0 and q moves to s1; loop `do{n++;p++}while(next(p)==p)` with int n + `i<s->h78A` reproduces the delay-slot n++/n-- exactly)
+0x80036240	356	OPEN (wip; 120-variant grid: reuse i/t as loop var, unsigned f, separate g, while/for shapes, init order: best 19 bytes, no gain)
+0x80038A1C	392	OPEN (wip; frame 56 vs 64: retail has an extra 8-byte stack object, no genuine source for it; not a reg residue)
+0x800382BC	152	OPEN (not touched)
+0x8003B638	376	OPEN (not touched)
+0x8003B5DC	92	MATCH-PENDING (no type recovered: raw byte offset a2 with lh at e+a2, lbu at e+a2; a union/short-array index would scale a2)
