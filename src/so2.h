@@ -588,7 +588,7 @@ typedef struct { char pad0[4]; S_80073910v *p4; int w8; } S_80073910o;
 typedef struct { S_80073910o *p0; int w4; unsigned w8; } S_80073910e;
 typedef struct { char pad0[8]; S_80073910e *p8; int wC; } S_80073910s;
 extern char D_80074AC0[];
-void *func_80036074();
+S_800360BC *func_80036074();
 typedef struct { char pad0[4]; void *p4; S_80036540 *p8; S_8003C57C *pC; void *p10; void *p14; int w18; int w1C; int w20; int w24; int w28; short h2C, h2E, h30, h32, h34, h36, h38; char pad3A[2]; int w3C; short h40, h42; unsigned short h44; char b46; } S_80073754;
 typedef struct { char pad0[0x54]; void *p54; } S_8006F628;
 typedef struct { short h0, h2, h4, h6, h8, hA, hC, hE, h10; short h12[10]; } S_8006E940o;
