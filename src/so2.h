@@ -271,3 +271,13 @@ void func_8003186C();
 typedef struct { char pad0[0x1E]; short h1E; short h20; char pad22[2]; int w24; } S_800323BCe;
 typedef struct { char pad0[8]; S_800323BCe *p8[1]; } S_800323BC;
 void func_8003244C();
+/* wave3 lane2 */
+typedef struct { int w0; int w4; unsigned int w8; } S_80036540e;
+typedef struct { char pad0[8]; S_80036540e *p8; int wC; int w10; int w14; } S_80036540;
+int func_80036664();
+void func_80036818();
+void func_80024B50();
+void func_80024AD0();
+void func_80024B60();
+void *func_8001FE30();
+void func_80023ED0();
