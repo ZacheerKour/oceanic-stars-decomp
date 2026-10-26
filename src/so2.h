@@ -467,3 +467,8 @@ void func_80031324();
 typedef struct { char pad0[0x20]; unsigned char b20[16]; } S_80030D64;
 extern unsigned short D_8004B410[];
 int func_800349D8();
+typedef struct { unsigned int addr:24; unsigned int len:8; } S_8003EA00g;
+typedef struct { char pad0[4]; void *p4; char pad8[4]; S_8003EA00g *p0C; } S_8003EA00q;
+typedef struct { S_8003EA00q *p0; } S_8003EA00p;
+typedef struct { char pad0[0x10]; int w10; } S_80036658;
+typedef struct { char pad0[0xC]; int wC; } S_800366F0;
