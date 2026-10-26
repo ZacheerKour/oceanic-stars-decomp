@@ -1,0 +1,14 @@
+# wave3 lane1 candidates (addr, size, status)
+0x80031C04	84	MATCHED
+0x800339A8	80	MATCHED
+0x800340C0	80	MATCHED
+0x80035F8C	80	MATCHED
+0x80035BEC	80	MATCHED
+0x80032558	92	MATCHED
+0x800317E0	140	MATCHED
+0x80035AA4	88	OPEN (wip, register)
+0x800323BC	144	OPEN (wip, register)
+0x80030974	156	OPEN (wip, register + offset cast)
+0x80033FD0	224	OPEN (wip, loop shape + offset cast)
+0x80031290	148	OPEN (non-rotated outer loop wall, not attempted)
+0x80031324	140	OPEN (non-rotated loop wall, not attempted)
