@@ -1,7 +1,8 @@
 # AGENTS.md - project guide
 
-Goal: byte-matching decomposition of Star Ocean: The Second Story (USA, PS1), then a native PC port
-(`/native-platform-porting`). Method skills: https://github.com/lemiur/Game-Decompilation-Skill-For-Claude.
+Goal: a decomp AND recomp project for Star Ocean: The Second Story (USA, PS1). Decomp track: byte-matching source.
+Recomp track: native PC port via psxrecomp (see RECOMP_NOTES.md, recomp/), fed by the decomp's symbols, overlay map and
+seeds. The decomp does not have to reach 100% before the recomp can progress. Method skills: https://github.com/lemiur/Game-Decompilation-Skill-For-Claude.
 This file overrides the skills' defaults.
 
 ## Project adapter
