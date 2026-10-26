@@ -1,5 +1,5 @@
 """Compare psxrecomp-analyze output for main program A (SO2.BIN entry 1) with our matches and seeds.
-Run: python -I scripts/compare_analyzer.py [sandbox_out_dir]   (default recomp/sandbox/_out; reads <dir>/A/{seeded,exact}/functions.tsv)
+Run: python -I scripts/compare_analyzer.py [sandbox_out_dir]   (default recomp/sandbox/_out_run2; reads <dir>/A/{seeded,exact}/functions.tsv)
 Prints addresses/sizes/counts only. Exit 1 if any matched function is missing or has a different size in the seeded run."""
 import sys
 from pathlib import Path
