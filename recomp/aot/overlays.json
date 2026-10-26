@@ -1,25 +1,1419 @@
 {
  "schema": "psxrecomp AOT methods v1",
  "game_id": "SCUS-94421",
- "x_todo": [
-  "GUESSED: images[].method \"slz_members\" does not exist upstream; it is the proposed SLZ-in-SO2.BIN extractor (docs/SLZ.md, docs/SO2BIN_TOC.md)",
-  "GUESSED: expected_records = 1 exe + unique (load_addr, sha256) members; upstream may count compositions/aliases differently"
+ "x_notes": [
+  "needs the so2_slz prepared_files method registered in tools/prepared_files.py METHODS: 'so2_slz': (slz.prepared, ()) with analysis/slz.py importable (RECOMP_NOTES.md 2026-10-26)",
+  "disc 1 only: disc 2 has no SO2.BIN directory entry; its code chunks are byte-identical, so the shards serve both",
+  "TODO(verify) expected_records: 1 boot exe + one per unique chunk assumes the generic extractor finds the exe as one recipe and no overlay; first extract run prints the real count"
  ],
- "disc_set": [
+ "disc_hashes": {
+  "sha256": "ca9afe72699acd1994260fd00bedb0b017ac30678bfdc2b2b1022112fa872f33"
+ },
+ "prepared_files": [
   {
-   "name": "disc1",
-   "disc_hashes": {
-    "sha256": "ca9afe72699acd1994260fd00bedb0b017ac30678bfdc2b2b1022112fa872f33"
-   }
+   "name": "SLZ/E1C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x6000"
+   },
+   "consumed": "0x1f169",
+   "source_sha256": "3643535c83f63326e49fa9458769feb5c23e7e8100de4d31a3617e8883e517aa",
+   "size": "0x453d4",
+   "sha256": "2c1345cfc74b55b3646ea2d8caabd0382cdb4c94c65b440e66d7d3e1008002fb",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "main program A (boot, entry 1)"
   },
   {
-   "name": "disc2",
-   "disc_hashes": {
-    "sha256": "a0ce7dd1d9dedbdfce6d706bcf15bc2a7bb497041eacee1df1af1f3cfdab5835"
-   }
+   "name": "SLZ/E1981C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2da5800"
+   },
+   "consumed": "0x1924",
+   "source_sha256": "a36e8b29bd692153eb82a43c2dfe99061832ff506744c130de161bce82906922",
+   "size": "0x2b3c",
+   "sha256": "8a0fdd7e34f2da59df03fd8f2c2152d824c054443b8ce5e1c6da7b5d0283fd94",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle overlay (follows 1984/1)"
+  },
+  {
+   "name": "SLZ/E1984C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2db1800"
+   },
+   "consumed": "0x8487",
+   "source_sha256": "bb3c85eb2683e8a330d8e2a70924923b32d330714082959ce48addfaa269c162",
+   "size": "0x10158",
+   "sha256": "bd010ffb60023e1f247174725bab228a1b6beebdb7b7cdd07e2024c3e84f4d05",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle overlay main part"
+  },
+  {
+   "name": "SLZ/E1984C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2db9c88"
+   },
+   "consumed": "0x21e1",
+   "source_sha256": "0d11a2c6756b833878a102baf727bd5188aa0e280ff4d2a04d02138ca19b4568",
+   "size": "0x3df0",
+   "sha256": "01c054dd0f3087b93facce9344c74fafa13afc6daba866849719bf499e46fa3a",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle overlay part 2 (directly follows chunk 0)"
+  },
+  {
+   "name": "SLZ/E1984C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbbe6c"
+   },
+   "consumed": "0x52e",
+   "source_sha256": "6d9f3783b914dfbe10128ae5d2cd4c02838630e14d970aea410e37597a099d1b",
+   "size": "0x648",
+   "sha256": "b681af6e0d80f23d25a09bbf3c5d79317be091355cd380c608d9d2f802264a6b",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbc39c"
+   },
+   "consumed": "0x15a",
+   "source_sha256": "5fcd3eea1ade582c9b6961ddca527ae27514353faf4546ba9b1a7f52331b1c43",
+   "size": "0x200",
+   "sha256": "4df6116fb41cfe428fc0bab0c1f70e3bd994b60ee8b47995c3c8bc681ede82c3",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C4",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbc4f8"
+   },
+   "consumed": "0x3fe",
+   "source_sha256": "2a9c8a58566d80de74ac1d1cb624057d1cbd677d3cd24ee1ae20fe461c5d7891",
+   "size": "0x524",
+   "sha256": "c610dd4c20d49d599ca777d8d6df6b1923f98c49ef298fe5f1b4d9a7889d05ae",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C5",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbc8f8"
+   },
+   "consumed": "0x430",
+   "source_sha256": "7d17f375c8d3e31fc63da0fd5d600d932379bc7ab13295d1c30568bd043167ea",
+   "size": "0x4e4",
+   "sha256": "e8e17a3ed4043dd705df8f9b6fb0d7d055be09c095d728ae2c61e5b04c57d376",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C6",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbcd28"
+   },
+   "consumed": "0x157",
+   "source_sha256": "230b3c7d265d146bdbde8ff37914d295cef6dd3fc2f2bfbe6f778608bb397b1a",
+   "size": "0x178",
+   "sha256": "0d9cd30dbdedb4c4f9de44f95adc264b4a6e5ccc3195de667c1a770e1dca34d0",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C7",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbce80"
+   },
+   "consumed": "0x135",
+   "source_sha256": "af9015c03fcbfa77addd53c2550844b500e5bda77a049310154b19cc364d67db",
+   "size": "0x148",
+   "sha256": "0f3ccf8a4fddb307944f7b211f257e762a0d9ebed4953947d567d249999e6325",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C8",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbcfb8"
+   },
+   "consumed": "0x53f",
+   "source_sha256": "65abff615e383794297a7323b20bcb679bfcc6261f387b3a21b09b487f97f677",
+   "size": "0x698",
+   "sha256": "e8764ee87d2911c126637bcce9209aa03e1098ab1429ce5a6a7db57c9dde1809",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C9",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbd4f8"
+   },
+   "consumed": "0x379",
+   "source_sha256": "af1d29441d7fb0c983085362a12c96451a8b4a423b1fc9c4247dde6957a2fa27",
+   "size": "0x434",
+   "sha256": "14e56f7d5853e40df74b8851fd5509189cc8c3cc5380c67e00dc6c9ec7dce86b",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E1984C10",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2dbd874"
+   },
+   "consumed": "0x134",
+   "source_sha256": "68d27b39ede7e5f2eca5ec30a1b585bddcb9e4ed2855c831fc6342651fea8a97",
+   "size": "0x208",
+   "sha256": "202513b2887257f50e91886955b9891260d1152a029a3cb392dff875851148c4",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "per-scene battle handler (9 variants, same slot)"
+  },
+  {
+   "name": "SLZ/E2129C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2eeb800"
+   },
+   "consumed": "0x3090a",
+   "source_sha256": "657da27415a2fa92159db94f55d227eba1242627b8faac6877e18143a5b8c9f8",
+   "size": "0x5d0dc",
+   "sha256": "7ae7d12caf8146249bbaeb904f34a7b982fa928f72e3af624c438ef790ece722",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "main program B (battle: owns the 1977-1984 and 2130-2158 loaders)"
+  },
+  {
+   "name": "SLZ/E2131C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f23800"
+   },
+   "consumed": "0x20c8",
+   "source_sha256": "ac4bbe5222d7e53ff4b5bd362dc54441fcc19c5daefcd2697169bcda61638687",
+   "size": "0x3950",
+   "sha256": "fb6a911e2c83ee8a50153b6381ebe58e54083da48b0911c9b09c4045d74c8c83",
+   "x_aliases": [
+    "e2133c0"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2131C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f258c8"
+   },
+   "consumed": "0x20c7",
+   "source_sha256": "26484a6d9398b8bed143a6afb71d77c3122f0046a30fd6c9694bac658b0778e3",
+   "size": "0x3950",
+   "sha256": "6581906a6999f0c521fdca399a47e834a2b55d1df5cc614594650b2e29354b1a",
+   "x_aliases": [
+    "e2133c1"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2131C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f27990"
+   },
+   "consumed": "0x20c6",
+   "source_sha256": "a668cfb663caef412a2b1525a5faa6c25247fa9172dd022f07644cbb093e72a1",
+   "size": "0x3950",
+   "sha256": "103cff1f2bf219cdda661ad33409eba34f0cd1b51f47a5d31eb0a2f2e7bab060",
+   "x_aliases": [
+    "e2133c2"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2131C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f29a58"
+   },
+   "consumed": "0x20ca",
+   "source_sha256": "eef6081d55b4929c96ccc96207665824635b4a3e67189cf45a6d05d46fa30252",
+   "size": "0x3950",
+   "sha256": "6c88aa7cc09bd426d0cef49d26fe53cebd2b36532a45fa59f9f302156ada5630",
+   "x_aliases": [
+    "e2133c3"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2135C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f44800"
+   },
+   "consumed": "0x1bc",
+   "source_sha256": "7d27e627c345e7daa0025f33203b097c9ea4d9ec9747463700bb8e8e1503543e",
+   "size": "0x2d0",
+   "sha256": "8199e7754e56c97ad48de323b23524f873bdeed6207969f5a8d1dfb28a05fbbe",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2135C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f449bc"
+   },
+   "consumed": "0x1bc",
+   "source_sha256": "515a54b37f231453c8b97a2c153b3c54aacccc621e29b25081cdbd6244bdb347",
+   "size": "0x2d0",
+   "sha256": "f3d92251e4d8c598d609b89b01af719ddee128c6e6885a19ecff99ab346c6f78",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2135C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f44b78"
+   },
+   "consumed": "0x1bc",
+   "source_sha256": "1a02488e63d40a3a1d6aa8e7d6efd9b3671eb7808da5f3207cdb8b93964cfb30",
+   "size": "0x2d0",
+   "sha256": "54db1ffb59289f867fc319ac3650bc313edddeb48ce1a4d624cb021e3427dd17",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2135C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f44d34"
+   },
+   "consumed": "0x1bc",
+   "source_sha256": "373b251a9dec3a1e2d137039785791d189ff52338263bb34c10d6abed5f3397f",
+   "size": "0x2d0",
+   "sha256": "cb29635fc863906b232871dcc52d86ee4b2c2c1f3296f61f9f343e0da6ab082c",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2137C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f4c000"
+   },
+   "consumed": "0x257",
+   "source_sha256": "ee7a82d06d58f46ee6e105f7301f784abb4f44165dc644b1f70f169abc5ab52a",
+   "size": "0x3f0",
+   "sha256": "ea63ce2d170942914e36e674e6f1e46e9d728971f9484007a8087a71516e6c0e",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2137C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f4c258"
+   },
+   "consumed": "0x257",
+   "source_sha256": "5b865191aa11823be35c8444ea944954b6ecda62a12303eb38ff289465e81752",
+   "size": "0x3f0",
+   "sha256": "0767007ce1ca474933965b3e54446ff617a7b6f0fa50dc4dc09699eaa5c42559",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2137C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f4c4b0"
+   },
+   "consumed": "0x257",
+   "source_sha256": "5f939085db64b39deaa383c31ac13298cf1ef7fcda4d83b0c5a8f26aed1e5944",
+   "size": "0x3f0",
+   "sha256": "28a9dadfc2a8d7461575f4543927a4919581580d13926b89d50a18853f8ea84b",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2137C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f4c708"
+   },
+   "consumed": "0x257",
+   "source_sha256": "6888c54af7ad1385d03a2cdc3ff318cba7f74cf0c8309af8ffe773d15e57707a",
+   "size": "0x3f0",
+   "sha256": "491a9f4b95eff9356f91d0cafe271aa7b47ef0d27ab42a6ef0daa33c130ce278",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2139C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f52000"
+   },
+   "consumed": "0x2389",
+   "source_sha256": "2e81b9fa214337eecd2e3159dc39d0b8421956d2f963cb5b0e3c666853ec0748",
+   "size": "0x3f97",
+   "sha256": "6f36041d8a64c916081a820cf56ad542fcbc89a8e3fdd8d59b91cc94eeffdf2a",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2139C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f5438c"
+   },
+   "consumed": "0x2388",
+   "source_sha256": "6223116e75feb6d2b4da5ad50c50c352a477a1068e877aa34948e8cbaf15f309",
+   "size": "0x3f97",
+   "sha256": "9ea82f6ca941e0f650ca6b3d143d94e99fbc958a0871262a0664045aab9597e6",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2139C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f56714"
+   },
+   "consumed": "0x2387",
+   "source_sha256": "bcd3a4db5f4f1b55d6152a3479a1c6cbf260db0ab4b068d0d292f7aab3bb6ab3",
+   "size": "0x3f97",
+   "sha256": "2fd70bf1eae19ea3e6b4005cd5bc4c9e8a1f6687ff9306ea647d1bacd897ef2f",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2139C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f58a9c"
+   },
+   "consumed": "0x2387",
+   "source_sha256": "af3d93c018810c773ba22de76b6f47679de03000614c532c5b8621dd9bab4a48",
+   "size": "0x3f97",
+   "sha256": "86deda16fc3c5a263c1b5df7a51caa8ed0d9196241dbcedd830cf378aca074cc",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2141C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f63800"
+   },
+   "consumed": "0x376",
+   "source_sha256": "09ad9addd5c7dc075bdb654dbd4b533706c4500a19c44b38fffa09cfa51b0963",
+   "size": "0x52c",
+   "sha256": "adfd485a025afa62ffb2625aeeeb9d9d4baaea6510ad3fc157e7d42599aba262",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2141C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f63b78"
+   },
+   "consumed": "0x376",
+   "source_sha256": "0ec688b77e8b5aefdc5605515e0dfc8a81907453367a8a9a82c57cdce6f10a31",
+   "size": "0x52c",
+   "sha256": "a571e318888f5377e3b25b901edc2dbf1fb3ee483dba5375cfa61c03ca0fecfd",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2141C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f63ef0"
+   },
+   "consumed": "0x376",
+   "source_sha256": "fbc1fd3f051639af2a13909f63b8296e7ccf7df7ba3196ab712d401e7bcb1232",
+   "size": "0x52c",
+   "sha256": "3087d640a75f026d8132e1c64b1761733ad8e836db81a3b0ff94fad1c58c7c6a",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2141C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f64268"
+   },
+   "consumed": "0x376",
+   "source_sha256": "738a17f1e05c250bba467b9898adbdba8a2ef3e6c1e8cc65abd6501da907e822",
+   "size": "0x52c",
+   "sha256": "e5be7c2eed15b1f340f03852f94383f0ded74a1ac7a06b790fb9ec11e2a252a3",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2143C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f6b800"
+   },
+   "consumed": "0x1886",
+   "source_sha256": "f7fce347524b25d7dc1d91a8397b321e7dd1772ee3c1253426b662f404293ccb",
+   "size": "0x339c",
+   "sha256": "2af838e45b09271a3ba4e0596d01a165c8bfae2e1ac66108244edcb7d71b8310",
+   "x_aliases": [
+    "e2145c0"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2143C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f6d088"
+   },
+   "consumed": "0x1882",
+   "source_sha256": "d5b35edde7fc63e113d62ee08d2d6e39a32735d9d805c94dd95fdc9b336d8fb9",
+   "size": "0x339c",
+   "sha256": "515e3d926eefb11d5e9a8f8c97024440608cd56b9b222d3a6439ffcebf8ca245",
+   "x_aliases": [
+    "e2145c1"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2143C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f6e90c"
+   },
+   "consumed": "0x1881",
+   "source_sha256": "f6a028d1e1ac6cc8e557dcba90a44f9c892b59ea779bf5d98ac5b0cec2060da7",
+   "size": "0x339c",
+   "sha256": "d896b62f6a127909fe2a3ce383ac1d42a1b69cd5deaab1512719080626f62d08",
+   "x_aliases": [
+    "e2145c2"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2143C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f70190"
+   },
+   "consumed": "0x1881",
+   "source_sha256": "e1d18c5079ba0955d62ca1dce4683f4ee8bf30d39e9244e9d8b04096e5102d07",
+   "size": "0x339c",
+   "sha256": "90b66f94022a3cc53eece997975e38c84d47a5ed60409f7f192c1587f5d4a00a",
+   "x_aliases": [
+    "e2145c3"
+   ],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2147C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f86800"
+   },
+   "consumed": "0x2599",
+   "source_sha256": "b411e03d790e7780fc2cc4b0af9125afe8b2c15805d2dcf3d98f139cddd975bc",
+   "size": "0x3ff8",
+   "sha256": "7fda1960712f8d535a19bfaf7372f502b567054f7699ef333af166f57b55c9c3",
+   "x_aliases": [
+    "e2149c0"
+   ],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2147C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f88d9c"
+   },
+   "consumed": "0x2596",
+   "source_sha256": "bc5e592ab1e4858012ceee88483d13c8af779e5365b73405e8fb09ea940df937",
+   "size": "0x3ff8",
+   "sha256": "749269cc750bea632d38b4f2b971d191a0fc124299539492aa8af4133df00cc6",
+   "x_aliases": [
+    "e2149c1"
+   ],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2147C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f8b334"
+   },
+   "consumed": "0x2597",
+   "source_sha256": "26f12a924b0527d6abed27d35748ef9f48d0da7dce5d6ad1a05073fddd6f3bab",
+   "size": "0x3ff8",
+   "sha256": "890b6f4fe7f8918555c7e9a3836e7b620ab6a770f820788e6cfc68ca0cee7460",
+   "x_aliases": [
+    "e2149c2"
+   ],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2147C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2f8d8cc"
+   },
+   "consumed": "0x2597",
+   "source_sha256": "eb61919f5fdf6c189f51a5ac491a7dfc47c29c7725a2b7d86a1cedbdb86fe4c6",
+   "size": "0x3ff8",
+   "sha256": "08ebb2cc360337ee8cc190ac713adbad0c081fba55826b02686d29dd7927725a",
+   "x_aliases": [
+    "e2149c3"
+   ],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2151C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fa6800"
+   },
+   "consumed": "0x1533",
+   "source_sha256": "b6cb732e30f83b818234346f1d633cf8554881a27e3070cc04679dc065331f8d",
+   "size": "0x25ab",
+   "sha256": "4423ad567433ed7aef5b07344bed451340be60cc3b3bcc9c61a0670a7f291f80",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2151C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fa7d34"
+   },
+   "consumed": "0x1531",
+   "source_sha256": "ea9011afe9db6ea8b0f5bc340bc4b414f30766f5edf3d92d54e43ac2f3ebe55b",
+   "size": "0x25ab",
+   "sha256": "79fd4e5de65083456c3c29cbd4a223ccb5400121738db4f8e689b8a8492f1975",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2151C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fa9268"
+   },
+   "consumed": "0x1530",
+   "source_sha256": "ad00d3ff8685a54da3673a2111d5c9b8a504c6b3e7727fd86f8476808ae6c5b5",
+   "size": "0x25ab",
+   "sha256": "b252f437b6d8c1a35e9ac6c677fdd253685ed97c8a7635001df760f8336140d4",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2151C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2faa798"
+   },
+   "consumed": "0x152f",
+   "source_sha256": "5e60d25562d9cc02b0b30781a25e9f08d61567d75d45674be36fe3d3456b93b1",
+   "size": "0x25ab",
+   "sha256": "7f64ad99b895bf02ee8285048b9d4677e1115eaf546e12678851313ad2fc814e",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2153C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fb3000"
+   },
+   "consumed": "0x24c9",
+   "source_sha256": "d908ca876cf8be2f04815e6abc696804135aee790335d3cda05231515d03d2bc",
+   "size": "0x3fb0",
+   "sha256": "8ea15166ea2895aa708d794efae26a9b8d00514b7e120a10e33d236e6c01ab9b",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2153C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fb54cc"
+   },
+   "consumed": "0x24c9",
+   "source_sha256": "42545e8db771a5e254bbaba063609d8cbabe92af4e7eaabe69df15b7f30ac3f3",
+   "size": "0x3fb0",
+   "sha256": "2cda482c7616fa78dbc6933cdfa67c58af01c0d013d6d77c18cc1d5a64709e8c",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2153C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fb7998"
+   },
+   "consumed": "0x24c9",
+   "source_sha256": "f68e29342b151b50cafea72b3a36a4bea017785219b4bd5705addcf8653f8bec",
+   "size": "0x3fb0",
+   "sha256": "67ed1b4e9d3d24140ac3f09f991ae9709b44660e839106a6838428a51c9ca70d",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2153C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fb9e64"
+   },
+   "consumed": "0x24c8",
+   "source_sha256": "e0afc154359237cbb5bf216f5950c0b93ec3cd8d67103703f653f7fd4e5fcb8e",
+   "size": "0x3fb0",
+   "sha256": "4374cbc2ada1874f7a0193913facae7cfb8a0ed47fecc82fc5a00d14cc695e9e",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2155C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fc4000"
+   },
+   "consumed": "0x1f1f",
+   "source_sha256": "f1bad17667c57d0073c5771fd6c7783b6d7f1411063095602895ab0a4dbb3234",
+   "size": "0x396c",
+   "sha256": "c6e440d3fc1feb0a95b2219e96ced521f36a234cc77bd4a81dcde2268c4d9aff",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2155C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fc5f20"
+   },
+   "consumed": "0x1f1e",
+   "source_sha256": "95de0c6ceed74655e7d44ef8ded8528c22f62f113e3de2631a99086bd7da9fba",
+   "size": "0x396c",
+   "sha256": "67bdfd097e95bb7236a3613d2abcbfb144aa7826a15a9de474ea1bd98dde7493",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2155C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fc7e40"
+   },
+   "consumed": "0x1f1b",
+   "source_sha256": "91393e0b8dda6b45f148f8bf308082be89f06c9ecfbfd8a7fedece5a6ed8cef8",
+   "size": "0x396c",
+   "sha256": "eb2e4eb39fdfd1c9755d746b7121bb3ba0430804f9c9e36e3e17349958d7dd7d",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2155C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fc9d5c"
+   },
+   "consumed": "0x1f1b",
+   "source_sha256": "4d9c36f418516b567a0cdd143c555890bf7c762fb6a31f4090dd46b73cfa300a",
+   "size": "0x396c",
+   "sha256": "45531a3ed634508c24a062435027a1d6f143afdb9d5c2cfaa01132a83ac3851a",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2157C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fd2000"
+   },
+   "consumed": "0x1bf",
+   "source_sha256": "63d3c9aa780be17cd4bf922ef1851f1ce9d0e3815c0ede269b4756faae571fef",
+   "size": "0x2dc",
+   "sha256": "dd4df11673ac375ee2316cb82c05b8364da1576ed3facdc1e7cb3d27c188bbd1",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2157C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fd21c0"
+   },
+   "consumed": "0x1bf",
+   "source_sha256": "9718e6fe2680cfecfa9107bc9d66ed07cd0e4c1753edec3ee4c1a6d2ca82ab9c",
+   "size": "0x2dc",
+   "sha256": "63af8a465dd563ddef3fb4a37cf1237ee6e3fc48ba03be1220c8e2410c0c3d84",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2157C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fd2380"
+   },
+   "consumed": "0x1bf",
+   "source_sha256": "c56064d1c9f8c6d71d2db8ea257e340194d73b942b34533d62b825bf8f67d557",
+   "size": "0x2dc",
+   "sha256": "62a41e24146df577724db8c3e288e929b8ec1801d37cba7064912c329a4d6e82",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2157C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fd2540"
+   },
+   "consumed": "0x1bf",
+   "source_sha256": "4dd03c1a0204a894eee909b468fbf53dc3c61e8fda348502f37ea42250a28098",
+   "size": "0x2dc",
+   "sha256": "40e66d0e9bb7025aa2ce0844507cf1bc98c0701a40b2b4eeca99fbf054453f66",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2159C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fd8800"
+   },
+   "consumed": "0x1779",
+   "source_sha256": "7d7364d094b8910087a51d546d512a03b0129cc9fc986f4a08ea251cc8783c86",
+   "size": "0x2abc",
+   "sha256": "2e07512d6f641d2ced6eb50d071f464974ac7260322ec95a3f7cd85d373da7ce",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2159C1",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fd9f7c"
+   },
+   "consumed": "0x1776",
+   "source_sha256": "5bab9e44be435bb9b5799bee91afba6b75b405736b27b8b9831afb6b6144e578",
+   "size": "0x2abc",
+   "sha256": "dc4bd014d22f81c32e411f783931a2df9aa0779eff8900f69096a1b3583dc44a",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2159C2",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fdb6f4"
+   },
+   "consumed": "0x1777",
+   "source_sha256": "5b38d1af263cf466a7f545cce800e90610de6827b90f3a389b4a9fb17447da8e",
+   "size": "0x2abc",
+   "sha256": "0300554858945d83ae0638d4307d3cfe6fa1ad6f6b96e322931109e9c9fa4d16",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2159C3",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x2fdce6c"
+   },
+   "consumed": "0x1773",
+   "source_sha256": "e54e6b0a9239d65538708f249d69f19e86dfe884dfd76c3e5aabf41c1d36cdea",
+   "size": "0x2abc",
+   "sha256": "8173e3ebc9fa9b8aa1cd257d0353ca3e9c0f6e1933cbcfa2ad4641002b8c36f3",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
+  },
+  {
+   "name": "SLZ/E2576C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x3b72000"
+   },
+   "consumed": "0x28883",
+   "source_sha256": "650e3e73cd339dbc1da9f7a52b1180946924b9d76a083dd3fcca776ae0cff6e3",
+   "size": "0x4c7fc",
+   "sha256": "6dec3950348b57068a85759f472ea7d5c92241d28b00ff4ea139ddd8dc1587cf",
+   "x_aliases": [
+    "e3100c0"
+   ],
+   "x_confidence": "high",
+   "x_role": "main program C (field: owns the area-group loader; 3100 is an identical copy)"
+  },
+  {
+   "name": "SLZ/E2981C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x45e3000"
+   },
+   "consumed": "0x84a5",
+   "source_sha256": "fb31000365b61e7f9acd42a9c57b50fde2036c249e6b84b238800515cf004365",
+   "size": "0xf9a8",
+   "sha256": "e694a092dd992e35f16a9dc51a33e0c5d8d17c85a5fc5bafb2a788c9df27c469",
+   "x_aliases": [
+    "e2985c0",
+    "e2989c0",
+    "e2993c0",
+    "e2997c0"
+   ],
+   "x_confidence": "high",
+   "x_role": "common field module (5 identical copies, one per group)"
+  },
+  {
+   "name": "SLZ/E2982C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x45eb800"
+   },
+   "consumed": "0x1082",
+   "source_sha256": "685edc292dde352da4c54ef542d940313e09ffc3f3be5eafa877a744e745d3af",
+   "size": "0x2420",
+   "sha256": "792e3986849a831f81d6238a764c63daf77a45741dff90c97416a8e0131f5d83",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area module (group part 2)"
+  },
+  {
+   "name": "SLZ/E2986C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x45f9000"
+   },
+   "consumed": "0x2026",
+   "source_sha256": "c56b0ffd868fd7f767541bbf1e36ce05805fb471447dc1d0c1ff4952696b456b",
+   "size": "0x3e2c",
+   "sha256": "577a2482dc4532bdc70d9a7c6708f4133e6ae589c4e2704b39ac45909ff6b466",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area module (group part 2)"
+  },
+  {
+   "name": "SLZ/E2990C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4608000"
+   },
+   "consumed": "0x2734",
+   "source_sha256": "7170cb692380afc27c5b499fab8ed9689d0b83b2af528c0ba4a287360d47b10d",
+   "size": "0x4c28",
+   "sha256": "0bb9b826952bc384c04c2b8476195cf1c203d4e9e7dd387416c000baa59e21f0",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area module (group part 2)"
+  },
+  {
+   "name": "SLZ/E2994C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4616800"
+   },
+   "consumed": "0x1838",
+   "source_sha256": "0dbe70c2b477cc9608a1b1d9fd591b2e4ba2e4106ec4a84ad867449d9da54bc8",
+   "size": "0x3671",
+   "sha256": "3baa1a2bc4fdca016bc36fb0696e327a34b09c9cf4facbf02c64c59c00ede98b",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area module (group part 2)"
+  },
+  {
+   "name": "SLZ/E2998C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4624800"
+   },
+   "consumed": "0x2727",
+   "source_sha256": "a28099dcb06cb4ae4a657c8e75f154a8e876e42c2074e7551278045da715e26d",
+   "size": "0x4d28",
+   "sha256": "f56ace2f46ff6c3d886e5f372a1e8f41db9da1d3667e65c4afb9189ddc3d9186",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area module (group part 2)"
+  },
+  {
+   "name": "SLZ/E3001C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x462b800"
+   },
+   "consumed": "0x2bff",
+   "source_sha256": "9cfb9d6e1916dc54705add58d3955d668db0b7994683b3197f1d93c42f1534fc",
+   "size": "0x5315",
+   "sha256": "d514bc75ed4d1d8444809c5257466e5942691bbb76566727f4d44a304a737674",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "sub-module of area modules"
+  },
+  {
+   "name": "SLZ/E3004C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4632800"
+   },
+   "consumed": "0x2b72",
+   "source_sha256": "762bb760d1e9d99a198673b61ea3a5d680d40442a35f358a145d3e1cbf885e8c",
+   "size": "0x6204",
+   "sha256": "0960a153c9556a57f9d49d37a8943837199c88598b217a108b88ff8a8af937bb",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3006C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4639800"
+   },
+   "consumed": "0x1fb4",
+   "source_sha256": "555a1a3176d1f46ac5a16e4ecfb6e8627a79a28d5a11091ae591e4348c4c4b9f",
+   "size": "0x3cd8",
+   "sha256": "a1917314bb1c8f1f36a5acbada724809e5c2e0c79e4054739807c3622210e19d",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3008C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x463e800"
+   },
+   "consumed": "0x2c0b",
+   "source_sha256": "bb55d180d25e4236b298370a898c4c7b01f1bc2392a61cf143a1e6c71b0e8fd0",
+   "size": "0x6194",
+   "sha256": "ae90eb155d1a6c86e0bc97077da8b79927b4e8cb2a422c7f5fb6922767c22d16",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3010C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4643800"
+   },
+   "consumed": "0x271a",
+   "source_sha256": "e66388fd97cbba8ea4458a9a73446b8964dab55c9dc7bde521cd1acd377642d4",
+   "size": "0x5ee4",
+   "sha256": "392aed039c078a420556bc96032e43744d33f6673e4b56a9fe73e2b8452ed4c3",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3012C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4647000"
+   },
+   "consumed": "0x141f",
+   "source_sha256": "0f048c0e9c8b1ddf07460d81bc22528e32a40a17fdeaeb9b630db02902c407ee",
+   "size": "0x326d",
+   "sha256": "b4d98fef50c4d8440af5c1544c69c607fbce4f4669914bf539109797a61822b7",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3014C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4649000"
+   },
+   "consumed": "0x185f",
+   "source_sha256": "b8791f2c16e856c1c4584fd0597bc4e5f9f477f36978936cf9fb040899788f41",
+   "size": "0x31a5",
+   "sha256": "3e345c0ab652387a23c3a8da259f3372a6c8ef6adaa0d793d36d0fdf4bc86c53",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3016C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x464d000"
+   },
+   "consumed": "0x13e3",
+   "source_sha256": "f6a218ac705e0445073e2f44423ae46aba0869a6f86c906ae139a5c26f9997d0",
+   "size": "0x2884",
+   "sha256": "43bfa4662a4023d44a643db154a05176eaae6d8052fcd742a604041cfef6421b",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3018C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x464f800"
+   },
+   "consumed": "0x17a1",
+   "source_sha256": "d233eab8fdb9c1f9844403edbb636b357eed82b9f9c9eff0924615da142bbea8",
+   "size": "0x2afc",
+   "sha256": "ba2defe5f4d656d254cdc9aba445280e43c5645a55a11473ea5194f9a5a7fce6",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3020C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4652000"
+   },
+   "consumed": "0xdd5",
+   "source_sha256": "bfd0226a04e5c6b179a1f62f44d1a18e4343f033e5f5d098b4aed70dfe362525",
+   "size": "0x1450",
+   "sha256": "cffda9aa928e0c507ee5095b53c5d91665138c870a1cb0b8c12ee1bc8b2d1d37",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3022C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4653800"
+   },
+   "consumed": "0x2acf",
+   "source_sha256": "52caa7eb7a2c2e1a7503a29da45708364a1a4fa56d6651c3044abc9625404723",
+   "size": "0x4c68",
+   "sha256": "7f19ab8102bc400589a5c1f85952ee1aedb7a27f7585361166b42adf5ec799c0",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3101C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4717000"
+   },
+   "consumed": "0x9513",
+   "source_sha256": "f16a3416a949bc2d5897cbf44e5be0eefccb8f6767d6e3984422abafbe746a61",
+   "size": "0x10d70",
+   "sha256": "7d3fb80839ac0cfdddc5af6598fa91e31bf49dc255707b465857bf4488a9c20a",
+   "x_aliases": [
+    "e3112c0",
+    "e3114c0",
+    "e3116c0",
+    "e3118c0",
+    "e3120c0",
+    "e3122c0",
+    "e3124c0",
+    "e3126c0",
+    "e3128c0",
+    "e3130c0",
+    "e3132c0",
+    "e3134c0",
+    "e3136c0",
+    "e3138c0",
+    "e3140c0",
+    "e3142c0",
+    "e3144c0",
+    "e3146c0",
+    "e3148c0",
+    "e3150c0",
+    "e3152c0",
+    "e3154c0",
+    "e3156c0",
+    "e3158c0",
+    "e3160c0",
+    "e3162c0",
+    "e3164c0",
+    "e3166c0",
+    "e3168c0",
+    "e3170c0",
+    "e3172c0",
+    "e3174c0"
+   ],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3102C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4720800"
+   },
+   "consumed": "0xa2aa",
+   "source_sha256": "bb67ada28da6334a1d674795c5dec4534af612a7af1250a72e68768edfdc5e12",
+   "size": "0x11600",
+   "sha256": "d9f3b2f0bd4f2198784d0e3df3b4fbb4f3c57f0d899ebc0bf464b325070df0cc",
+   "x_aliases": [
+    "e4191c0",
+    "e4328c0",
+    "e4332c0"
+   ],
+   "x_confidence": "high",
+   "x_role": "area/scene module (0x8007e000 slot)"
+  },
+  {
+   "name": "SLZ/E3103C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x472b000"
+   },
+   "consumed": "0x5d8c",
+   "source_sha256": "96ac1a9e2ee50915d8b6ddbb791d9410da4948dbb56eec0dc79400eebe946a2d",
+   "size": "0x14d2c",
+   "sha256": "4c490764408b187add501cb46a3c2e7ffaa580a40860a361bd557697136d442c",
+   "x_aliases": [],
+   "x_confidence": "high",
+   "x_role": "large overlay in top-of-RAM heap"
+  },
+  {
+   "name": "SLZ/E3104C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4731000"
+   },
+   "consumed": "0x4fa",
+   "source_sha256": "a0cf8ef958dbff48dfe352ad26cc65c4fb0c9d235e75700cb9b6c97852a99c39",
+   "size": "0x77c",
+   "sha256": "4789cc60b02ca2a4f0a147546ebda41ab0733f678a36ffeff3f3ca4a8cd6a65e",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "small overlays sharing one heap slot"
+  },
+  {
+   "name": "SLZ/E3105C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4731800"
+   },
+   "consumed": "0x92a",
+   "source_sha256": "1b1895099b6d6809bd65e4f8bd0a0d953f39a38c7f52588c7e48aff9a8a6dc3a",
+   "size": "0xd5c",
+   "sha256": "114d477eecdd8b143ca1f20b54207aa9061b54ed4c4f9db3a1232c56fe5a4523",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "small overlays sharing one heap slot"
+  },
+  {
+   "name": "SLZ/E3106C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4732800"
+   },
+   "consumed": "0x39a",
+   "source_sha256": "d79b42bc56935e3e79d9883775dc315ea8a5a9814554c89e6ad77ef64dd9df14",
+   "size": "0x490",
+   "sha256": "d989cca990035ed1ffdcff0ab39856c0cf907f5dbbc39fc21b3fbb454fa2ee93",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "small overlays sharing one heap slot"
+  },
+  {
+   "name": "SLZ/E3107C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4733000"
+   },
+   "consumed": "0x5dbf",
+   "source_sha256": "1d18e7a09643cdc54222d96555c0fe6d6e8ef684d38b5d79042bcd3c43630b6b",
+   "size": "0x14eb4",
+   "sha256": "7bd56a5c3e9a61821e4b6cb85076bba52c47521604f6415e724eac421c5aa6a6",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "main program D (85 KB, loaded through the main-switch)"
+  },
+  {
+   "name": "SLZ/E3108C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4739000"
+   },
+   "consumed": "0x67a",
+   "source_sha256": "6f3474faef55c53e0d5efd57eb8b38aba1484a3def9195809f18e9b6f263256e",
+   "size": "0x9cc",
+   "sha256": "dcfbfe661edb64dde6ff3010bde513e8941fc484816e9b8743f99561b9174628",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "small overlays sharing one heap slot"
+  },
+  {
+   "name": "SLZ/E3109C0",
+   "method": "so2_slz",
+   "source": {
+    "file": "SO2.BIN",
+    "file_offset": "0x4739800"
+   },
+   "consumed": "0x5d3",
+   "source_sha256": "e7c30e19417434ffafb08bae5871ef80c4f88be04132b53eb4a9e13b287e9c4b",
+   "size": "0x824",
+   "sha256": "002ce398de3ab41ee8fb9d42c67a194e77622e81b0e6d01db57294d6e6e9a8c5",
+   "x_aliases": [],
+   "x_confidence": "medium",
+   "x_role": "small overlays sharing one heap slot"
   }
  ],
- "expected_records": 90,
  "images": [
   {
    "method": "psx_exe",
@@ -28,1060 +1422,192 @@
    ]
   },
   {
-   "method": "slz_members",
-   "container": "SO2.BIN",
-   "toc_decrypt": "so2bin_v1",
-   "discs_identical": true,
-   "members": [
-    {
-     "name": "e1c0",
-     "toc_entry": 1,
-     "chunk": 0,
-     "load_addr": "0x8002f810",
-     "size": 283604,
-     "decoded_sha256": "2c1345cfc74b55b3646ea2d8caabd0382cdb4c94c65b440e66d7d3e1008002fb",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "main program A (boot, entry 1)"
-    },
-    {
-     "name": "e1981c0",
-     "toc_entry": 1981,
-     "chunk": 0,
-     "load_addr": "0x80085518",
-     "size": 11068,
-     "decoded_sha256": "8a0fdd7e34f2da59df03fd8f2c2152d824c054443b8ce5e1c6da7b5d0283fd94",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle overlay (follows 1984/1)"
-    },
-    {
-     "name": "e1984c0",
-     "toc_entry": 1984,
-     "chunk": 0,
-     "load_addr": "0x800715d0",
-     "size": 65880,
-     "decoded_sha256": "bd010ffb60023e1f247174725bab228a1b6beebdb7b7cdd07e2024c3e84f4d05",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle overlay main part"
-    },
-    {
-     "name": "e1984c1",
-     "toc_entry": 1984,
-     "chunk": 1,
-     "load_addr": "0x80081728",
-     "size": 15856,
-     "decoded_sha256": "01c054dd0f3087b93facce9344c74fafa13afc6daba866849719bf499e46fa3a",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle overlay part 2 (directly follows chunk 0)"
-    },
-    {
-     "name": "e1984c2",
-     "toc_entry": 1984,
-     "chunk": 2,
-     "load_addr": "0x8008c1f4",
-     "size": 1608,
-     "decoded_sha256": "b681af6e0d80f23d25a09bbf3c5d79317be091355cd380c608d9d2f802264a6b",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c3",
-     "toc_entry": 1984,
-     "chunk": 3,
-     "load_addr": "0x8008c1f4",
-     "size": 512,
-     "decoded_sha256": "4df6116fb41cfe428fc0bab0c1f70e3bd994b60ee8b47995c3c8bc681ede82c3",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c4",
-     "toc_entry": 1984,
-     "chunk": 4,
-     "load_addr": "0x8008c1f4",
-     "size": 1316,
-     "decoded_sha256": "c610dd4c20d49d599ca777d8d6df6b1923f98c49ef298fe5f1b4d9a7889d05ae",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c5",
-     "toc_entry": 1984,
-     "chunk": 5,
-     "load_addr": "0x8008c1f4",
-     "size": 1252,
-     "decoded_sha256": "e8e17a3ed4043dd705df8f9b6fb0d7d055be09c095d728ae2c61e5b04c57d376",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c6",
-     "toc_entry": 1984,
-     "chunk": 6,
-     "load_addr": "0x8008c1f4",
-     "size": 376,
-     "decoded_sha256": "0d9cd30dbdedb4c4f9de44f95adc264b4a6e5ccc3195de667c1a770e1dca34d0",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c7",
-     "toc_entry": 1984,
-     "chunk": 7,
-     "load_addr": "0x8008c1f4",
-     "size": 328,
-     "decoded_sha256": "0f3ccf8a4fddb307944f7b211f257e762a0d9ebed4953947d567d249999e6325",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c8",
-     "toc_entry": 1984,
-     "chunk": 8,
-     "load_addr": "0x8008c1f4",
-     "size": 1688,
-     "decoded_sha256": "e8764ee87d2911c126637bcce9209aa03e1098ab1429ce5a6a7db57c9dde1809",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c9",
-     "toc_entry": 1984,
-     "chunk": 9,
-     "load_addr": "0x8008c1f4",
-     "size": 1076,
-     "decoded_sha256": "14e56f7d5853e40df74b8851fd5509189cc8c3cc5380c67e00dc6c9ec7dce86b",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e1984c10",
-     "toc_entry": 1984,
-     "chunk": 10,
-     "load_addr": "0x8008c1f4",
-     "size": 520,
-     "decoded_sha256": "202513b2887257f50e91886955b9891260d1152a029a3cb392dff875851148c4",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "per-scene battle handler (9 variants, same slot)"
-    },
-    {
-     "name": "e2129c0",
-     "toc_entry": 2129,
-     "chunk": 0,
-     "load_addr": "0x8002f810",
-     "size": 381148,
-     "decoded_sha256": "7ae7d12caf8146249bbaeb904f34a7b982fa928f72e3af624c438ef790ece722",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "main program B (battle: owns the 1977-1984 and 2130-2158 loaders)"
-    },
-    {
-     "name": "e2131c0",
-     "toc_entry": 2131,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 14672,
-     "decoded_sha256": "fb6a911e2c83ee8a50153b6381ebe58e54083da48b0911c9b09c4045d74c8c83",
-     "aliases": [
-      "e2133c0"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2131c1",
-     "toc_entry": 2131,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 14672,
-     "decoded_sha256": "6581906a6999f0c521fdca399a47e834a2b55d1df5cc614594650b2e29354b1a",
-     "aliases": [
-      "e2133c1"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2131c2",
-     "toc_entry": 2131,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 14672,
-     "decoded_sha256": "103cff1f2bf219cdda661ad33409eba34f0cd1b51f47a5d31eb0a2f2e7bab060",
-     "aliases": [
-      "e2133c2"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2131c3",
-     "toc_entry": 2131,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 14672,
-     "decoded_sha256": "6c88aa7cc09bd426d0cef49d26fe53cebd2b36532a45fa59f9f302156ada5630",
-     "aliases": [
-      "e2133c3"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2135c0",
-     "toc_entry": 2135,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 720,
-     "decoded_sha256": "8199e7754e56c97ad48de323b23524f873bdeed6207969f5a8d1dfb28a05fbbe",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2135c1",
-     "toc_entry": 2135,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 720,
-     "decoded_sha256": "f3d92251e4d8c598d609b89b01af719ddee128c6e6885a19ecff99ab346c6f78",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2135c2",
-     "toc_entry": 2135,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 720,
-     "decoded_sha256": "54db1ffb59289f867fc319ac3650bc313edddeb48ce1a4d624cb021e3427dd17",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2135c3",
-     "toc_entry": 2135,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 720,
-     "decoded_sha256": "cb29635fc863906b232871dcc52d86ee4b2c2c1f3296f61f9f343e0da6ab082c",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2137c0",
-     "toc_entry": 2137,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 1008,
-     "decoded_sha256": "ea63ce2d170942914e36e674e6f1e46e9d728971f9484007a8087a71516e6c0e",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2137c1",
-     "toc_entry": 2137,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 1008,
-     "decoded_sha256": "0767007ce1ca474933965b3e54446ff617a7b6f0fa50dc4dc09699eaa5c42559",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2137c2",
-     "toc_entry": 2137,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 1008,
-     "decoded_sha256": "28a9dadfc2a8d7461575f4543927a4919581580d13926b89d50a18853f8ea84b",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2137c3",
-     "toc_entry": 2137,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 1008,
-     "decoded_sha256": "491a9f4b95eff9356f91d0cafe271aa7b47ef0d27ab42a6ef0daa33c130ce278",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2139c0",
-     "toc_entry": 2139,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 16279,
-     "decoded_sha256": "6f36041d8a64c916081a820cf56ad542fcbc89a8e3fdd8d59b91cc94eeffdf2a",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2139c1",
-     "toc_entry": 2139,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 16279,
-     "decoded_sha256": "9ea82f6ca941e0f650ca6b3d143d94e99fbc958a0871262a0664045aab9597e6",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2139c2",
-     "toc_entry": 2139,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 16279,
-     "decoded_sha256": "2fd70bf1eae19ea3e6b4005cd5bc4c9e8a1f6687ff9306ea647d1bacd897ef2f",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2139c3",
-     "toc_entry": 2139,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 16279,
-     "decoded_sha256": "86deda16fc3c5a263c1b5df7a51caa8ed0d9196241dbcedd830cf378aca074cc",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2141c0",
-     "toc_entry": 2141,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 1324,
-     "decoded_sha256": "adfd485a025afa62ffb2625aeeeb9d9d4baaea6510ad3fc157e7d42599aba262",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2141c1",
-     "toc_entry": 2141,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 1324,
-     "decoded_sha256": "a571e318888f5377e3b25b901edc2dbf1fb3ee483dba5375cfa61c03ca0fecfd",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2141c2",
-     "toc_entry": 2141,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 1324,
-     "decoded_sha256": "3087d640a75f026d8132e1c64b1761733ad8e836db81a3b0ff94fad1c58c7c6a",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2141c3",
-     "toc_entry": 2141,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 1324,
-     "decoded_sha256": "e5be7c2eed15b1f340f03852f94383f0ded74a1ac7a06b790fb9ec11e2a252a3",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2143c0",
-     "toc_entry": 2143,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 13212,
-     "decoded_sha256": "2af838e45b09271a3ba4e0596d01a165c8bfae2e1ac66108244edcb7d71b8310",
-     "aliases": [
-      "e2145c0"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2143c1",
-     "toc_entry": 2143,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 13212,
-     "decoded_sha256": "515e3d926eefb11d5e9a8f8c97024440608cd56b9b222d3a6439ffcebf8ca245",
-     "aliases": [
-      "e2145c1"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2143c2",
-     "toc_entry": 2143,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 13212,
-     "decoded_sha256": "d896b62f6a127909fe2a3ce383ac1d42a1b69cd5deaab1512719080626f62d08",
-     "aliases": [
-      "e2145c2"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2143c3",
-     "toc_entry": 2143,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 13212,
-     "decoded_sha256": "90b66f94022a3cc53eece997975e38c84d47a5ed60409f7f192c1587f5d4a00a",
-     "aliases": [
-      "e2145c3"
-     ],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2147c0",
-     "toc_entry": 2147,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 16376,
-     "decoded_sha256": "7fda1960712f8d535a19bfaf7372f502b567054f7699ef333af166f57b55c9c3",
-     "aliases": [
-      "e2149c0"
-     ],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2147c1",
-     "toc_entry": 2147,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 16376,
-     "decoded_sha256": "749269cc750bea632d38b4f2b971d191a0fc124299539492aa8af4133df00cc6",
-     "aliases": [
-      "e2149c1"
-     ],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2147c2",
-     "toc_entry": 2147,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 16376,
-     "decoded_sha256": "890b6f4fe7f8918555c7e9a3836e7b620ab6a770f820788e6cfc68ca0cee7460",
-     "aliases": [
-      "e2149c2"
-     ],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2147c3",
-     "toc_entry": 2147,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 16376,
-     "decoded_sha256": "08ebb2cc360337ee8cc190ac713adbad0c081fba55826b02686d29dd7927725a",
-     "aliases": [
-      "e2149c3"
-     ],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2151c0",
-     "toc_entry": 2151,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 9643,
-     "decoded_sha256": "4423ad567433ed7aef5b07344bed451340be60cc3b3bcc9c61a0670a7f291f80",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2151c1",
-     "toc_entry": 2151,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 9643,
-     "decoded_sha256": "79fd4e5de65083456c3c29cbd4a223ccb5400121738db4f8e689b8a8492f1975",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2151c2",
-     "toc_entry": 2151,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 9643,
-     "decoded_sha256": "b252f437b6d8c1a35e9ac6c677fdd253685ed97c8a7635001df760f8336140d4",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2151c3",
-     "toc_entry": 2151,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 9643,
-     "decoded_sha256": "7f64ad99b895bf02ee8285048b9d4677e1115eaf546e12678851313ad2fc814e",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2153c0",
-     "toc_entry": 2153,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 16304,
-     "decoded_sha256": "8ea15166ea2895aa708d794efae26a9b8d00514b7e120a10e33d236e6c01ab9b",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2153c1",
-     "toc_entry": 2153,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 16304,
-     "decoded_sha256": "2cda482c7616fa78dbc6933cdfa67c58af01c0d013d6d77c18cc1d5a64709e8c",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2153c2",
-     "toc_entry": 2153,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 16304,
-     "decoded_sha256": "67ed1b4e9d3d24140ac3f09f991ae9709b44660e839106a6838428a51c9ca70d",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2153c3",
-     "toc_entry": 2153,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 16304,
-     "decoded_sha256": "4374cbc2ada1874f7a0193913facae7cfb8a0ed47fecc82fc5a00d14cc695e9e",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2155c0",
-     "toc_entry": 2155,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 14700,
-     "decoded_sha256": "c6e440d3fc1feb0a95b2219e96ced521f36a234cc77bd4a81dcde2268c4d9aff",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2155c1",
-     "toc_entry": 2155,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 14700,
-     "decoded_sha256": "67bdfd097e95bb7236a3613d2abcbfb144aa7826a15a9de474ea1bd98dde7493",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2155c2",
-     "toc_entry": 2155,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 14700,
-     "decoded_sha256": "eb2e4eb39fdfd1c9755d746b7121bb3ba0430804f9c9e36e3e17349958d7dd7d",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2155c3",
-     "toc_entry": 2155,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 14700,
-     "decoded_sha256": "45531a3ed634508c24a062435027a1d6f143afdb9d5c2cfaa01132a83ac3851a",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2157c0",
-     "toc_entry": 2157,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 732,
-     "decoded_sha256": "dd4df11673ac375ee2316cb82c05b8364da1576ed3facdc1e7cb3d27c188bbd1",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2157c1",
-     "toc_entry": 2157,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 732,
-     "decoded_sha256": "63af8a465dd563ddef3fb4a37cf1237ee6e3fc48ba03be1220c8e2410c0c3d84",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2157c2",
-     "toc_entry": 2157,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 732,
-     "decoded_sha256": "62a41e24146df577724db8c3e288e929b8ec1801d37cba7064912c329a4d6e82",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2157c3",
-     "toc_entry": 2157,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 732,
-     "decoded_sha256": "40e66d0e9bb7025aa2ce0844507cf1bc98c0701a40b2b4eeca99fbf054453f66",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2159c0",
-     "toc_entry": 2159,
-     "chunk": 0,
-     "load_addr": "0x801ee000",
-     "size": 10940,
-     "decoded_sha256": "2e07512d6f641d2ced6eb50d071f464974ac7260322ec95a3f7cd85d373da7ce",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2159c1",
-     "toc_entry": 2159,
-     "chunk": 1,
-     "load_addr": "0x801f2000",
-     "size": 10940,
-     "decoded_sha256": "dc4bd014d22f81c32e411f783931a2df9aa0779eff8900f69096a1b3583dc44a",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2159c2",
-     "toc_entry": 2159,
-     "chunk": 2,
-     "load_addr": "0x801f6000",
-     "size": 10940,
-     "decoded_sha256": "0300554858945d83ae0638d4307d3cfe6fa1ad6f6b96e322931109e9c9fa4d16",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2159c3",
-     "toc_entry": 2159,
-     "chunk": 3,
-     "load_addr": "0x801fa000",
-     "size": 10940,
-     "decoded_sha256": "8173e3ebc9fa9b8aa1cd257d0353ca3e9c0f6e1933cbcfa2ad4641002b8c36f3",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "battle enemy-set code, 4 slot-relocated copies in one entry"
-    },
-    {
-     "name": "e2576c0",
-     "toc_entry": 2576,
-     "chunk": 0,
-     "load_addr": "0x8002f810",
-     "size": 313340,
-     "decoded_sha256": "6dec3950348b57068a85759f472ea7d5c92241d28b00ff4ea139ddd8dc1587cf",
-     "aliases": [
-      "e3100c0"
-     ],
-     "x_confidence": "high",
-     "x_role": "main program C (field: owns the area-group loader; 3100 is an identical copy)"
-    },
-    {
-     "name": "e2981c0",
-     "toc_entry": 2981,
-     "chunk": 0,
-     "load_addr": "0x800d1b28",
-     "size": 63912,
-     "decoded_sha256": "e694a092dd992e35f16a9dc51a33e0c5d8d17c85a5fc5bafb2a788c9df27c469",
-     "aliases": [
-      "e2985c0",
-      "e2989c0",
-      "e2993c0",
-      "e2997c0"
-     ],
-     "x_confidence": "high",
-     "x_role": "common field module (5 identical copies, one per group)"
-    },
-    {
-     "name": "e2982c0",
-     "toc_entry": 2982,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 9248,
-     "decoded_sha256": "792e3986849a831f81d6238a764c63daf77a45741dff90c97416a8e0131f5d83",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area module (group part 2)"
-    },
-    {
-     "name": "e2986c0",
-     "toc_entry": 2986,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 15916,
-     "decoded_sha256": "577a2482dc4532bdc70d9a7c6708f4133e6ae589c4e2704b39ac45909ff6b466",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area module (group part 2)"
-    },
-    {
-     "name": "e2990c0",
-     "toc_entry": 2990,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 19496,
-     "decoded_sha256": "0bb9b826952bc384c04c2b8476195cf1c203d4e9e7dd387416c000baa59e21f0",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area module (group part 2)"
-    },
-    {
-     "name": "e2994c0",
-     "toc_entry": 2994,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 13937,
-     "decoded_sha256": "3baa1a2bc4fdca016bc36fb0696e327a34b09c9cf4facbf02c64c59c00ede98b",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area module (group part 2)"
-    },
-    {
-     "name": "e2998c0",
-     "toc_entry": 2998,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 19752,
-     "decoded_sha256": "f56ace2f46ff6c3d886e5f372a1e8f41db9da1d3667e65c4afb9189ddc3d9186",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area module (group part 2)"
-    },
-    {
-     "name": "e3001c0",
-     "toc_entry": 3001,
-     "chunk": 0,
-     "load_addr": "0x80088000",
-     "size": 21269,
-     "decoded_sha256": "d514bc75ed4d1d8444809c5257466e5942691bbb76566727f4d44a304a737674",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "sub-module of area modules"
-    },
-    {
-     "name": "e3004c0",
-     "toc_entry": 3004,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 25092,
-     "decoded_sha256": "0960a153c9556a57f9d49d37a8943837199c88598b217a108b88ff8a8af937bb",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3006c0",
-     "toc_entry": 3006,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 15576,
-     "decoded_sha256": "a1917314bb1c8f1f36a5acbada724809e5c2e0c79e4054739807c3622210e19d",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3008c0",
-     "toc_entry": 3008,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 24980,
-     "decoded_sha256": "ae90eb155d1a6c86e0bc97077da8b79927b4e8cb2a422c7f5fb6922767c22d16",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3010c0",
-     "toc_entry": 3010,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 24292,
-     "decoded_sha256": "392aed039c078a420556bc96032e43744d33f6673e4b56a9fe73e2b8452ed4c3",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3012c0",
-     "toc_entry": 3012,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 12909,
-     "decoded_sha256": "b4d98fef50c4d8440af5c1544c69c607fbce4f4669914bf539109797a61822b7",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3014c0",
-     "toc_entry": 3014,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 12709,
-     "decoded_sha256": "3e345c0ab652387a23c3a8da259f3372a6c8ef6adaa0d793d36d0fdf4bc86c53",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3016c0",
-     "toc_entry": 3016,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 10372,
-     "decoded_sha256": "43bfa4662a4023d44a643db154a05176eaae6d8052fcd742a604041cfef6421b",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3018c0",
-     "toc_entry": 3018,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 11004,
-     "decoded_sha256": "ba2defe5f4d656d254cdc9aba445280e43c5645a55a11473ea5194f9a5a7fce6",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3020c0",
-     "toc_entry": 3020,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 5200,
-     "decoded_sha256": "cffda9aa928e0c507ee5095b53c5d91665138c870a1cb0b8c12ee1bc8b2d1d37",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3022c0",
-     "toc_entry": 3022,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 19560,
-     "decoded_sha256": "7f19ab8102bc400589a5c1f85952ee1aedb7a27f7585361166b42adf5ec799c0",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3101c0",
-     "toc_entry": 3101,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 68976,
-     "decoded_sha256": "7d3fb80839ac0cfdddc5af6598fa91e31bf49dc255707b465857bf4488a9c20a",
-     "aliases": [
-      "e3112c0",
-      "e3114c0",
-      "e3116c0",
-      "e3118c0",
-      "e3120c0",
-      "e3122c0",
-      "e3124c0",
-      "e3126c0",
-      "e3128c0",
-      "e3130c0",
-      "e3132c0",
-      "e3134c0",
-      "e3136c0",
-      "e3138c0",
-      "e3140c0",
-      "e3142c0",
-      "e3144c0",
-      "e3146c0",
-      "e3148c0",
-      "e3150c0",
-      "e3152c0",
-      "e3154c0",
-      "e3156c0",
-      "e3158c0",
-      "e3160c0",
-      "e3162c0",
-      "e3164c0",
-      "e3166c0",
-      "e3168c0",
-      "e3170c0",
-      "e3172c0",
-      "e3174c0"
-     ],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3102c0",
-     "toc_entry": 3102,
-     "chunk": 0,
-     "load_addr": "0x8007e000",
-     "size": 71168,
-     "decoded_sha256": "d9f3b2f0bd4f2198784d0e3df3b4fbb4f3c57f0d899ebc0bf464b325070df0cc",
-     "aliases": [
-      "e4191c0",
-      "e4328c0",
-      "e4332c0"
-     ],
-     "x_confidence": "high",
-     "x_role": "area/scene module (0x8007e000 slot)"
-    },
-    {
-     "name": "e3103c0",
-     "toc_entry": 3103,
-     "chunk": 0,
-     "load_addr": "0x801e9000",
-     "size": 85292,
-     "decoded_sha256": "4c490764408b187add501cb46a3c2e7ffaa580a40860a361bd557697136d442c",
-     "aliases": [],
-     "x_confidence": "high",
-     "x_role": "large overlay in top-of-RAM heap"
-    },
-    {
-     "name": "e3104c0",
-     "toc_entry": 3104,
-     "chunk": 0,
-     "load_addr": "0x801f9800",
-     "size": 1916,
-     "decoded_sha256": "4789cc60b02ca2a4f0a147546ebda41ab0733f678a36ffeff3f3ca4a8cd6a65e",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "small overlays sharing one heap slot"
-    },
-    {
-     "name": "e3105c0",
-     "toc_entry": 3105,
-     "chunk": 0,
-     "load_addr": "0x801f9800",
-     "size": 3420,
-     "decoded_sha256": "114d477eecdd8b143ca1f20b54207aa9061b54ed4c4f9db3a1232c56fe5a4523",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "small overlays sharing one heap slot"
-    },
-    {
-     "name": "e3106c0",
-     "toc_entry": 3106,
-     "chunk": 0,
-     "load_addr": "0x801f9800",
-     "size": 1168,
-     "decoded_sha256": "d989cca990035ed1ffdcff0ab39856c0cf907f5dbbc39fc21b3fbb454fa2ee93",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "small overlays sharing one heap slot"
-    },
-    {
-     "name": "e3107c0",
-     "toc_entry": 3107,
-     "chunk": 0,
-     "load_addr": "0x8002f810",
-     "size": 85684,
-     "decoded_sha256": "7bd56a5c3e9a61821e4b6cb85076bba52c47521604f6415e724eac421c5aa6a6",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "main program D (85 KB, loaded through the main-switch)"
-    },
-    {
-     "name": "e3108c0",
-     "toc_entry": 3108,
-     "chunk": 0,
-     "load_addr": "0x801f9800",
-     "size": 2508,
-     "decoded_sha256": "dcfbfe661edb64dde6ff3010bde513e8941fc484816e9b8743f99561b9174628",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "small overlays sharing one heap slot"
-    },
-    {
-     "name": "e3109c0",
-     "toc_entry": 3109,
-     "chunk": 0,
-     "load_addr": "0x801f9800",
-     "size": 2084,
-     "decoded_sha256": "002ce398de3ab41ee8fb9d42c67a194e77622e81b0e6d01db57294d6e6e9a8c5",
-     "aliases": [],
-     "x_confidence": "medium",
-     "x_role": "small overlays sharing one heap slot"
-    }
-   ]
+   "method": "fixed_address_files",
+   "load_addr": "0x8002f810",
+   "files": [
+    "SLZ/E1C0",
+    "SLZ/E2129C0",
+    "SLZ/E2576C0",
+    "SLZ/E3107C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x800715d0",
+   "files": [
+    "SLZ/E1984C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x8007e000",
+   "files": [
+    "SLZ/E2982C0",
+    "SLZ/E2986C0",
+    "SLZ/E2990C0",
+    "SLZ/E2994C0",
+    "SLZ/E2998C0",
+    "SLZ/E3004C0",
+    "SLZ/E3006C0",
+    "SLZ/E3008C0",
+    "SLZ/E3010C0",
+    "SLZ/E3012C0",
+    "SLZ/E3014C0",
+    "SLZ/E3016C0",
+    "SLZ/E3018C0",
+    "SLZ/E3020C0",
+    "SLZ/E3022C0",
+    "SLZ/E3101C0",
+    "SLZ/E3102C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x80081728",
+   "files": [
+    "SLZ/E1984C1"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x80085518",
+   "files": [
+    "SLZ/E1981C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x80088000",
+   "files": [
+    "SLZ/E3001C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x8008c1f4",
+   "files": [
+    "SLZ/E1984C2",
+    "SLZ/E1984C3",
+    "SLZ/E1984C4",
+    "SLZ/E1984C5",
+    "SLZ/E1984C6",
+    "SLZ/E1984C7",
+    "SLZ/E1984C8",
+    "SLZ/E1984C9",
+    "SLZ/E1984C10"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x800d1b28",
+   "files": [
+    "SLZ/E2981C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x801e9000",
+   "files": [
+    "SLZ/E3103C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x801ee000",
+   "files": [
+    "SLZ/E2131C0",
+    "SLZ/E2135C0",
+    "SLZ/E2137C0",
+    "SLZ/E2139C0",
+    "SLZ/E2141C0",
+    "SLZ/E2143C0",
+    "SLZ/E2147C0",
+    "SLZ/E2151C0",
+    "SLZ/E2153C0",
+    "SLZ/E2155C0",
+    "SLZ/E2157C0",
+    "SLZ/E2159C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x801f2000",
+   "files": [
+    "SLZ/E2131C1",
+    "SLZ/E2135C1",
+    "SLZ/E2137C1",
+    "SLZ/E2139C1",
+    "SLZ/E2141C1",
+    "SLZ/E2143C1",
+    "SLZ/E2147C1",
+    "SLZ/E2151C1",
+    "SLZ/E2153C1",
+    "SLZ/E2155C1",
+    "SLZ/E2157C1",
+    "SLZ/E2159C1"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x801f6000",
+   "files": [
+    "SLZ/E2131C2",
+    "SLZ/E2135C2",
+    "SLZ/E2137C2",
+    "SLZ/E2139C2",
+    "SLZ/E2141C2",
+    "SLZ/E2143C2",
+    "SLZ/E2147C2",
+    "SLZ/E2151C2",
+    "SLZ/E2153C2",
+    "SLZ/E2155C2",
+    "SLZ/E2157C2",
+    "SLZ/E2159C2"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x801f9800",
+   "files": [
+    "SLZ/E3104C0",
+    "SLZ/E3105C0",
+    "SLZ/E3106C0",
+    "SLZ/E3108C0",
+    "SLZ/E3109C0"
+   ],
+   "allow_missing": true
+  },
+  {
+   "method": "fixed_address_files",
+   "load_addr": "0x801fa000",
+   "files": [
+    "SLZ/E2131C3",
+    "SLZ/E2135C3",
+    "SLZ/E2137C3",
+    "SLZ/E2139C3",
+    "SLZ/E2141C3",
+    "SLZ/E2143C3",
+    "SLZ/E2147C3",
+    "SLZ/E2151C3",
+    "SLZ/E2153C3",
+    "SLZ/E2155C3",
+    "SLZ/E2157C3",
+    "SLZ/E2159C3"
+   ],
+   "allow_missing": true
   }
  ],
- "checks": []
+ "expected_records": 90
 }

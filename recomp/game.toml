@@ -1,13 +1,17 @@
-# psxrecomp game.toml scaffold for Star Ocean: The Second Story (USA), 2 discs.
-# Schema: tools/ref/psxrecomp/docs/config_schema.md. NOTHING HERE HAS BEEN RUN through psxrecomp yet.
-# Values checked against the local discs (analysis/disc_facts.py, 2026-10-26) carry no TODO; the rest are marked TODO(verify) with a reason. Paths are relative to the *title project root* (a separate,
-# private repo that pins psxrecomp as a submodule), not to this repo; see recomp/README.md.
+# psxrecomp game.toml scaffold for Star Ocean - The Second Story (USA), 2 discs.
+# Schema: tools/ref/psxrecomp/docs/config_schema.md (psxrecomp f42d2c0). NOTHING HERE HAS BEEN RUN through psxrecomp's generate/runtime yet.
+# Values with no TODO are settled by evidence (comment next to each; details RECOMP_NOTES.md '2026-10-26 game.toml values').
+# TODO(verify) marks what still needs a psxrecomp build or a runtime run. Paths are relative to the *title project root*
+# (a separate, private repo that pins psxrecomp as a submodule), not to this repo; see recomp/README.md.
 
 [game]
 name = "Star Ocean - The Second Story (USA)"
 id = "SCUS-94421"                       # disc 1 SYSTEM.CNF: BOOT = cdrom:\SCUS_944.21;1
-exe = "disc/SCUS_944.21"                # TODO(verify): depends on the private title repo layout / what prepare_disc writes; not decidable from the discs
-discs = ["disc/SO2 (Disc 1).cue", "disc/SO2 (Disc 2).cue"]   # TODO(verify): file names are whatever the title repo uses for the user's own cues
+exe = "disc/SCUS_944.21"                # = [prepare_disc] out_dir + boot_exe: prepare_disc.py writes the boot exe to <out_dir>/<boot_exe> (probe_disc.py renders exe the same way)
+# Local dump names (single-track MODE2/2352 cues). The C++ loader prefers `discs`; Python tools (prepare_disc.py,
+# aot_overlay_pipeline.py game_disc) read only `disc`, so `disc` names disc 1 (the only disc with SO2.BIN in its ISO directory).
+disc = "disc/Star Ocean - The Second Story (USA) (Disc 1).cue"
+discs = ["disc/Star Ocean - The Second Story (USA) (Disc 1).cue", "disc/Star Ocean - The Second Story (USA) (Disc 2).cue"]
 disc_serials = ["SCUS-94421", "SCUS-94422"]                  # SYSTEM.CNF BOOT: SCUS_944.21 (disc 1), SCUS_944.22 (disc 2); both exes have the same sha256
 load_address = "0x80010000"             # PS-X header +0x18
 entry_pc = "0x80010008"                 # PS-X header +0x10 (the game's main() is at 0x80010650)
@@ -15,22 +19,25 @@ text_size = "0x1F800"                   # PS-X header +0x1C (129024 B); file is 
 stack_base = "0x801FFFF0"               # PS-X header initial sp (+0x30; header gp is 0). SYSTEM.CNF STACK = 801fff00 is the BIOS kernel stack, not the exe sp; equals psxrecomp default
 
 [recompiler]
-seeds = "seeds/seeds.txt"               # copy of config/seeds.txt (boot exe only, heuristic: jal targets + prologues) TODO(verify)
+seeds = "seeds/seeds.txt"               # copy of config/seeds.txt (boot exe). Format checked: main_psx.cpp reads one strtoul(.., 16) address per line, '#' lines skipped
 out_dir = "generated"
-strict = true                           # TODO(verify): upstream says "currently always true"
-discovery = "whole-image"               # TODO(verify): "reachable" is the stricter alternative once seeds are trusted
+strict = true                           # config_loader.cpp default is true; schema: "currently always true"
+discovery = "whole-image"               # "reachable" follows jal only and leaves jalr targets to the interpreter: --exact found 140 of 570 boot functions (RECOMP_NOTES 'First analyze run')
 
 [prepare_disc]                          # parallel lists, disc 1 then disc 2: our local single-track .bin dumps (not compared with Redump: no offline DB)
-# out_dir = "disc"                      # TODO(verify): title-repo layout
-# boot_exe = "SCUS_944.21"              # TODO(verify): key name/semantics to be confirmed against prepare_disc.py when it may be run
+out_dir = "disc"                        # prepare_disc.py default would be "prepared_disc"; "disc" makes [game] exe resolve
+boot_exe = "SCUS_944.21"                # disc 2 boots SCUS_944.22 (same bytes): run prepare_disc.py --boot-exe SCUS_944.22 --bin-name/--cue-name "<Disc 2 names>" for it
+bin_name = "Star Ocean - The Second Story (USA) (Disc 1).bin"   # without it prepare_disc.py takes Path([game] disc).name, i.e. the .cue name
+cue_name = "Star Ocean - The Second Story (USA) (Disc 1).cue"
 known_sizes = [556320912, 723338784]
 known_md5   = ["c560c795e534261f4a0df5c98099f905", "d501280365480367395073aeee4dc52c"]
 known_sha1  = ["ccd092233b353d2aa7bb80ecdb2b76f456430b41", "68178c55a430eab3e97eb51ec4a164d36f228aa1"]
 
 [runtime]
-overlay_cache = false                   # TODO(verify): Xenogears pattern (AOT only); keep true while overlays are not yet in the AOT profile
-disc_speed = "1x"                       # TODO(verify): Xenogears needed 1x ("instant" hung); SO2 untested
-# bios_hle = false                      # TODO(verify)
-# XA / CD / STR (MDEC) settings: nothing to set yet.
-# TODO(verify): SO2 XA is 4-bit? (psxrecomp drops 8-bit XA, cdrom.c:1401). STR frames at SO2.BIN raw entries; CD-DA unknown.
-# TODO(verify): [video]/[widescreen] left at upstream defaults.
+overlay_cache = true                    # psxrecomp scaffold default (probe_disc.py) and required by the packager (GAME_PROJECT_SETUP.md); records the SLZ overlays it interprets
+disc_speed = "1x"                       # TODO(verify): runtime behaviour; Xenogears needed 1x ("instant" hung); SO2 untested
+# bios_hle = false                      # TODO(verify): runtime behaviour, needs a boot test
+# Audio/video: no XA and no CD-DA to configure. Sector census 2026-10-26: no sector on either disc has the XA audio (0x04) or
+# video (0x02) submode bit (disc 1: 236155 data, 216 Form 2, 160 other), and both cues are single-track (no CD-DA).
+# STR movies are plain data entries inside SO2.BIN (ANALYSIS.md), decoded by the game through MDEC.
+# TODO(verify): [video]/[widescreen] left at upstream defaults (a look decision, needs a run).
