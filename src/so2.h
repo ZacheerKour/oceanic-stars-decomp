@@ -50,3 +50,18 @@ extern S_8003BE84 D_8004DED8[];
 extern int D_8004DED4;
 extern int D_8004E168[];
 extern int D_8004E170;
+typedef struct {
+	char pad0[0x18];
+	int w18;
+	char pad1C[0x10];
+	short h2C;
+	char pad2E[4];
+	short h32;
+	char pad34[4];
+	short h38;
+	char pad3A[4];
+	short h3E;
+	short h40;
+	char pad42[2];
+	short h44;
+} S_8003B024;
