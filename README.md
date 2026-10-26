@@ -22,8 +22,9 @@ of both USA discs. The scripts here read them locally.
 **Decomp**
 - Both discs and the boot executable analysed; the `SO2.BIN` archive (encrypted table of contents, SLZ compression) is
   understood, documented ([docs/](docs/)) and extractable. See [ANALYSIS.md](ANALYSIS.md).
-- 29 functions of the main overlay byte-match with GCC 2.7.2-psx `-O2 -G0` (`scripts\match.ps1`); that compiler is about
-  95% confident. Only leaf and simple frame/call/loop functions so far; switch tables, `.rodata` and larger frames are untested.
+- 85 functions of the main overlay (program A) byte-match with GCC 2.7.2-psx `-O2 -G0` (`scripts\match.ps1`), all passing
+  the project's rule checker (`scriptsules.py`, 0 failures); that compiler is about 95% confident. Four loop functions
+  are parked as walls. Only leaf and simple frame/call/loop functions so far; switch tables, `.rodata` and larger frames are untested.
 - Every code overlay has a load address ([config/overlays.tsv](config/overlays.tsv)), found by static analysis only.
 - The game code lives mostly in overlays loaded from `SO2.BIN`, not in the 128 KB boot executable.
 - No existing Star Ocean 2 (PS1) decompilation was found when searching ([TOOLCHAIN.md](TOOLCHAIN.md)).
