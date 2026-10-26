@@ -1,4 +1,4 @@
-/* wall: tail/schedule, 151 differing bytes: loop shape matches (while(1)+break); retail computes the b2084[slot] address from the already-set a0 and drops the store into the delay slot of the final call, and the two paths merge the other way round (not-found jumps into the found tail) */
+/* wall: tail/schedule, 151 bytes; retail layout A(new slot, jumps into B tail), B9CC test, B+tail(B7B0 call, sb in delay, ret 1), C(h0[i]=0, ret 1 last). gcc cross-jump merged A into B tail in retail; explicit duplicated tails here (150 bytes) give no crossjump; original convergent tail puts C before tail. Needs so2.h decl int func_8003B638(). */
 #include "so2.h"
 int func_8003B638(S_8003B83C *o, int a, int b, int c) {
     int i, slot, n;
