@@ -9,3 +9,16 @@
 0x8006F7CC	192	DONE
 0x8006FA7C	236	DONE
 0x8006D8A4	540	DONE
+0x80071AA0	212	DONE
+0x8006D5E0	92	OPEN (wip; 6 bytes; <<1 as sll16/srl15, 5 spellings tried)
+0x8006D77C	144	OPEN (wip; 28 bytes; e in a1 vs a0, 12 operand-order/type variants tried)
+0x8006D80C	152	OPEN (not retried; same wall as 8006D77C)
+0x8006DDC4	516	OPEN (wip; body matches, loop-1 register wall; short n gave the move t1,v0)
+0x8006E940	384	OPEN (wip; 69 bytes; clamp result kept in the a2 register in retail)
+0x8006EAC0	104	OPEN (wip; 33 bytes; retail loads lh for the y sum, we get lhu)
+0x80072FBC	584	OPEN (wip; stack-arg colour constants hoisted into s2/s3/s5)
+0x800715BC	596	OPEN (wip; 37 bytes; o/i loads scheduled after the w0/w4 stores in retail)
+0x80073204	188	OPEN (wip; POLY_G4 store schedule, unchanged)
+0x800732C0	232	OPEN (wip; 39 bytes; same stack-arg hoist class as 80073204)
+0x80073D4C	452	OPEN (wip; 64 bytes; p4/h2C load order)
+0x800727A0	412	OPEN (wip; 183 bytes; glyph row/col math schedule; 8007293C same family)
