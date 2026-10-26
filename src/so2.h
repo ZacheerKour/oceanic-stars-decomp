@@ -41,7 +41,7 @@ void func_8002F8C4();
 int func_8002F8E0();
 int func_8002F974();
 int func_80031214();
-void func_80031070();
+int func_80031070();
 extern int D_8004EFB0;
 
 /* lane 2 */
@@ -378,3 +378,13 @@ extern char D_8004B5C8;
 typedef struct S_80032270 { char pad0[8]; S_800323BCe *p8[50]; char padD0[0x20]; void *pF0; } S_80032270;
 void func_800323BC(S_80032270 *, short);
 typedef struct S_80030E1C { char pad0[0x1B]; signed char b1B; } S_80030E1C;
+typedef struct S_80033068e { unsigned short h0; } S_80033068e;
+typedef struct S_80033068 { char pad0[8]; S_80033068e *p8[50]; } S_80033068;
+void func_8006DD10();
+void func_80011ABC();
+int func_80012FEC();
+void func_80013254();
+typedef struct S_80031070e { void *p0; int w4; int w8; } S_80031070e;
+typedef struct S_80031070 { char pad0[8]; int w8; } S_80031070;
+extern S_80031070e D_8004DDD4[16];
+extern int D_8004DD9C;
