@@ -566,7 +566,6 @@ typedef struct {
 S_8003540C *func_8003540C();
 void func_8006DFC8();
 void func_80068E40();
-void *func_8003C144();
 int func_8003562C();
 void func_8003083C();
 void func_800306A4();
