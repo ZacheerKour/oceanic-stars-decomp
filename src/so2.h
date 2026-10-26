@@ -422,7 +422,7 @@ typedef struct { char pad0[4]; S_80073884_vt *p4; } S_80073884_c;
 typedef struct { char pad0[4]; void *p4; char pad8[4]; S_80073884_m *p0C; S_80073884_c *p10; } S_80073884;
 extern void *D_80074AD0[];
 typedef struct { char pad0[0x64]; short h64; char pad66[2]; short h68; } S_8006EAC0;
-typedef struct { unsigned int w0; } S_8003EC54_tag;
+typedef struct { unsigned int addr : 24; unsigned int len : 8; } S_8003EC54_tag;
 typedef struct { char pad0[4]; void *p4; char pad8[4]; S_8003EC54_tag *p0C; } S_8003EC54_ot;
 typedef struct { S_8003EC54_ot *p0; } S_8003EC54;
 S_8003EC54_tag *func_8003C434();
@@ -437,3 +437,5 @@ typedef struct { char pad0[0x40]; short h40; char pad42[2]; void (*fn44)(); } S_
 typedef struct { char pad0[4]; S_80073CDC_vt *p4; } S_80073CDC;
 typedef struct { char pad0[2]; short h2; } S_80073CDC_n;
 typedef struct { char pad0[0x5C]; S_80073CDC_n *p5C; } S_80073CDC_b;
+typedef struct { char pad0[0x1C]; S_8003EC54_ot *p1C; } S_8004A438;
+extern short D_1F8001EC, D_1F8001EE, D_1F8001F0, D_1F8001F2;
