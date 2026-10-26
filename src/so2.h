@@ -32,7 +32,8 @@ void func_800367B4();
 
 /* lane 2 */
 typedef struct {
-	char pad0[0x78E];
+	char pad0[0x78C];
+	unsigned short h78C;
 	unsigned short h78E;
 	char pad790[4];
 	short h794;
@@ -65,3 +66,9 @@ typedef struct {
 	char pad42[2];
 	short h44;
 } S_8003B024;
+extern int D_8004EFB4;
+extern short D_8004EFB8, D_8004EFC0, D_8004EFD0;
+extern unsigned D_8004E018[][2], D_8004E078[][2];
+void func_80036B2C();
+void func_80038930();
+void func_80038884(int, short, unsigned short);
