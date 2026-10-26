@@ -409,3 +409,5 @@ typedef struct { char pad0[0x16]; unsigned short h16; char pad18[0x14]; unsigned
 typedef struct { short h0; short h2; short h4; char pad6[6]; short hC; short hE; short h10; short h12; short h14; char pad16[0xE]; } S_8006F930p;
 typedef struct { short x; short y; short w; short h; } S_8006F88C_r;
 typedef struct { char pad0[0x38]; int w38; } S_8006F88C_o;
+typedef struct { char b[8]; } S_8006FC2C_blk;
+typedef struct { short h0; short h2; short h4; char pad6[6]; short hC; short hE; char pad10[4]; S_8006FC2C_blk blk14; char pad1C[8]; } S_8006FC2Cp;
