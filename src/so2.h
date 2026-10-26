@@ -43,3 +43,12 @@ typedef struct { char pad0[0x1C]; unsigned short h1c; } S_8006E7AC;
 typedef struct { char pad0[0x14]; short h14; short h16; char pad18[0x14]; short h2c; short h2e; short h30; char pad32[0x1E]; int w50; int w54; int pad58; int w5c; } S_8006E7E4;
 typedef struct { short h0; short h2; short h4; short h6; short h8; } S_8006DAC0;
 short func_8006DB24();
+typedef struct { short x; short y; short w; short h; } S_8006E1A0;
+typedef struct { short h0; short h2; S_8006E1A0 r1; S_8006E1A0 r2; int w14; } S_8006E20C;
+typedef struct {
+    char pad0[0x18]; unsigned short h18; unsigned short h1a; unsigned short h1c; char pad1e[0xA];
+    short h28; short h2a; char pad2c[6]; short h32; char pad34[0x14]; int w48; int w4c; char pad50[0x12];
+    S_8006E1A0 r62; S_8006E1A0 r6a;
+} S_8006EBFC;
+void func_8006E20C();
+void func_8006EBFC();
