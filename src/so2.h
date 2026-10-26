@@ -29,3 +29,24 @@ void func_80038854();
 void func_8003867C();
 void func_80035AA4();
 void func_800367B4();
+
+/* lane 2 */
+typedef struct {
+	char pad0[0x78E];
+	unsigned short h78E;
+	char pad790[4];
+	short h794;
+	char pad796[0x2E];
+	short h7C4;
+	char pad7C6[6];
+} S_8003818C;
+typedef struct { int w0; void *p4; } S_80038228;
+typedef struct { char pad0[0x5C]; int w5C; char pad60[0x10]; } S_8003BE84;
+typedef struct { char pad0[4]; short h4; short h6; char pad8[8]; short h10; short h12; } S_8003C8D8;
+typedef struct { char pad0[0x10]; int w10; int w14; int w18; } S_8003E86C;
+typedef struct { char pad0[0x26]; unsigned short h26; } S_8003B3D4;
+
+extern S_8003BE84 D_8004DED8[];
+extern int D_8004DED4;
+extern int D_8004E168[];
+extern int D_8004E170;
