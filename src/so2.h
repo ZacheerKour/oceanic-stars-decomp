@@ -482,3 +482,10 @@ void func_80032524();
 int func_8002F8E4();
 typedef struct { unsigned short w[998]; } S_8003161Ce;
 typedef struct { char pad0[0xC]; S_8003161Ce s[2]; } S_8003161C;
+extern unsigned char D_8004B8C8[];
+/* wave6 lane2 */
+typedef struct { char pad0[8]; short h8; char padA[2]; void (*fn0C)(); char pad10[0x18]; short h28; char pad2A[2]; void (*fn2C)(); } S_80036240_vt;
+typedef struct { char pad0[4]; S_80036240_vt *p4; char pad8[8]; } S_80036240c;
+typedef struct { S_80036240c *p0; int w4; unsigned int w8; } S_80036240e;
+typedef struct { char pad0[8]; S_80036240e *p8; int wC; } S_80036240;
+void func_80036240();
