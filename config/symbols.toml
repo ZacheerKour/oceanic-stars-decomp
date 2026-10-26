@@ -9,207 +9,1884 @@ status = "guessed"
 note = "PS-X header initial pc"
 
 [[func]]
-pc = 0x8003093C
-name = "func_8003093C"
+pc = 0x8002F898
+name = "func_8002F898"
+size = 12
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8002F8A4
+name = "func_8002F8A4"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8002F8E0
+name = "func_8002F8E0"
+size = 148
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 148 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8002F974
+name = "func_8002F974"
+size = 148
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 148 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8002FBF8
+name = "func_8002FBF8"
+size = 108
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 108 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8002FFAC
+name = "func_8002FFAC"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8002FFE4
+name = "func_8002FFE4"
+size = 16
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800305A4
+name = "func_800305A4"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003093C
+name = "func_8003093C"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80030A10
+name = "func_80030A10"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80030A60
+name = "func_80030A60"
+size = 100
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80030CBC
 name = "func_80030CBC"
+size = 104
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 104 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80030D24
 name = "func_80030D24"
+size = 64
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 64 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80030FA8
+name = "func_80030FA8"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80030FC8
+name = "func_80030FC8"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80030FE8
+name = "func_80030FE8"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80031008
+name = "func_80031008"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80031214
 name = "func_80031214"
+size = 124
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 124 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80031598
+name = "func_80031598"
+size = 60
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 60 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800317D4
+name = "func_800317D4"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800317E0
+name = "func_800317E0"
+size = 140
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 140 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80031C04
+name = "func_80031C04"
+size = 84
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80031C58
 name = "func_80031C58"
+size = 100
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80031CBC
+name = "func_80031CBC"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800320F4
+name = "func_800320F4"
+size = 64
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 64 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80032134
 name = "func_80032134"
+size = 24
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800322F8
+name = "func_800322F8"
+size = 16
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80032308
 name = "func_80032308"
+size = 24
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80032374
+name = "func_80032374"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80032380
+name = "func_80032380"
+size = 60
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 60 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x8003244C
 name = "func_8003244C"
+size = 60
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 60 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80032488
 name = "func_80032488"
+size = 16
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80032558
+name = "func_80032558"
+size = 92
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 92 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80032918
 name = "func_80032918"
+size = 56
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80032950
 name = "func_80032950"
+size = 52
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80032984
 name = "func_80032984"
+size = 44
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800339A8
+name = "func_800339A8"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800339F8
+name = "func_800339F8"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80033FB0
 name = "func_80033FB0"
+size = 16
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80033FC0
+name = "func_80033FC0"
+size = 16
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800340B0
+name = "func_800340B0"
+size = 16
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800340C0
+name = "func_800340C0"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034390
 name = "func_80034390"
+size = 16
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x800343A0
 name = "func_800343A0"
+size = 24
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800343B8
+name = "func_800343B8"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800343E4
+name = "func_800343E4"
+size = 24
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800343FC
+name = "func_800343FC"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80034428
+name = "func_80034428"
+size = 24
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80034440
+name = "func_80034440"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x800344D0
 name = "func_800344D0"
+size = 100
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034534
 name = "func_80034534"
+size = 80
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034584
 name = "func_80034584"
+size = 52
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x800345B8
 name = "func_800345B8"
+size = 72
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 72 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034600
 name = "func_80034600"
+size = 80
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x800346C4
 name = "func_800346C4"
+size = 80
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034714
 name = "func_80034714"
+size = 84
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800349B4
+name = "func_800349B4"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80034BD8
+name = "func_80034BD8"
+size = 24
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034FB4
 name = "func_80034FB4"
+size = 68
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 68 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80034FF8
 name = "func_80034FF8"
+size = 84
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x8003544C
 name = "func_8003544C"
+size = 80
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80035AFC
 name = "func_80035AFC"
+size = 84
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80035B50
+name = "func_80035B50"
+size = 20
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 20 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80035B64
+name = "func_80035B64"
+size = 60
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 60 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80035BA0
+name = "func_80035BA0"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80035BEC
+name = "func_80035BEC"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80035C3C
+name = "func_80035C3C"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80035F8C
+name = "func_80035F8C"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80035FDC
 name = "func_80035FDC"
+size = 76
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80036818
+name = "func_80036818"
+size = 212
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 212 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80036ACC
+name = "func_80036ACC"
+size = 96
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 96 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80036B2C
+name = "func_80036B2C"
+size = 144
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 144 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80036BBC
+name = "func_80036BBC"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800378CC
+name = "func_800378CC"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80037F60
+name = "func_80037F60"
+size = 128
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 128 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80037FE0
+name = "func_80037FE0"
+size = 84
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038034
+name = "func_80038034"
+size = 132
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 132 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038138
+name = "func_80038138"
+size = 84
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003818C
+name = "func_8003818C"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800381C0
+name = "func_800381C0"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800381F4
+name = "func_800381F4"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038228
+name = "func_80038228"
+size = 20
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 20 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x8003823C
 name = "func_8003823C"
+size = 52
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038278
+name = "func_80038278"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038644
+name = "func_80038644"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003867C
+name = "func_8003867C"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800386C8
+name = "func_800386C8"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003885C
+name = "func_8003885C"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038884
+name = "func_80038884"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800388B0
+name = "func_800388B0"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038930
+name = "func_80038930"
+size = 48
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 48 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038BA4
+name = "func_80038BA4"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80038C60
+name = "func_80038C60"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x80038DBC
 name = "func_80038DBC"
+size = 84
 emit = false
 status = "confirmed"
-note = "byte-matched, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80039150
+name = "func_80039150"
+size = 84
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 84 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800391A4
+name = "func_800391A4"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003A1E0
+name = "func_8003A1E0"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003A218
+name = "func_8003A218"
+size = 48
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 48 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003A368
+name = "func_8003A368"
+size = 92
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 92 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003A85C
+name = "func_8003A85C"
+size = 124
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 124 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003AAA0
+name = "func_8003AAA0"
+size = 120
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 120 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003AB18
+name = "func_8003AB18"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B024
+name = "func_8003B024"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B094
+name = "func_8003B094"
+size = 72
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 72 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B0DC
+name = "func_8003B0DC"
+size = 120
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 120 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B154
+name = "func_8003B154"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B1A4
+name = "func_8003B1A4"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B214
+name = "func_8003B214"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B284
+name = "func_8003B284"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B2F4
+name = "func_8003B2F4"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B364
+name = "func_8003B364"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B3D4
+name = "func_8003B3D4"
+size = 48
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 48 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B83C
+name = "func_8003B83C"
+size = 136
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 136 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B944
+name = "func_8003B944"
+size = 136
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 136 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003B9CC
+name = "func_8003B9CC"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003BB74
+name = "func_8003BB74"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003BBC4
+name = "func_8003BBC4"
+size = 244
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 244 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003BCB8
+name = "func_8003BCB8"
+size = 244
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 244 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003BE84
+name = "func_8003BE84"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003BEA0
+name = "func_8003BEA0"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C07C
+name = "func_8003C07C"
+size = 100
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C0E0
+name = "func_8003C0E0"
+size = 100
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C144
+name = "func_8003C144"
+size = 120
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 120 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C25C
+name = "func_8003C25C"
+size = 120
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 120 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C2D4
+name = "func_8003C2D4"
+size = 68
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 68 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C318
+name = "func_8003C318"
+size = 92
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 92 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C374
+name = "func_8003C374"
+size = 100
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C3D8
+name = "func_8003C3D8"
+size = 92
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 92 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C4BC
+name = "func_8003C4BC"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C508
+name = "func_8003C508"
+size = 64
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 64 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C548
+name = "func_8003C548"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C56C
+name = "func_8003C56C"
+size = 16
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C57C
+name = "func_8003C57C"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C5B4
+name = "func_8003C5B4"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003C8D8
+name = "func_8003C8D8"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003CB98
+name = "func_8003CB98"
+size = 148
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 148 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003CC2C
+name = "func_8003CC2C"
+size = 92
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 92 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003CC88
+name = "func_8003CC88"
+size = 172
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 172 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003E86C
+name = "func_8003E86C"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003E898
+name = "func_8003E898"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8003E8C4
+name = "func_8003E8C4"
+size = 148
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 148 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004137C
+name = "func_8004137C"
+size = 112
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 112 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80042B88
+name = "func_80042B88"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048DCC
+name = "func_80048DCC"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048DF4
+name = "func_80048DF4"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048E1C
+name = "func_80048E1C"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048E44
+name = "func_80048E44"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048E6C
+name = "func_80048E6C"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048E94
+name = "func_80048E94"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048EBC
+name = "func_80048EBC"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048EE4
+name = "func_80048EE4"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80048F0C
+name = "func_80048F0C"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800491D0
+name = "func_800491D0"
+size = 120
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 120 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800492B0
+name = "func_800492B0"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800493CC
+name = "func_800493CC"
+size = 140
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 140 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80049458
+name = "func_80049458"
+size = 120
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 120 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800494D0
+name = "func_800494D0"
+size = 24
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 24 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800494E8
+name = "func_800494E8"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004A288
+name = "func_8004A288"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004A3D0
+name = "func_8004A3D0"
+size = 104
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 104 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004AD0C
+name = "func_8004AD0C"
+size = 64
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 64 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004AD4C
+name = "func_8004AD4C"
+size = 136
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 136 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004ADD4
+name = "func_8004ADD4"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004ADF8
+name = "func_8004ADF8"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8004AE1C
+name = "func_8004AE1C"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D31C
+name = "func_8006D31C"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D324
+name = "func_8006D324"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D330
+name = "func_8006D330"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D33C
+name = "func_8006D33C"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D348
+name = "func_8006D348"
+size = 168
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 168 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D3F0
+name = "func_8006D3F0"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D588
+name = "func_8006D588"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D5B4
+name = "func_8006D5B4"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D63C
+name = "func_8006D63C"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D668
+name = "func_8006D668"
+size = 156
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 156 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006D704
+name = "func_8006D704"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006DAC0
+name = "func_8006DAC0"
+size = 100
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 100 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006DCD4
+name = "func_8006DCD4"
+size = 60
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 60 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006DFC8
+name = "func_8006DFC8"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006DFE8
+name = "func_8006DFE8"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E01C
+name = "func_8006E01C"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E068
+name = "func_8006E068"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E0B4
+name = "func_8006E0B4"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E0E0
+name = "func_8006E0E0"
+size = 96
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 96 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E140
+name = "func_8006E140"
+size = 96
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 96 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E1A0
+name = "func_8006E1A0"
+size = 108
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 108 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E6A4
+name = "func_8006E6A4"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E6F0
+name = "func_8006E6F0"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E6F8
+name = "func_8006E6F8"
+size = 48
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 48 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E728
+name = "func_8006E728"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E7AC
+name = "func_8006E7AC"
+size = 56
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 56 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006E7E4
+name = "func_8006E7E4"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006EB28
+name = "func_8006EB28"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006EB44
+name = "func_8006EB44"
+size = 108
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 108 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006EBB0
+name = "func_8006EBB0"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006EBFC
+name = "func_8006EBFC"
+size = 144
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 144 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006EFD0
+name = "func_8006EFD0"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006EFEC
+name = "func_8006EFEC"
+size = 48
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 48 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006F01C
+name = "func_8006F01C"
+size = 44
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 44 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006F070
+name = "func_8006F070"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006F08C
+name = "func_8006F08C"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006F098
+name = "func_8006F098"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006F0C0
+name = "func_8006F0C0"
+size = 16
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 16 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006F26C
+name = "func_8006F26C"
+size = 68
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 68 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8006FA58
+name = "func_8006FA58"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800703CC
+name = "func_800703CC"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800707F4
+name = "func_800707F4"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800712FC
+name = "func_800712FC"
+size = 72
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 72 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80071588
+name = "func_80071588"
+size = 52
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 52 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800733A8
+name = "func_800733A8"
+size = 40
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 40 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800733D0
+name = "func_800733D0"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800733DC
+name = "func_800733DC"
+size = 60
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 60 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073418
+name = "func_80073418"
+size = 36
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 36 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073698
+name = "func_80073698"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073718
+name = "func_80073718"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073724
+name = "func_80073724"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073730
+name = "func_80073730"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8007373C
+name = "func_8007373C"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073748
+name = "func_80073748"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073D3C
+name = "func_80073D3C"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073D44
+name = "func_80073D44"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073F10
+name = "func_80073F10"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80073F1C
+name = "func_80073F1C"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800742D0
+name = "func_800742D0"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800742D8
+name = "func_800742D8"
+size = 12
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 12 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800742E4
+name = "func_800742E4"
+size = 48
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 48 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80074314
+name = "func_80074314"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80074334
+name = "func_80074334"
+size = 32
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 32 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80074354
+name = "func_80074354"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8007435C
+name = "func_8007435C"
+size = 8
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 8 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80074364
+name = "func_80074364"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80074380
+name = "func_80074380"
+size = 28
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 28 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x8007439C
+name = "func_8007439C"
+size = 76
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 76 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x800743E8
+name = "func_800743E8"
+size = 80
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 80 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
+
+[[func]]
+pc = 0x80074494
+name = "func_80074494"
+size = 72
+emit = false
+status = "confirmed"
+note = "program A (e1c0) only; byte-matched 72 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
 pc = 0x8002F810
@@ -226,20 +1903,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8002F898
-name = "func_8002F898"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8002F8A4
-name = "func_8002F8A4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8002F8D0
 name = "func_8002F8D0"
 emit = false
@@ -247,29 +1910,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8002F8E0
-name = "func_8002F8E0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8002F974
-name = "func_8002F974"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8002FA08
 name = "func_8002FA08"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8002FBF8
-name = "func_8002FBF8"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -289,20 +1931,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8002FFAC
-name = "func_8002FFAC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8002FFE4
-name = "func_8002FFE4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8002FFF4
 name = "func_8002FFF4"
 emit = false
@@ -312,13 +1940,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003036C
 name = "func_8003036C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800305A4
-name = "func_800305A4"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -352,22 +1973,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80030A10
-name = "func_80030A10"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80030A38
 name = "func_80030A38"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80030A60
-name = "func_80030A60"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -422,34 +2029,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80030FA8
-name = "func_80030FA8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80030FC8
-name = "func_80030FC8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80030FE8
-name = "func_80030FE8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80031008
-name = "func_80031008"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80031028
 name = "func_80031028"
 emit = false
@@ -494,13 +2073,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x800313F0
 name = "func_800313F0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80031598
-name = "func_80031598"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -555,20 +2127,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x800317D4
-name = "func_800317D4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800317E0
-name = "func_800317E0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003186C
 name = "func_8003186C"
 emit = false
@@ -578,20 +2136,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x80031AA8
 name = "func_80031AA8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80031C04
-name = "func_80031C04"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80031CBC
-name = "func_80031CBC"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -611,13 +2155,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x800320F4
-name = "func_800320F4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003214C
 name = "func_8003214C"
 emit = false
@@ -632,13 +2169,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x800322F8
-name = "func_800322F8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80032320
 name = "func_80032320"
 emit = false
@@ -648,20 +2178,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003236C
 name = "func_8003236C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80032374
-name = "func_80032374"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80032380
-name = "func_80032380"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -690,13 +2206,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x80032524
 name = "func_80032524"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80032558
-name = "func_80032558"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -807,20 +2316,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x800339A8
-name = "func_800339A8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800339F8
-name = "func_800339F8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80033A2C
 name = "func_80033A2C"
 emit = false
@@ -835,29 +2330,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80033FC0
-name = "func_80033FC0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80033FD0
 name = "func_80033FD0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800340B0
-name = "func_800340B0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800340C0
-name = "func_800340C0"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -879,41 +2353,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x800342D8
 name = "func_800342D8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800343B8
-name = "func_800343B8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800343E4
-name = "func_800343E4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800343FC
-name = "func_800343FC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80034428
-name = "func_80034428"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80034440
-name = "func_80034440"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -975,13 +2414,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x800349B4
-name = "func_800349B4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800349D8
 name = "func_800349D8"
 emit = false
@@ -1012,13 +2444,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x80034BAC
 name = "func_80034BAC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80034BD8
-name = "func_80034BD8"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1248,43 +2673,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80035B50
-name = "func_80035B50"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80035B64
-name = "func_80035B64"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80035BA0
-name = "func_80035BA0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80035BC8
 name = "func_80035BC8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80035BEC
-name = "func_80035BEC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80035C3C
-name = "func_80035C3C"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1299,13 +2689,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x80035E58
 name = "func_80035E58"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80035F8C
-name = "func_80035F8C"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1423,36 +2806,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80036818
-name = "func_80036818"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800368EC
 name = "func_800368EC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80036ACC
-name = "func_80036ACC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80036B2C
-name = "func_80036B2C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80036BBC
-name = "func_80036BBC"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1472,13 +2827,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x800378CC
-name = "func_800378CC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800378F0
 name = "func_800378F0"
 emit = false
@@ -1493,27 +2841,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80037F60
-name = "func_80037F60"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80037FE0
-name = "func_80037FE0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80038034
-name = "func_80038034"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800380B8
 name = "func_800380B8"
 emit = false
@@ -1521,50 +2848,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80038138
-name = "func_80038138"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003818C
-name = "func_8003818C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800381C0
-name = "func_800381C0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800381F4
-name = "func_800381F4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80038228
-name = "func_80038228"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80038270
 name = "func_80038270"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80038278
-name = "func_80038278"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1612,27 +2897,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80038644
-name = "func_80038644"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003867C
-name = "func_8003867C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800386C8
-name = "func_800386C8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800386FC
 name = "func_800386FC"
 emit = false
@@ -1661,36 +2925,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003885C
-name = "func_8003885C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80038884
-name = "func_80038884"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800388B0
-name = "func_800388B0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800388E4
 name = "func_800388E4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80038930
-name = "func_80038930"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1710,22 +2946,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80038BA4
-name = "func_80038BA4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x80038BC4
 name = "func_80038BC4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x80038C60
-name = "func_80038C60"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1766,20 +2988,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x80039150
-name = "func_80039150"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x800391A4
-name = "func_800391A4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x800391F4
 name = "func_800391F4"
 emit = false
@@ -1789,13 +2997,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003A174
 name = "func_8003A174"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003A1E0
-name = "func_8003A1E0"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1815,13 +3016,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003A218
-name = "func_8003A218"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003A248
 name = "func_8003A248"
 emit = false
@@ -1831,13 +3025,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003A250
 name = "func_8003A250"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003A368
-name = "func_8003A368"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1871,29 +3058,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003A85C
-name = "func_8003A85C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003A8D8
 name = "func_8003A8D8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003AAA0
-name = "func_8003AAA0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003AB18
-name = "func_8003AB18"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -1915,76 +3081,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003AD68
 name = "func_8003AD68"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B024
-name = "func_8003B024"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B094
-name = "func_8003B094"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B0DC
-name = "func_8003B0DC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B154
-name = "func_8003B154"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B1A4
-name = "func_8003B1A4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B214
-name = "func_8003B214"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B284
-name = "func_8003B284"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B2F4
-name = "func_8003B2F4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B364
-name = "func_8003B364"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B3D4
-name = "func_8003B3D4"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -2032,13 +3128,6 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003B83C
-name = "func_8003B83C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003B8C4
 name = "func_8003B8C4"
 emit = false
@@ -2048,20 +3137,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003B900
 name = "func_8003B900"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B944
-name = "func_8003B944"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003B9CC
-name = "func_8003B9CC"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -2088,43 +3163,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003BB74
-name = "func_8003BB74"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003BBC4
-name = "func_8003BBC4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003BCB8
-name = "func_8003BCB8"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003BDAC
 name = "func_8003BDAC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003BE84
-name = "func_8003BE84"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003BEA0
-name = "func_8003BEA0"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -2144,64 +3184,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003C07C
-name = "func_8003C07C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C0E0
-name = "func_8003C0E0"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C144
-name = "func_8003C144"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003C1BC
 name = "func_8003C1BC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C25C
-name = "func_8003C25C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C2D4
-name = "func_8003C2D4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C318
-name = "func_8003C318"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C374
-name = "func_8003C374"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C3D8
-name = "func_8003C3D8"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -2214,57 +3198,8 @@ status = "guessed"
 note = "splat label, main program A"
 
 [[func]]
-pc = 0x8003C4BC
-name = "func_8003C4BC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C508
-name = "func_8003C508"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C548
-name = "func_8003C548"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C56C
-name = "func_8003C56C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C57C
-name = "func_8003C57C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C5B4
-name = "func_8003C5B4"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
 pc = 0x8003C5EC
 name = "func_8003C5EC"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003C8D8
-name = "func_8003C8D8"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -2279,27 +3214,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003CA94
 name = "func_8003CA94"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003CB98
-name = "func_8003CB98"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003CC2C
-name = "func_8003CC2C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003CC88
-name = "func_8003CC88"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
@@ -2321,27 +3235,6 @@ note = "splat label, main program A"
 [[func]]
 pc = 0x8003E54C
 name = "func_8003E54C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003E86C
-name = "func_8003E86C"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003E898
-name = "func_8003E898"
-emit = false
-status = "guessed"
-note = "splat label, main program A"
-
-[[func]]
-pc = 0x8003E8C4
-name = "func_8003E8C4"
 emit = false
 status = "guessed"
 note = "splat label, main program A"
