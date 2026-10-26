@@ -636,6 +636,4 @@ typedef struct { char pad0[8]; S_80073498v v[4]; } S_80073498q;
 void func_80073498(S_80073498 *);
 int func_8006FA7C();
 int func_8006F730();
-void func_8006F08C();
 void func_80073698();
-char *func_80032380();
