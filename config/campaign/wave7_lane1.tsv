@@ -29,3 +29,7 @@
 0x8003540C	64	MATCH (comma-return ctor)
 0x80036074	72	MATCH (comma-return ctor)
 0x80032C58	240	MATCH (adj = total - 12 separate int; cast (S_80033FD0p *)o->wE0 pre-existing in wip)
+0x80035BC8	36	MATCH (while(1){if(!*s++)break;n++;})
+0x80032DEC	44	MATCH (top-tested loop; param int a -> short n local)
+0x80032DB8	52	MATCH (top-tested loop)
+0x80034768	124	MATCH (top-tested loop)

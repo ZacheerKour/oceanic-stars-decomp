@@ -170,7 +170,7 @@ void func_80033A2C();
 void func_80049458();
 int func_800343E4(int *, short);
 int func_80034428(int *, short);
-char *func_80032DEC();
+char *func_80032DEC(int, char *, int);
 /* wave2 lane2 */
 typedef struct { char pad0[8]; Ctx *p8; } S_8003A218;
 typedef struct { char pad0[0x20]; short h20; char pad22[2]; void (*fn24)(); } S_80038278_vt;
@@ -371,7 +371,7 @@ void func_800364A0();
 void func_800365A4();
 void func_800366FC();
 void func_80032B3C();
-int func_80032DB8();
+void func_80032DB8(int, char *, char *);
 void func_80035B50();
 void func_80035B64();
 void func_80035AFC();
