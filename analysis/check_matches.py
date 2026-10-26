@@ -1,4 +1,5 @@
-"""Cross-check config/matches.tsv against config/symbols.toml and the e1c0 (program A) section of config/seeds_overlays.txt.
+"""Cross-check config/matches.tsv against config/symbols.toml (confirmed, name, size, no symbol inside a matched body), src/<name>.c
+and the e1c0 (program A) section of config/seeds_overlays.txt: a new matches.tsv row fails here until make_seeds.py has run.
     python -I analysis/check_matches.py [analyzer functions.tsv]   (optional: psxrecomp-analyze output for program A, seeded run)
 No game data needed. Prints addresses/sizes only; exit 1 on any problem (an analyzer size difference alone is reported, not fatal)."""
 import re, sys, tomllib
@@ -25,7 +26,12 @@ for (a, (n, s)), nxt in zip(spans, spans[1:] + [(A_LOAD + A_SIZE, None)]):
     if not (A_LOAD <= a and a + s <= A_LOAD + A_SIZE): bad.append(f'{n}: outside e1c0')
     if a + s > nxt[0]: bad.append(f'{n}: overlaps next match {nxt[0]:08X}')
     y = syms.get(a)
-    if not y or y['name'] != n or y['status'] != 'confirmed' or y.get('size') != s: bad.append(f'{n}: symbols.toml entry missing/different')
+    if not y or y['name'] != n or y['status'] != 'confirmed' or y.get('size') != s:
+        bad.append(f'{n}: symbols.toml entry missing/different (stale: run SO2_DATA=<main checkout> python -I analysis/make_seeds.py)')
+    src = root / 'src' / f'{n}.c'   # the symbol must name the function its matched source defines
+    if not src.exists() or not re.search(rf'\b{n}\s*\(', src.read_text()): bad.append(f'{n}: src/{n}.c missing or does not define {n}')
+    inside = sorted(p for p in syms if a < p < a + s)
+    if inside: bad.append(f'{n}: symbols inside the matched body: ' + ' '.join(f'{p:08X}' for p in inside))
     if a not in seeds: bad.append(f'{n}: not an e1c0 seed')
     inner = sorted(t for t in seeds if a < t < a + s)
     if inner: bad.append(f'{n}: seeds inside the matched body: ' + ' '.join(f'{t:08x}' for t in inner))

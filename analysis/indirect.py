@@ -280,6 +280,15 @@ def main():
             elif v[0] in ('add', 'sll'):
                 kind, note = 'complex', repr(v)[:70]
             rows.append((pc, name, kind, tg, conf, note))
+    # hand-verified over every decompressed module (RECOMP_NOTES '2026-10-26 Analyzer seeds were never read'): no code target in any image
+    dead = 'slot %08x set only by setter %08x, which no module references (no jal, pointer or lui/addiu); cleared at init, call is beqz-guarded'
+    dcb = 'slot %08x = saved BIOS DCB+0x34 handler (device table at kernel 0x150, 0x50-byte records); chains to the BIOS'
+    VERIFIED = {(0x8003c498, 'A'): ('static_slot_dead', 'high', dead % (0x8004e170, 0x8003c56c)),
+                (0x8003d3f4, 'C'): ('static_slot_dead', 'high', dead % (0x80074368, 0x8003d4c8)),
+                (0x8004b344, 'A'): ('bios_dcb_hook', 'high', dcb % 0x8004efe4),
+                (0x800715c4, 'C'): ('bios_dcb_hook', 'high', dcb % 0x80078880)}
+    rows = [(pc, n, *VERIFIED[pc, n][:1], tg, *VERIFIED[pc, n][1:]) if (pc, n) in VERIFIED and k == 'static_slot_unassigned' else (pc, n, k, tg, cf, nt)
+            for pc, n, k, tg, cf, nt in rows]
     with open(P('config', 'indirect_targets.tsv'), 'w', newline='\n') as f:
         f.write('# Indirect call/jump sites unresolved by psxrecomp-analyze (see analysis/indirect.py; RECOMP_NOTES.md "Indirect call resolution").\n'
                 '# site_pc\tprogram(boot|A|B|C)\tkind\ttargets\tconfidence\tnote\n')

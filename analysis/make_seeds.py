@@ -21,7 +21,23 @@ def scan(b, base):
     w = struct.unpack('<%dI' % n, b[:n * 4])
     jal = {((x & 0x3ffffff) << 2) | 0x80000000 for x in w if x >> 26 == 3}
     pro = {base + 4 * i for i, x in enumerate(w) if x >> 16 == 0x27bd and x & 0x8000}
-    return jal, pro
+    return jal, {pre_prologue(w, base, a) if a not in jal else a for a in pro}
+
+
+def pre_prologue(w, base, a, back=12):
+    """gcc schedules global loads / early-out tests before `addiu sp`: if the previous `jr ra` (+ delay slot) is at most
+    `back` instructions up and nothing between is a jump, call or trap, the function starts after that delay slot
+    (RECOMP_NOTES '2026-10-26 Analyzer seeds were never read')."""
+    i = (a - base) // 4
+    for k in range(i - 1, max(i - back - 3, -1), -1):
+        x = w[k]
+        if x == 0x03e00008:                      # jr ra
+            s = k + 2
+            while s < i and w[s] == 0: s += 1    # alignment nops between functions
+            return base + 4 * s
+        if x >> 26 in (2, 3) or (x >> 26 == 0 and x & 0x3f in (8, 9, 12, 13)):  # j, jal, jr, jalr, syscall, break
+            return a
+    return a
 
 
 MOD = {'A': 'e1c0', 'B': 'e2129c0', 'C': 'e2576c0'}

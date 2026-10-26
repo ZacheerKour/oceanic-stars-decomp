@@ -13,7 +13,7 @@
 80036624	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
 80038294	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
 800391d0	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
-8003c498	A	static_slot_unassigned		none	slot 8004e170: zero/bss, no const store in image
+8003c498	A	static_slot_dead		high	slot 8004e170 set only by setter 8003c56c, which no module references (no jal, pointer or lui/addiu); cleared at init, call is beqz-guarded
 8003d224	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
 8003d380	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
 8003e4b8	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
@@ -52,7 +52,7 @@
 80046d08	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
 80049b34	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
 8004aecc	A	bios_dispatch		high	BIOS vector b0 (function number in $t1)
-8004b344	A	static_slot_unassigned		none	slot 8004efe4: zero/bss, no const store in image
+8004b344	A	bios_dcb_hook		high	slot 8004efe4 = saved BIOS DCB+0x34 handler (device table at kernel 0x150, 0x50-byte records); chains to the BIOS
 80063768	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
 80065430	A	vtable_dispatch	80038270,80048d2c,800494d0,8006a3c8,8006ac64,800703cc,80073a38,80073d4c,800742e4	low	vptr@+4 slot@+116; 28 vtable bases stored at +4, 9 distinct targets
 80069eec	A	vtable_dispatch	8006a004,8006a1d8,8006a388,8006a74c	low	vptr@+20 slot@+12; 4 vtable bases stored at +20, 4 distinct targets
@@ -536,7 +536,7 @@
 80036b28	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 80038798	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
 8003a12c	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
-8003d3f4	C	static_slot_unassigned		none	slot 80074368: zero/bss, no const store in image
+8003d3f4	C	static_slot_dead		high	slot 80074368 set only by setter 8003d4c8, which no module references (no jal, pointer or lui/addiu); cleared at init, call is beqz-guarded
 8003da20	C	vtable_dispatch		none	vptr@+1016 slot@+20; 1 vtable bases stored at +1016, 0 distinct targets
 8003ed5c	C	vtable_dispatch		none	vptr@+1016 slot@+36; 1 vtable bases stored at +1016, 0 distinct targets
 8003edb4	C	vtable_dispatch		none	vptr@+1016 slot@+28; 1 vtable bases stored at +1016, 0 distinct targets
@@ -595,7 +595,7 @@
 80069d38	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 8006a760	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
 80070c2c	C	bios_dispatch		high	BIOS vector b0 (function number in $t1)
-800715c4	C	static_slot_unassigned		none	slot 80078880: zero/bss, no const store in image
+800715c4	C	bios_dcb_hook		high	slot 80078880 = saved BIOS DCB+0x34 handler (device table at kernel 0x150, 0x50-byte records); chains to the BIOS
 800715f8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
 800717a0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
 80072aa4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)

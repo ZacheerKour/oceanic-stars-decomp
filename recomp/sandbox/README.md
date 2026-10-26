@@ -5,7 +5,7 @@ and get counts / jump-table findings / unresolved indirect jumps back. Nothing f
 Why: the upstream codegen host downloads its toolchain from `releases/latest` without a hash check and the toolchain's `install.ps1` edits the user PATH
 (`tools\ref\SECURITY_TRIAGE.md`, gitignored). Here the toolchain zip is pinned by SHA-256 and never installed.
 
-**Status.** Run 1 (boot exe only; results in `_out\`, summarised in `RECOMP_NOTES.md` 'First analyze run') worked. **Run 2 (main programs A/B/C) has not been run.**
+**Status (2026-10-26).** Runs 1-3 passed bare-hex seeds, which the analyzer rejects or reads as decimal; staging now writes `0x` seeds. Run 5 (`-OutName _out_run5`, fixed seeds) is the run of record: RECOMP_NOTES.md '2026-10-26 Analyzer seeds were never read'. From a worktree: `$env:SO2_DATA=<main checkout>` before `make_wsb.ps1`. Older status: Run 1 (boot exe only; results in `_out\`, summarised in `RECOMP_NOTES.md` 'First analyze run') worked. **Run 2 (main programs A/B/C) has not been run.**
 Tested for run 2: both scripts parse, `make_wsb.ps1` runs on the host (hashes, staging, `.wsb`), `scripts\compare_analyzer.py` on synthetic data only. Untested: the new guest code
 (copy/hash of A/B/C, the 8-analysis loop, summary over `boot_*`, `A_*` ...) and whether the analyzer accepts the synthetic PS-X EXE wrapper.
 

@@ -1,10 +1,11 @@
 """Host side, stdlib only (run as: python -I stage_overlays.py <repo> <stage_dir>).
 Wraps the decompressed main programs A/B/C (SO2.BIN entries 1/2129/2576) in a minimal PS-X EXE header and
 writes per-program seed lists into <stage_dir>. Prints only names, sizes and hashes."""
-import hashlib, struct, sys
+import hashlib, os, struct, sys
 from pathlib import Path
 
 REPO, STAGE = Path(sys.argv[1]), Path(sys.argv[2])
+DATA = Path(os.environ.get('SO2_DATA', REPO))  # gitignored analysis/out lives in the main checkout
 LOAD, SP = 0x8002F810, 0x801FFFF0
 # name -> (decompressed file, TOC entry, seeds module id in config/seeds_overlays.txt)
 PROGS = {'A': ('0001_312.dec', 1, 'e1c0'), 'B': ('2129_24323.dec', 2129, 'e2129c0'), 'C': ('2576_30736.dec', 2576, 'e2576c0')}
@@ -23,7 +24,7 @@ for ln in (REPO / 'config/seeds_overlays.txt').read_text().splitlines():
         seeds[cur].append(ln.strip())
 
 for name, (fn, entry, mod) in PROGS.items():
-    raw = (REPO / 'analysis/out/d1' / fn).read_bytes()
+    raw = (DATA / 'analysis/out/d1' / fn).read_bytes()
     size, md5 = ovl[entry]
     if len(raw) != size or hashlib.md5(raw).hexdigest() != md5:
         sys.exit(f'{name}: size/md5 mismatch vs config/overlays.tsv')
@@ -37,5 +38,6 @@ for name, (fn, entry, mod) in PROGS.items():
     s = [a for a in seeds[mod] if LOAD <= int(a, 16) < LOAD + len(raw)]
     assert s and int(s[0], 16) == LOAD, f'{name}: seed list does not start at load address'
     (STAGE / f'{name}.exe').write_bytes(exe)
-    (STAGE / f'{name}.seeds.txt').write_text('\n'.join(s) + '\n')
+    # 0x prefix: psxrecomp-analyze parses seeds with stoul base 0 (bare hex is rejected or read as decimal)
+    (STAGE / f'{name}.seeds.txt').write_text(''.join(f'0x{a}\n' for a in s))
     print(f'{name} entry={entry} exe_sha256={hashlib.sha256(exe).hexdigest()} seeds={len(s)}')
