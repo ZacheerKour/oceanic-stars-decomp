@@ -1,0 +1,43 @@
+# wave5 lane2: addr	size	status
+0x8003EA00	216	DONE (24-bit addr bitfield tag S_8003EA00g)
+0x8003EC54	216	DONE
+0x8003ED2C	216	DONE
+0x8003F180	216	DONE
+0x80038D14	168	DONE (nested if, j and g separate)
+0x80038760	236	DONE (h0 &= ~1, no pointer local)
+0x80036658	12	DONE
+0x800366F0	12	DONE
+0x80038270	8	DONE
+0x8003A208	8	DONE
+0x800382AC	8	DONE
+0x800382B4	8	DONE
+0x8003884C	8	DONE
+0x80038854	8	DONE
+0x80039060	8	DONE
+0x8003A210	8	DONE
+0x8003A248	8	DONE
+0x8003B404	120	DONE
+0x8003C1BC	160	DONE (for with p++ in body)
+0x80038430	268	DONE (needs maspsx --expand-div, now default in match.sh)
+0x8003853C	264	DONE
+0x8003BAF0	132	DONE
+0x8003B5DC	92	MATCH-PENDING (byte-exact; R4 cast for offset-indexed half read)
+0x8003CA94	260	OPEN (wip, 5 bytes: delay-slot order of move s0,v0 vs move a0,zero)
+0x8003B638	376	OPEN (wip, 150 bytes: retail crossjump merges new-slot path into found-path tail, C last)
+0x8003B47C	228	OPEN (wip, 97 bytes: retained f=0 insn)
+0x800382BC	152	OPEN (wip, top-tested loop wall)
+0x80038354	220	OPEN (same top-tested loop wall family as 800382BC, not tried)
+0x80039068	232	OPEN (ctor, by-value rect on stack + packed halfword args, same class as 8006EAC0)
+0x8003BDAC	216	OPEN (by-value struct args on stack, div; not tried)
+0x80038960	188	OPEN (by-value struct arg, not tried)
+0x80036240	356	OPEN not read
+0x800363A4	252	OPEN not read
+0x800364A0	160	OPEN virtual call this-adjust
+0x800365A4	180	OPEN same
+0x800368EC	480	OPEN big
+0x80038A1C	392	OPEN
+0x8003A5AC	396	OPEN
+0x8003EAD8	380	OPEN
+0x8003A174	108	LANE1 (D_8004DD94)
+0x8003A738	292	LANE1 (D_8004DDD0)
+0x8003C434	136	LANE1 (D_8004E170)
