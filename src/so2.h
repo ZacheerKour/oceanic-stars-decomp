@@ -1,7 +1,6 @@
 /* Shared declarations for the main overlay (entry 1). Names are address-derived; layouts are inferred from accesses only. */
 typedef struct Node { int pad0; struct Node *next; } Node;
-typedef struct { char pad[2]; unsigned char b2; char pad3[0xD]; int w10; char pad14[0x12]; short h26, h28; } Ctx;
-typedef struct { short h0; unsigned char b2; char pad3[0xD]; int w10; } Ctx;
+typedef struct { short h0; unsigned char b2; char pad3[0xD]; int w10; char pad14[0x12]; short h26, h28; } Ctx;
 
 extern unsigned short *D_8004DDA4;
 extern void *D_8004DDB8;
