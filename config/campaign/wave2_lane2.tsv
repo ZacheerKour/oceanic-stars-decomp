@@ -1,0 +1,97 @@
+0x80038BA4	32	instr=8 calls=1 
+0x80038C60	32	instr=8 calls=1 
+0x8003A1E0	40	instr=10 calls=1 
+0x80038930	48	instr=12 calls=1 
+0x8003A218	48	instr=12 calls=1 
+0x80038278	52	instr=13 calls=1 
+0x800388B0	52	instr=13 calls=1 
+0x80038644	56	instr=14 calls=1 
+0x8003C57C	56	instr=14 calls=1 
+0x8003C5B4	56	instr=14 calls=1 
+0x8003B5DC	92	instr=23 calls=0 leaf
+0x8003B094	72	instr=18 calls=0 leaf,muldiv
+0x8003C2D4	68	instr=17 calls=1 
+0x8003B154	80	instr=20 calls=0 leaf,muldiv
+0x800388E4	76	instr=19 calls=1 
+0x8003B8C4	60	instr=15 calls=0 leaf,loop
+0x8003B9CC	76	instr=19 calls=1 
+0x8003AB18	52	instr=13 calls=2 
+0x8003B900	68	instr=17 calls=0 leaf,loop
+0x8003C318	92	instr=23 calls=1 
+0x8003BB74	80	instr=20 calls=0 leaf,loop
+0x8003867C	76	instr=19 calls=2 
+0x8003C3D8	92	instr=23 calls=0 leaf,loop
+0x800391A4	80	instr=20 calls=2 
+0x8003B0DC	120	instr=30 calls=0 leaf,muldiv
+0x8003B404	120	instr=30 calls=0 leaf,muldiv
+0x80036540	100	instr=25 calls=0 leaf,loop
+0x800367B4	100	instr=25 calls=0 leaf,loop
+0x80039150	84	instr=21 calls=2 
+0x8003C144	120	instr=30 calls=1 
+0x8003C25C	120	instr=30 calls=1 
+0x8003C07C	100	instr=25 calls=2 
+0x8003C0E0	100	instr=25 calls=2 
+0x8003C374	100	instr=25 calls=2 
+0x8003B83C	136	instr=34 calls=1 
+0x8003B944	136	instr=34 calls=1 
+0x8003C434	136	instr=34 calls=1 
+0x8003E958	168	instr=42 calls=0 leaf
+0x8003BA18	92	instr=23 calls=1 loop
+0x8003BA74	124	instr=31 calls=0 leaf,loop
+0x8003E8C4	148	instr=37 calls=1 
+0x80036664	140	instr=35 calls=0 leaf,loop
+0x8003A368	92	instr=23 calls=3 
+0x8003B7B0	140	instr=35 calls=0 leaf,loop
+0x80036ACC	96	instr=24 calls=3 
+0x800382BC	152	instr=38 calls=0 leaf,loop
+0x8003C1BC	160	instr=40 calls=0 leaf,loop
+0x80037FE0	84	instr=21 calls=4 
+0x80038138	84	instr=21 calls=4 
+0x8003BAF0	132	instr=33 calls=1 loop
+0x80038D14	168	instr=42 calls=0 leaf,loop
+0x8003CC2C	92	instr=23 calls=4 
+0x80038C80	148	instr=37 calls=1 loop
+0x80038BC4	156	instr=39 calls=1 loop
+0x8003A174	108	instr=27 calls=4 
+0x8003B560	124	instr=31 calls=2 loop
+0x800364A0	160	instr=40 calls=1 loop
+0x800386FC	100	instr=25 calls=3 loop
+0x80037F60	128	instr=32 calls=4 
+0x800365A4	180	instr=45 calls=1 loop
+0x80038034	132	instr=33 calls=4 
+0x80038354	220	instr=55 calls=0 leaf,loop
+0x8003BDAC	216	instr=54 calls=1 muldiv
+0x8003EA00	216	instr=54 calls=2 
+0x80038960	188	instr=47 calls=3 
+0x8003A85C	124	instr=31 calls=5 
+0x8003853C	264	instr=66 calls=0 leaf,muldiv
+0x80038430	268	instr=67 calls=0 leaf,muldiv
+0x800380B8	128	instr=32 calls=4 loop
+0x8003BFBC	192	instr=48 calls=2 loop
+0x80036818	212	instr=53 calls=3 
+0x8003CB98	148	instr=37 calls=5 
+0x800366FC	184	instr=46 calls=3 loop
+0x8003A534	120	instr=30 calls=5 loop
+0x8003BBC4	244	instr=61 calls=3 
+0x8003BCB8	244	instr=61 calls=3 
+0x8003AAA0	120	instr=30 calls=7 
+0x800363A4	252	instr=63 calls=2 loop
+0x8003BEBC	256	instr=64 calls=2 loop
+0x80038760	236	instr=59 calls=3 loop
+0x8003B47C	228	instr=57 calls=5 muldiv
+0x8003CA94	260	instr=65 calls=6 
+0x8003CC88	172	instr=43 calls=9 
+0x80036B2C	144	instr=36 calls=10 
+0x8003A738	292	instr=73 calls=4 loop
+0x8003EAD8	380	instr=95 calls=3 
+0x80036240	356	instr=89 calls=3 loop
+0x80039068	232	instr=58 calls=9 
+0x80038A1C	392	instr=98 calls=3 loop
+0x8003A250	280	instr=70 calls=7 loop
+0x8003B638	376	instr=94 calls=4 loop
+0x8003A3C4	368	instr=92 calls=5 loop
+0x8003C8F8	412	instr=103 calls=12 muldiv
+0x8003A5AC	396	instr=99 calls=13 loop,muldiv
+0x800368EC	480	instr=120 calls=20 loop
+0x800378F0	624	instr=156 calls=20 loop
+0x8003C5EC	748	instr=187 calls=30 loop

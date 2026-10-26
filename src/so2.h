@@ -84,7 +84,7 @@ extern int D_8004EFB4;
 extern short D_8004EFB8, D_8004EFC0, D_8004EFD0;
 extern unsigned D_8004E018[][2], D_8004E078[][2];
 void func_80036B2C();
-void func_80038930();
+void func_80038930(int, short, unsigned short, int);
 void func_80038884(int, short, unsigned short);
 
 /* lane 3 */
@@ -148,3 +148,14 @@ extern S_80038DBC *D_8004EFC4;
 extern int D_8004ECE8, D_8004ECEC;
 extern S_80032918 D_8004ECD0[], D_8004ED90[], D_8004EE50[];
 extern int D_8004DE94, D_8004DE98;
+/* wave2 lane2 */
+typedef struct { char pad0[8]; Ctx *p8; } S_8003A218;
+typedef struct { char pad0[0x20]; short h20; char pad22[2]; void (*fn24)(); } S_80038278_vt;
+typedef struct { char pad0[4]; S_80038278_vt *p4; char pad8[8]; } S_80038278;
+typedef struct { int w0; int w4; int w8; } S_8003C57C;
+extern int D_8004B9F4[], D_8004B868[];
+void func_80038BC4();
+void func_8003823C();
+void func_80038960();
+int func_8003BEBC();
+int func_8003BFBC();
