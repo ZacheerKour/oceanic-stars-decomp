@@ -134,6 +134,8 @@ typedef struct {
 	char pad35[0x1F];
 	unsigned short h54;
 } S_80030CBC; /* state object at D_8004DDC4 (other fields: hC read by overlay code) */
+typedef struct { int w0; int w4; } S_80033FD0p; /* resource header: w0 = size of the string-table part */
+typedef union { int w[1]; char b[1]; } S_80032374t; /* offset table at the head of a string block */
 typedef struct S_80032270 { /* 276-byte resource object (func_8006F218 alloc) */
 	char pad0[2];
 	short h2;
@@ -141,8 +143,9 @@ typedef struct S_80032270 { /* 276-byte resource object (func_8006F218 alloc) */
 	S_80032840e *p8[50];
 	char padD0[4];
 	int wD4;
-	char padD8[8];
-	int wE0;
+	int wD8;
+	int wDC;
+	S_80032374t *pE0;
 	short hE4;
 	short hE6;
 	short hE8;
@@ -164,16 +167,15 @@ typedef struct S_80032270 { /* 276-byte resource object (func_8006F218 alloc) */
 struct S_8003214Ce { char pad0[4]; int w4; int w8; };
 typedef struct { char pad0[0x10]; unsigned short h10; char pad12[0xA]; S_80035AFC ent[1]; } S_80035AFC_obj;
 extern S_80038DBC *D_8004EFC4;
-extern int D_8004ECE8, D_8004ECEC;
-extern S_80032918 D_8004ECD0[], D_8004ED90[], D_8004EE50[];
+extern S_80033FD0p *D_8004ECE8;
+extern S_80032374t *D_8004ECEC;
+extern S_80032918 D_8004ECD0[], D_8004ED90[], D_8004EE50[]; /* palette banks, one 0x20 entry before D_8004ECF0/EDB0/EE70 (func_80032EEC fills those); D_8004ECD0[0].h0 is also D_8004ECB0[16] */
 extern int D_8004DE94, D_8004DE98;
 
 /* wave2 lane1 */
 typedef struct { char pad0[0xFEE]; short hFEE; } S_800317D4;
 typedef struct { char pad0[0x34]; unsigned short h34; char pad36[0x1E]; unsigned short h54; } S_80031CBC;
-typedef union { int w[1]; char b[1]; } S_80032374t; /* offset table at the head of a string block */
-typedef struct { char pad0[0xE0]; S_80032374t *pE0; char padE4[2]; short hE6; } S_80032374;
-char *func_80032380(S_80032374 *, int);
+char *func_80032380(S_80032270 *, int);
 typedef struct { int w0; int w4; } S_8002FFAC;
 typedef struct { int w0; int w4; int w8; int wC; } S_800320F4;
 extern S_800320F4 D_8004EF30[];
@@ -289,7 +291,6 @@ typedef struct { short h0; short h2; char pad4[2]; short h6; } S_80030974p;
 extern S_80030974t *D_8004DDB0;
 void func_80021108();
 void func_80012F28();
-typedef struct { int w0; int w4; } S_80033FD0p;
 void *func_8001FE30();
 unsigned char *func_80038354();
 typedef struct { char pad0[0xFF0]; int wFF0; int wFF4; int wFF8; int wFFC; int w1000; } S_800317E0;
@@ -373,7 +374,6 @@ void func_80036BE4();
 void func_800313F0();
 typedef struct S_8003540C { short h0; char pad2[6]; int w8; char padC[4]; short h10; char pad12[0x4A]; int w5C; int w60; } S_8003540C;
 typedef struct S_80035940 { char pad0[0x6C]; short h6C; } S_80035940;
-typedef struct S_80032320 { char pad0[0xD4]; int wD4; int wD8; int wDC; int wE0; short hE4; } S_80032320;
 typedef struct S_80036028 { char pad0[8]; char *p8; char *pC; } S_80036028;
 typedef struct S_80036124 { char pad0[0x10]; int w10; } S_80036124;
 typedef struct S_80036124s { int w0; int w4; int w8; } S_80036124s;
@@ -501,7 +501,7 @@ typedef struct { char pad0[0xC]; int wC; } S_800366F0;
 typedef struct { int w0; unsigned char b4[0x2C]; } S_8003B5DCe;
 typedef struct { char pad0[0x820]; S_8003B5DCe *p820; } S_8003B5DC;
 typedef struct { char pad0[0x4A]; short h4A; } S_8003B404;
-void func_80032524(S_80032374 *, int);
+void func_80032524(S_80032270 *, int);
 typedef struct { unsigned short w[998]; } S_8003161Ce;
 typedef struct { char pad0[0xC]; S_8003161Ce s[2]; } S_8003161C;
 extern unsigned char D_8004B8C8[];

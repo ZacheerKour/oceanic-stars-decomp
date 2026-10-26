@@ -1,4 +1,4 @@
-/* DIFF 1 byte: beqz $3 initial guard targets the post-loop "if(!c)" test in retail (0x80032e84); ours jump-threads it to the p-- (0x80032e8c). Wall class CFG (jump threading). Tried for/while/!=0, p -= (c==0), break-based p--, nested ifs. Key lever found: "unsigned code = c & 0xFFFF" (not ushort). */
+/* DIFF 1 byte: beqz $3 initial guard targets the post-loop "if(!c)" test in retail (0x80032e84); ours jump-threads it to the p-- (0x80032e8c). Wall class CFG (jump threading). Tried for/while/!=0, p -= (c==0), break-based p--, nested ifs. Key lever found: "unsigned code = c & 0xFFFF" (not ushort).  Wave 10 also tried: d=c=... separate exit-test var, p=p-1, do-while inside if(c), p[-1]==0 test: no change (1 byte, or 35+ bytes). */
 #include "so2.h"
 short func_80032E18(unsigned char *p, unsigned char *s)
 {

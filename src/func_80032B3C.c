@@ -2,11 +2,12 @@
 void func_80032B3C(S_80032270 *o, int a, int n) {
 	char buf[32];
 	char out[32];
-	int base, i, sum, r;
+	char *base;
+	int i, sum, r;
 	unsigned char d;
 	unsigned char c;
 
-	base = o->wE0 + ((S_80033FD0p *)o->wE0)->w0;
+	base = o->pE0->b + o->pE0->w[0];
 	func_800100EC(buf, a, n, 32);
 	out[0] = 0;
 	sum = 0;

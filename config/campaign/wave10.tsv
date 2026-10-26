@@ -1,0 +1,14 @@
+# wave10 lane1 (whole overlay): addr	size	status
+0x80074008	178	DONE (moved from wip; S_80030CBC split: D_8004DDC4 state object has hC halfword, the 276-byte resource object is S_80032270 with p8[50])
+0x8003214C	292	DONE under rules (clear loop is o->p8[n] = 0 now; no cast)
+0x80032134/80032308/80032320/80032B3C/80032C58/80032EA4	-	re-typed (pE0 offset-table pointer, D_8004ECE8/ECEC pointers), 3 casts gone, all MATCH
+0x80035FDC	76	re-typed (S_80035FDC, frees pC), was misusing S_80030CBC p8[1]
+0x8003B5DC	92	OPEN MATCH-PENDING (generic byte-offset getter, entry 0x30 bytes; no cast-free spelling)
+0x80049060	192	bounded (D_8004ECB0[16] vs D_8004ECD0[0].h0 are one address; single symbol CSEs the base, retail has two symbols)
+0x80049248	104	bounded (same)
+0x80033FD0	224	OPEN 3 bytes (pE0 base reg v0 vs a1); cast gone
+0x80032E18	140	OPEN 1 byte (jump threading), 4 more variants failed
+0x8006D5E0	92	OPEN 6 bytes (sll16/srl15), 5 variants failed
+0x800382BC	152	OPEN (rotation), 3 variants failed
+0x8003445C,80034110,800341F0	-	OPEN (register; offset-table getters need casts)
+others in the wave list	-	re-measured only, unchanged (register/schedule walls; see src/wip first lines)
