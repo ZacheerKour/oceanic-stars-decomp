@@ -1,3 +1,2 @@
 #include "so2.h"
-typedef struct { char pad[0xC]; void *p; } Obj;
-void func_80035FDC(Obj *o, int f) { func_8001FD70(o->p); if (f & 1) func_8001FD70(o); }
+void func_80035FDC(S_80030CBC *o, int f) { func_8001FD70(o->pC); if (f & 1) func_8001FD70(o); }

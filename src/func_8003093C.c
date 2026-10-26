@@ -1,3 +1,4 @@
+#include "so2.h"
 int func_8003093C(int unused, unsigned mask) {
     int i, bit;
     if (mask) {

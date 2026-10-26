@@ -1,3 +1,7 @@
 #include "so2.h"
-typedef struct { char pad[0x10]; unsigned short idx; char pad2[0xA]; struct { unsigned short v; short pad[3]; } ent[1]; } Obj;
-void func_80035AFC(Obj *o) { int a; o->idx -= 2; if (o->idx == 0xFFFF) { o->idx = 0; a = 0x14; } else a = o->ent[o->idx].v; func_80035AA4(o, a); }
+void func_80035AFC(S_80035AFC_obj *o) {
+	int a;
+	o->h10 -= 2;
+	if (o->h10 == 0xFFFF) { o->h10 = 0; a = 0x14; } else a = o->ent[o->h10].v;
+	func_80035AA4(o, a);
+}

@@ -1,2 +1,2 @@
-typedef struct { char pad[0xF8]; short *base; short *cur; short rem; short pad2[7]; short pos; } Obj;
-void func_80032950(Obj *o, int a) { int q; o->pos = a; q = a / 4; o->rem = a - q * 4; o->cur = o->base + q; }
+#include "so2.h"
+void func_80032950(S_80030CBC *o, int a) { int q; o->h110 = a; q = a / 4; o->h100 = a - q * 4; o->pFC = o->pF8 + q; }

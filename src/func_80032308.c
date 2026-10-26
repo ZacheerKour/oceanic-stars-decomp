@@ -1,2 +1,2 @@
-typedef struct { char pad[0xD4]; int p; char pad2[8]; int q; } Obj;
-void func_80032308(Obj *o, int *x, int *y) { *x = o->p; *y = o->q; }
+#include "so2.h"
+void func_80032308(S_80030CBC *o, int *x, int *y) { *x = o->wD4; *y = o->wE0; }
