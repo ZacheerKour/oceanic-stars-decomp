@@ -4,7 +4,7 @@ Stable, machine-readable form of `config/overlays.tsv` (human notes stay in ANAL
 
 ```
 python -I analysis/overlay_json.py          # tsv -> json; sha256 from the local discs (kept from the old json if roms\ is absent)
-python -I scripts/make_psxrecomp_overlays.py  # json -> recomp/aot/overlays.json (psxrecomp AOT profile)
+python -I analysis/aot_profile.py            # json + local disc 1 -> recomp/aot/overlays.json (prepared_files form; SO2_DATA=<checkout with roms\>)
 python -I tests/slz/check_local.py          # re-decode every overlay from the discs and verify md5 + sha256 (skips without roms\)
 ```
 No game bytes are stored: ids, addresses, sizes and hashes only.
@@ -36,7 +36,11 @@ No game bytes are stored: ids, addresses, sizes and hashes only.
 Overlays share addresses (e.g. nine alternative `0x8008c1f4` battle handlers, the `0x8007e000` area modules, the four 2131-family slots):
 group by `load_addr` to find the alternatives that can never be resident together. Coexistence is **not** otherwise encoded (open item).
 
-## psxrecomp mapping (`scripts/make_psxrecomp_overlays.py`)
+## psxrecomp mapping
+**Superseded 2026-10-26:** the profile is now written by `analysis/aot_profile.py` as `prepared_files` (method `so2_slz`) + `fixed_address_files`, disc 1 only
+(RECOMP_NOTES.md '2026-10-26 SLZ overlays into the AOT pipeline'). The table below is the old guessed `slz_members` form of `scripts/make_psxrecomp_overlays.py`.
+
+### Old form (`scripts/make_psxrecomp_overlays.py`)
 Checked against `tools/aot_overlay_pipeline.py` (psxrecomp HEAD f42d2c0), which requires `schema == "psxrecomp AOT methods v1"`, `game_id` equal to `[game] id`,
 exactly one of `disc_hashes` / `disc_set`, `images[]`, `expected_records`, and optional `checks[]`.
 
