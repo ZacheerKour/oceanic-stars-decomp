@@ -433,3 +433,7 @@ void func_800322F8();
 typedef struct { char pad0[0x20]; short h20; char pad22[2]; void (*fn24)(); } S_800744DC_vt;
 typedef struct S_800744DC_o { char pad0[4]; S_800744DC_vt *p4; } S_800744DC_o;
 typedef struct { char pad0[0x14]; S_800744DC_o *p14; } S_800744DC;
+typedef struct { char pad0[0x40]; short h40; char pad42[2]; void (*fn44)(); } S_80073CDC_vt;
+typedef struct { char pad0[4]; S_80073CDC_vt *p4; } S_80073CDC;
+typedef struct { char pad0[2]; short h2; } S_80073CDC_n;
+typedef struct { char pad0[0x5C]; S_80073CDC_n *p5C; } S_80073CDC_b;
