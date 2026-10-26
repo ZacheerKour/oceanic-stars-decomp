@@ -1,6 +1,6 @@
 /* 48 differing bytes: wall schedule + retail keeps a dead lhu h16/addiu -1 after the call (not reproducible by an inlined return value) */
 #include "so2.h"
-void func_8006F7CC(S_8006F1A0 *a0, short a1)
+int func_8006F7CC(S_8006F1A0 *a0, short a1)
 {
     S_8006E80Ce e;
     unsigned short s;
@@ -12,9 +12,10 @@ void func_8006F7CC(S_8006F1A0 *a0, short a1)
     func_800329B0(a0->p54);
     e.h0 = 2;
     e.hC = a0->h2C;
+    e.hE = a0->h2E;
     e.h2 = 4;
     e.h4 = s;
-    e.hE = a0->h2E;
     func_8006FD10(a0, &e);
     a0->h2E += a0->h30;
+    return a0->h16 - 1;
 }
