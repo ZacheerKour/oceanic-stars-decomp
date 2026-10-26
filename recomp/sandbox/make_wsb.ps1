@@ -4,7 +4,7 @@ plus the staging and output folders. It does NOT start the sandbox: review _run.
 Usage: powershell -NoProfile -File recomp\sandbox\make_wsb.ps1 [-OutName _out_run3]
 From a git worktree set $env:SO2_DATA=<main checkout> first: the gitignored inputs (tools\, extracted\, analysis\out\) are read from there, config\ from this checkout.
 #>
-param([string]$OutName = '_out_run2')
+param([string]$OutName = '_out_gen1')
 $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
 $repo = (Resolve-Path (Join-Path $here '..\..')).Path
@@ -45,6 +45,7 @@ Copy-Item -LiteralPath $exe -Destination $stage
 # psxrecomp-analyze --seeds parses with stoul base 0: bare hex is rejected or read as decimal, so prefix 0x (config\seeds.txt stays bare hex for main_psx)
 Get-Content -LiteralPath $seeds | Where-Object { $_.Trim() -and -not $_.StartsWith('#') } | ForEach-Object { '0x' + $_.Trim() } | Set-Content -LiteralPath (Join-Path $stage 'seeds.txt') -Encoding ascii
 Copy-Item -LiteralPath (Join-Path $here 'run_in_sandbox.ps1') -Destination $stage
+Copy-Item -LiteralPath (Join-Path $repo 'recomp\game.toml') -Destination $stage   # generator config for the boot exe (text only, no game data)
 # PS-X EXE wrappers A.exe/B.exe/C.exe + A/B/C.seeds.txt (python -I: no site/cwd imports); prints sha256 of each wrapped exe
 & python -I (Join-Path $here 'stage_overlays.py') $repo $stage
 if ($LASTEXITCODE -ne 0) { throw 'stage_overlays.py failed' }

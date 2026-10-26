@@ -1,21 +1,22 @@
-# recomp/sandbox - isolated psxrecomp analyzer run (run 1 done; run 2 UNTESTED)
+# recomp/sandbox - isolated psxrecomp analyzer + generator runs (safety validation)
 
 Purpose: build **only** `psxrecomp-analyze` and run it on the boot exe `SCUS_944.21`, inside Windows Sandbox, with no network,
 and get counts / jump-table findings / unresolved indirect jumps back. Nothing from `tools\recomp` or `tools\ref\psxrecomp` is run or built on the host.
 Why: the upstream codegen host downloads its toolchain from `releases/latest` without a hash check and the toolchain's `install.ps1` edits the user PATH
 (`tools\ref\SECURITY_TRIAGE.md`, gitignored). Here the toolchain zip is pinned by SHA-256 and never installed.
 
-**Status (2026-10-26).** Runs 1-3 passed bare-hex seeds, which the analyzer rejects or reads as decimal; staging now writes `0x` seeds. Run 5 (`-OutName _out_run5`, fixed seeds) is the run of record: RECOMP_NOTES.md '2026-10-26 Analyzer seeds were never read'. From a worktree: `$env:SO2_DATA=<main checkout>` before `make_wsb.ps1`. Older status: Run 1 (boot exe only; results in `_out\`, summarised in `RECOMP_NOTES.md` 'First analyze run') worked. **Run 2 (main programs A/B/C) has not been run.**
+**Status (2026-10-26).** Run `_out_gen1` (analyze + generate + compile, with process/network/file watching) is the run of record for the safety audit: RECOMP_NOTES.md '2026-10-26 psxrecomp safety audit' (verdict SAFE WITH CAVEATS for the two targets built here; host build in `recomp\host\`). Earlier: runs 1-3 passed bare-hex seeds, which the analyzer rejects or reads as decimal; staging now writes `0x` seeds. Run 5 (`-OutName _out_run5`, fixed seeds) is the run of record: RECOMP_NOTES.md '2026-10-26 Analyzer seeds were never read'. From a worktree: `$env:SO2_DATA=<main checkout>` before `make_wsb.ps1`. Older status: Run 1 (boot exe only; results in `_out\`, summarised in `RECOMP_NOTES.md` 'First analyze run') worked. **Run 2 (main programs A/B/C) has not been run.**
 Tested for run 2: both scripts parse, `make_wsb.ps1` runs on the host (hashes, staging, `.wsb`), `scripts\compare_analyzer.py` on synthetic data only. Untested: the new guest code
 (copy/hash of A/B/C, the 8-analysis loop, summary over `boot_*`, `A_*` ...) and whether the analyzer accepts the synthetic PS-X EXE wrapper.
 
 ## Files
 | File | What |
 |---|---|
-| `make_wsb.ps1` | host side; checks zip + exe + raw A/B/C SHA-256, refills `_stage\` (contents only) and creates `_out_run2\`, writes `_run.wsb` with this checkout's real paths. Does not start the sandbox. |
+| `make_wsb.ps1` | host side; checks zip + exe + raw A/B/C SHA-256, refills `_stage\` (contents only) and creates `-OutName` (default `_out_gen1`), writes `_run.wsb` with this checkout's real paths. Does not start the sandbox. |
 | `stage_overlays.py` | host side (`python -I`, called by `make_wsb.ps1`); checks size/md5 of `analysis\out\d1\{0001_312,2129_24323,2576_30736}.dec` against `config\overlays.tsv`, wraps each in a PS-X EXE header, writes per-program seed lists. |
 | `..\..\scripts\compare_analyzer.py` | host side, after the run: matched functions vs analyzer output for program A, seed overlap. |
-| `run_in_sandbox.ps1` | guest side (LogonCommand). Copied into `_stage\` by `make_wsb.ps1`. |
+| `run_in_sandbox.ps1` | guest side (LogonCommand). Copied into `_stage\` by `make_wsb.ps1` (with `recomp\game.toml`). |
+| `..\hostuild_generate.ps1` | host build of the same two targets with VS 2022 Build Tools, only at the audited commit; output `recomp\host\_out\` (gitignored) |
 | `_stage\`, `_out\` (run 1, kept), `_out_run2\`, `_run.wsb` | generated, gitignored (`/recomp/sandbox/_*`) |
 
 ## Steps
@@ -46,7 +47,8 @@ because the analyzer takes seeds as a file and the logon script must come from s
 2. Extracts the zip with .NET `ZipFile` to `C:\work\tc`, rejecting entries that escape the target. `install.ps1` is never run.
 3. Session-only `PSXRECOMP_TOOLCHAIN_DIR=C:\work\tc` and `PATH=C:\work\tc\bin;...`. `psxrecomp_cli.py` is not used (its `analyze` calls `ensure_toolchain`/`ensure_analyzer`, which can fetch things); `cmake` is called directly.
 4. Copies the source to `C:\work\src` without `.git`.
-5. `cmake -S recompiler -G Ninja -DCMAKE_BUILD_TYPE=Release -DPSXRECOMP_ENABLE_CHD=OFF -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`, then `--target psxrecomp-analyze`.
+5. `cmake -S recompiler -G Ninja -DCMAKE_BUILD_TYPE=Release -DPSXRECOMP_ENABLE_CHD=OFF -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`, then `--target psxrecomp-analyze psxrecomp-game`.
+   Every analyzer/generator run goes through `Watch`: WMI process-start trace, TCP/UDP endpoints owned by the process, new/changed files outside its output dir -> `watch.log`.
 6. Runs the analyzer twice per image (boot, A, B, C): whole-image scan with our seeds, and `--exact` (reachability only), both with `--no-refs --emit-tsv --emit-symbol-addrs`. This mirrors what `psxrecomp_cli.py analyze` passes. The analyzer has no `game.toml` input: the `game.toml` values (entry, load address, size, sp) come from the exe header, and the summary prints them for comparison with `recomp\game.toml`.
 7. Writes `summary.txt` (stats, indirect sites by class, jump-table sites, unresolved sites as pc/reg/kind) and copies only `functions.tsv` and `symbol_addrs.txt` out. The analysis JSON (its `context` field holds disassembly text) stays inside the sandbox.
 
@@ -54,4 +56,5 @@ because the analyzer takes seeds as a file and the logon script must come from s
 * Root `.gitmodules`: `lib/recomp-net` (https://github.com/RetroPortingToolKit/recomp-net.git) and `lib/retcomm-rbengine` (https://github.com/RetroPortingToolKit/rbengine.git). Not checked out in the clone; per `docs/BUILDING.md` they are needed only for `-DPSX_NETPLAY=ON` / the launcher UI (`recomp-ui`, which is also absent). **Not needed for the analyzer.** Pinned submodule commits (from `git submodule status`): recomp-net `e53059306824edf4f0aec4aae5ae65151b18535f`, rbengine `2a03e73693acee0fb78076ea058642c931bef12e`.
 * `recompiler/lib/{fmt,rabbitizer,toml11,ELFIO}` are already present as plain files in the clone (checked: no `.git` inside), so the analyzer needs no submodule.
 * One network dependency remains in the recompiler CMake: `FetchContent` of **libchdr** (`runtime/chd_dependency.cmake`, a URL with a pinned hash), used only by the `psxrecomp` media CLI. `-DPSXRECOMP_ENABLE_CHD=OFF` skips it. If configure still reaches for it, the run fails offline rather than fetching; staging libchdr outside the sandbox needs your OK.
-* The full runtime / `generate` path (SDL3 fetch, OpenBIOS, per-title repo) is out of scope here.
+* Generation (step 7-8 of the script): boot exe via `psxrecomp-game --config game.toml` in a minimal project `C:\work\proj` (exe/seeds at the `game.toml` paths, the clone's `bios\SCPH1001.toml`, a `.gitignore` so `find_project_root` stops there); program A positionally (`A.exe --seeds A.seeds.txt --out-dir`). Each generated `.c` is compiled with `clang -c -O0` (errors -> `compile_<label>.log`, objects stay inside); the generated C is copied to `<out>\gen\` (gitignored, game-derived: never commit). Summary: `generate_summary.txt`.
+* Still out of scope: the runtime, `psxrecomp_cli.py generate` (BIOS backends, toolchain download), the AOT/SLZ overlay pipeline.
