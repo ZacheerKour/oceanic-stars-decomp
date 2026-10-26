@@ -1,0 +1,20 @@
+# lane 1: owns 0x8002F810-0x80036240 (119 eligible functions in band; 18 listed: 12 easiest plus 6 medium (>=25 instr), score = instr+8*calls+12*loop+6*muldiv)
+# addr	size_bytes	notes (instr, calls out, callers in, flags); listed in address order, not unmatched-checked beyond config/matches.tsv
+0x8002F8A4	32	instr=8 calls=0 callers=0 leaf
+0x8002F8D0	20	instr=5 calls=0 callers=0 leaf
+0x8002F8E4	144	instr=36 calls=0 callers=0 leaf
+0x8002F974	148	instr=37 calls=0 callers=10 leaf
+0x8002FBF8	108	instr=27 calls=2 callers=0 frame
+0x8002FFE4	16	instr=4 calls=0 callers=32 leaf
+0x80030A60	100	instr=25 calls=3 callers=0 frame
+0x800322F8	16	instr=4 calls=0 callers=1 leaf
+0x80032E18	140	instr=35 calls=0 callers=2 leaf,loop
+0x80033FC0	16	instr=4 calls=0 callers=0 leaf
+0x800340B0	16	instr=4 calls=0 callers=9 leaf
+0x800343E4	24	instr=6 calls=0 callers=1 leaf
+0x80034428	24	instr=6 calls=0 callers=1 leaf
+0x80034440	28	instr=7 calls=0 callers=8 leaf
+0x80034768	124	instr=31 calls=0 callers=1 leaf,loop
+0x800349B4	36	instr=9 calls=0 callers=0 leaf
+0x80034BD8	24	instr=6 calls=0 callers=0 leaf
+0x80035B50	20	instr=5 calls=0 callers=1 leaf
