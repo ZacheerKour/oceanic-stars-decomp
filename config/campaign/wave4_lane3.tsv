@@ -1,0 +1,26 @@
+# wave4 lane3: addr	size	status
+0x80048D2C	160	OPEN (wip; for(;;){if(i>=7)break;} gives the top-tested loop; left: constant-4 merge of (i==0)<<2 vs sltiu)
+0x80041100	164	OPEN (wip; for(;;)+break stays rotated here; tail copy of base ptr)
+0x80049248	104	OPEN (wip, scalar-vs-array referent CSE)
+0x8003EC54	216	OPEN (wip, 7 bytes: mask register order, addPrim-style tag link)
+0x8003ED2C	216	OPEN (wip, same wall)
+0x8003F180	216	OPEN (wip, same wall, not compiled)
+0x80073AA0	60	OPEN (wip, addu before fn lw)
+0x8006EAC0	104	OPEN (wip, packed halfword args)
+0x8004A2BC	?	OPEN (wip top-test loop; for(;;) idea untested)
+0x8004A320	?	OPEN (wip top-test loop; for(;;) idea untested)
+0x8004B374	?	OPEN (wip, frame)
+0x80041DA0	?	OPEN (wip delay slot nop)
+0x80042BB0	?	OPEN (wip delay slot nop)
+0x80072AD4	?	OPEN (wip)
+0x800478E8	96	TODO reloads after stores (volatile-like), ctor
+0x8006D5E0	92	TODO bitfield-ish
+0x8006D77C	144	TODO bitfield
+0x8006D80C	152	TODO bitfield
+0x8006F53C	236	TODO loop
+0x8006D424	164	TODO loop calling 8006DDC4
+0x8004AFD8	48	TODO boundary uncertain (starts mid-prologue)
+0x8004B0C8	16	SKIP (not a function)
+0x8004AF60	56	SKIP (exception vector asm, cop0)
+0x80073CDC	96	TODO vcall with bounds check
+0x8006FB68	-	DONE
