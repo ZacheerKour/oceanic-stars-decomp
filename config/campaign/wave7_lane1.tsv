@@ -26,3 +26,6 @@
 0x800316F4	216	OPEN wip (branch layout of early return 1 / return -1)
 0x80032840	216	MATCH (S_80030CBC p8/pC -> p8[2], padE4/padEE split; int param truncated via short local)
 0x800341F0	232	OPEN wip (10 bytes register swap base/off; needs casts)
+0x8003540C	64	MATCH (comma-return ctor)
+0x80036074	72	MATCH (comma-return ctor)
+0x80032C58	240	MATCH (adj = total - 12 separate int; cast (S_80033FD0p *)o->wE0 pre-existing in wip)
