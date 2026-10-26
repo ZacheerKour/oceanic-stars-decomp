@@ -177,3 +177,5 @@ void func_8006E80C();
 void func_8003823C();
 void func_8006F218();
 void func_8003236C();
+int func_8004A234();
+int func_8004A2BC();
