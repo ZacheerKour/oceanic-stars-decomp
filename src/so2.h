@@ -224,7 +224,7 @@ void func_8006F0D0();
 void func_800743E8();
 void func_80068554();
 void func_8003312C();
-void func_80036540();
+int func_80036540();
 extern void *D_8004D2E0[], *D_8004D310[], *D_8004D398[], *D_8004D3C8[], *D_8004D458[], *D_8004D518[], *D_800749F8[];
 typedef struct { char pad0[0x14]; void *p14; } S_80074494;
 typedef struct { char pad0[0x44]; unsigned short h44; unsigned char b46; } S_8007439C;
