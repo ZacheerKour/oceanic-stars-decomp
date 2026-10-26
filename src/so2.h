@@ -115,7 +115,7 @@ extern S_8004A2BC *D_8004EC20;
 /* cleanup: shared types and declarations formerly local to func_*.c */
 typedef struct { short h0; short h2; int w4[7]; } S_80032918;
 typedef struct { unsigned short v; short pad2[3]; } S_80035AFC;
-typedef struct { unsigned short h0; char pad2[14]; int w10; } S_80038DBC;
+typedef struct { unsigned short h0; short pad2; int w4; char pad8[8]; int w10; } S_80038DBC;
 typedef struct {
 	char pad0[8];
 	void *p8;

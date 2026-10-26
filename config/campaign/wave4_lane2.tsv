@@ -1,0 +1,30 @@
+addr	size_bytes	status
+0x80036240	356	OPEN loop; not read yet
+0x800363A4	252	OPEN loop; not read
+0x800364A0	160	OPEN loop + virtual call with this-adjust (byte-offset add needs cast, R4)
+0x800365A4	180	OPEN same virtual-call this-adjust class as 800364A0
+0x800368EC	480	OPEN big (20 calls)
+0x800382BC	152	OPEN 
+0x80038354	220	OPEN 
+0x80038430	268	OPEN 
+0x8003853C	264	OPEN 
+0x80038760	236	OPEN (wip)  65 bytes, reg residue
+0x80038960	188	OPEN 
+0x80038A1C	392	OPEN 
+0x80038D14	168	OPEN (wip)  27 bytes, andi+sltiu materialization
+0x80039068	232	OPEN 
+0x8003A174	108	OPEN needs D_8004DD94 typed as pointer (shared decl is int)
+0x8003A5AC	396	OPEN 
+0x8003A738	292	OPEN needs D_8004DDD0 as short-field struct (shared decl is uchar*)
+0x8003B404	120	OPEN 
+0x8003B47C	228	OPEN 
+0x8003B5DC	92	OPEN offset-indexed field read (byte/half by a2), cast needed
+0x8003B638	376	OPEN (wip)  151 bytes, tail merge/schedule
+0x8003BAF0	132	OPEN 
+0x8003BDAC	216	OPEN 
+0x8003C1BC	160	OPEN OT link loop, pointer->int casts
+0x8003C434	136	OPEN calls through D_8004E170 (declared int, fn pointer needed)
+0x8003C8F8	412	OPEN 
+0x8003CA94	260	OPEN (wip)  36 bytes (wave 3 state)
+0x8003EA00	216	OPEN (wip)  7 bytes, mask-reg swap
+0x8003EAD8	380	OPEN 
