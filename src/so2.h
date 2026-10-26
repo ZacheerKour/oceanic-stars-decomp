@@ -464,3 +464,6 @@ typedef struct { char pad0[0xFD0]; S_80031290e e[2]; char padFE8[4]; short hFEC;
 void func_800368EC();
 S_80031290 *func_80031290();
 void func_80031324();
+typedef struct { char pad0[0x20]; unsigned char b20[16]; } S_80030D64;
+extern unsigned short D_8004B410[];
+int func_800349D8();

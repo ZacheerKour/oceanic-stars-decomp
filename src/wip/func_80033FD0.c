@@ -1,20 +1,22 @@
-/* DIFF 124 bytes: loop shape (retail non-rotated top test, j-to-top) + reg alloc (o=s2, buf=s3, walker reuses s0). Needs offset cast (R4). Tried while/for(;;), reuse str. */
+/* DIFF 97 bytes: reg alloc + arg schedule (retail loads o->wE0 straight into a1, then lw 4(a1), addu a1,a1,v0; g kept in v1/$3). Loop shape now matches via while(1)+break. Needs int->int* cast. */
 #include "so2.h"
-void func_80033FD0(S_80030CBC *o, unsigned char *dst, char *str)
-{
-	char *buf;
+void func_80033FD0(S_80030CBC *o, unsigned char *dst, char *str) {
+	char *buf, *p;
+	int *t;
 	unsigned char *g;
 	unsigned char c;
 
 	buf = func_8001FE30(func_80035BC8(str) * 3 + 1);
 	func_80038354(str, buf);
-	str = buf;
-	for ( ; ; ) {
-		c = *str++;
-		if ( !c ) break;
-		g = func_80032DEC(o, o->wE0 + ((S_80033FD0p *)o->wE0)->w4, c);
+	p = buf;
+	while (1) {
+		c = *p;
+		if (!c) break;
+		p++;
+		t = (int *)o->wE0;
+		g = func_80032DEC(o, (int)t + t[1], c);
 		c = *g++;
-		if ( c < 128 ) {
+		if (c < 128) {
 			*dst++ = c;
 		} else {
 			*dst++ = c;
