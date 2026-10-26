@@ -498,7 +498,7 @@ int func_80024AC0();
 void func_80024B00();
 S_800368EC *func_800368EC();
 extern S_800368EC *D_8004EFB4;
-typedef struct { char pad0[0x30]; int w30[4]; char pad40[0x144]; short h184, h186; } S_8003A5AC;
+typedef struct { char pad0[0x30]; int w30[4]; char pad40[0xC]; unsigned char t4C[12][12]; unsigned char tDC[12][12]; char pad16C[0x18]; short h184, h186; } S_8003A5AC;
 extern S_8003A5AC *D_8004EBFC;
 int func_80038A1C();
 typedef struct { short x, y, w, h; } S_8003BDAC_r;
@@ -569,3 +569,7 @@ void func_8003083C();
 void func_800306A4();
 void func_8006DFE8();
 extern int D_8004DD90;
+/* wave8 lane3 */
+extern unsigned char D_8004E32C[], D_8004E338[12][12], D_8004E3C8[12][12];
+void func_80061C58();
+typedef struct { union { S_8003EC54_tag t; int w0; } u; unsigned char b4, b5, b6, b7; short h8, hA; unsigned char bC, bD; short hE; short h10, h12; } S_80046F8C;
