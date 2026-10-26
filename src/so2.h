@@ -279,8 +279,6 @@ void func_80036818();
 void func_80024B50();
 void func_80024AD0();
 void func_80024B60();
-void *func_8001FE30();
-void func_80023ED0();
 int func_80037F60();
 int func_80038034();
 int func_80034B6C();
