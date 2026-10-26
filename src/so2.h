@@ -236,10 +236,8 @@ extern void *D_80074A78[];
 void *func_80069184();
 void func_8006E80C();
 void func_8006F218();
-void func_8003236C();
 unsigned char *func_8004A234();
 void func_8003236C(S_80030CBC *, int);
-int func_8004A234();
 int func_8004A2BC();
 /* wave3 lane1 */
 typedef struct { char pad0[4]; void *p4; char pad8[0x50]; int w58; } S_80031C04;
