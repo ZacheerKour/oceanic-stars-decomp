@@ -1,2 +1,2 @@
 #include "so2.h"
-void func_80032380(S_80032374 *o, short n) { func_80032DEC(o, (int)o->pE0 + o->pE0[o->hE6], n); }
+char *func_80032380(S_80032374 *o, int n) { return func_80032DEC(o, o->pE0->b + o->pE0->w[o->hE6], n); }

@@ -4,7 +4,7 @@ unsigned short func_8006F628(S_8006F1A0 *a0, int a1)
     char src[128];
     char dst[256];
     char *d;
-    unsigned char *g;
+    char *g;
     int save;
     int i;
     unsigned char c;
@@ -18,7 +18,7 @@ unsigned short func_8006F628(S_8006F1A0 *a0, int a1)
     while ( 1 ) {
         if ( i >= 128 ) break;
         if ( src[i] == 0 ) break;
-        g = (unsigned char *)func_80032380(a0->p54, src[i]);
+        g = func_80032380(a0->p54, src[i]);
         c = *g++;
         if ( c < 128 ) {
             *d = c;
