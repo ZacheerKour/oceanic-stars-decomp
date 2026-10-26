@@ -1,0 +1,19 @@
+# wave9 lane2 (band 0x8003EC54-0x80060000): addr	size	status
+0x80047948	480	DONE (cursor/slot mover; y++ / y-- hoisted into delay slots by reorg, so write them once before/after the branch; top-level order exact)
+0x8004AFD4	52	DONE (PsyQ libapi shape; gcc-2.8.0-psx, new 4th matches.tsv column; 2.7.2 leaves the epilogue slot unfilled)
+0x8004B374	100	DONE (PsyQ strcmp; gcc-2.7.2-cdk; single exit via r, -1 then if(a) r=1; value cast (unsigned char) on the ==0 test gives retail lbu next to lb)
+0x80049F40	368	WIP 64 bytes, register only (code a0 / next char a3)
+0x80049CD0	624	WIP structure right (raw-word tag macros, giv base pkt+12), register + signed slt on loop end
+0x800411A4	472	WIP 162 bytes, register/schedule only, frame 96 matches (top-tested while(1) loop lever)
+0x8004B270	256	WIP 49 bytes, 2.7.2-psx; needs absolute-address reads (R4)
+0x80042BCC	252	WIP unchanged (49 bytes, register/schedule)
+0x8004A0B0	388	WIP unchanged
+0x8004A500	468	WIP unchanged
+0x80048800	476	WIP unchanged (frame/layout)
+0x8003EE04	612	WIP unchanged
+0x800492D0	252	WIP unchanged (frame 40: outgoing-arg area looks like 24 bytes with no 5th/6th arg stores)
+0x80041DA0	16	WALL delay-slot nop after final store; only volatile or -fno-delayed-branch reproduce it (fakematch, not applied)
+0x80042BB0	28	WALL same as 80041DA0
+0x800478E8	96	WIP unchanged (fakematch only)
+0x8004AEB4	172	SKIP hand asm (syscall jalr table)
+0x8004AF60	56	SKIP exception-handler asm
