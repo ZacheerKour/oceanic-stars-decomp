@@ -322,8 +322,8 @@ extern short D_8004ECB0[];
 extern void *D_8004EBFC, *D_8004EC24;
 void func_8003C07C();
 void func_8003C0E0();
-void func_8003C57C();
-void func_8003C5B4();
+int func_8003C57C(S_8003C57C *, int);
+int func_8003C5B4(S_8003C57C *, int);
 void func_80011B48();
 int func_80011B88();
 void func_80021108();
@@ -335,3 +335,5 @@ typedef struct { S_80041100r r[128]; int w4400[24]; int w4460; int w4464; char p
 void func_8004A438();
 void func_8004A500();
 void func_8004950C();
+short func_8006DAC0(int, int, int, short, short);
+extern short D_80074BD0, D_80074BD4;

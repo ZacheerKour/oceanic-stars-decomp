@@ -6,6 +6,8 @@
 0x800491D0	120	MATCHED
 0x8004A3D0	104	MATCHED
 0x8006D668	156	MATCHED
+0x8006D348	168	MATCHED
+0x8006F1A0	120	OPEN (wip, 12 bytes schedule)
 0x80049248	104	OPEN (wip, scalar-vs-array referent CSE)
 0x80048D2C	160	OPEN (wip, top-tested loop)
 0x80041100	164	OPEN (wip, top-tested loop)
