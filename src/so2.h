@@ -416,3 +416,10 @@ typedef struct { char pad0[0x24]; int w24; char pad28[8]; S_800481E4_e e[7]; } S
 typedef struct { char pad0[0x18]; short h18; char pad1A[2]; void (*fn1C)(); } S_80074438_vt;
 typedef struct S_80074438 { char pad0[4]; S_80074438_vt *p4; char pad8[0x26]; unsigned short h2E; unsigned short h30; } S_80074438;
 void func_80074438(S_80074438 *, unsigned short);
+extern void *D_8004D330[];
+typedef struct { char pad0[8]; int w8; } S_80073884_m;
+typedef struct { char pad0[8]; short h8; char padA[2]; void (*fn0C)(); } S_80073884_vt;
+typedef struct { char pad0[4]; S_80073884_vt *p4; } S_80073884_c;
+typedef struct { char pad0[4]; void *p4; char pad8[4]; S_80073884_m *p0C; S_80073884_c *p10; } S_80073884;
+extern void *D_80074AD0[];
+typedef struct { char pad0[0x64]; short h64; char pad66[2]; short h68; } S_8006EAC0;
