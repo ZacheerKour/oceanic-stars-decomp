@@ -201,7 +201,7 @@ typedef struct { S_8003C57C *p0; int w4; char pad8[0x18]; int w20; int w24; } S_
 typedef struct { char pad0[0x18]; int w18; char pad1C[6]; short h22; } S_8003B094;
 extern int D_8004BCB4[];
 void func_80021348();
-void func_80024AF0();
+int func_80024AF0();
 void func_8003A534();
 void func_8003BA74();
 S_8003C57C *func_8001FD94();
@@ -281,3 +281,8 @@ void func_80024AD0();
 void func_80024B60();
 void *func_8001FE30();
 void func_80023ED0();
+int func_80037F60();
+int func_80038034();
+int func_80034B6C();
+typedef struct { short h0; short h2; short h4; short h6; short h8; short hA; short hC; } S_8003AAA0;
+void func_8003AAA0();
