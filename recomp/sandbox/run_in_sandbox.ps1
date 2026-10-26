@@ -1,8 +1,10 @@
-# Runs INSIDE Windows Sandbox (LogonCommand). Offline. Builds only psxrecomp-analyze and runs it on the boot exe.
-# Inputs (read-only): C:\in\src (psxrecomp clone), C:\in\dl (toolchain zip), C:\in\stage (SCUS_944.21, seeds.txt). Output: C:\out.
+# Runs INSIDE Windows Sandbox (LogonCommand). Offline. Builds only psxrecomp-analyze and runs it on the boot exe and on main programs A/B/C.
+# Inputs (read-only): C:\in\src (psxrecomp clone), C:\in\dl (toolchain zip), C:\in\stage (SCUS_944.21, seeds.txt, A/B/C.exe + A/B/C.seeds.txt). Output: C:\out.
 $ErrorActionPreference = 'Stop'
 $ExeSha = 'b93e42462aceec120cfad1bfc3cf08f933196ab24a4e018b5f494c74e213abe7'
 $ZipSha = '28da9742385e7ff875b3d9311e8ed89dbdc84f27b6ecba2bc0d0acc11f6d2b4d'
+# wrapped main programs A/B/C = SO2.BIN entries 1/2129/2576 (PS-X EXE header added on the host by stage_overlays.py)
+$ProgSha = @{ 'A' = 'dc73543e44300e3743cd0ffe49e9fce8469ff6ad553e72d0f82603747bcf3f3d'; 'B' = 'aeb73fd3fde48a4a5e8b770dc29c42f9031f48b736ccc6f54ea729eb728d36a6'; 'C' = '76d6a1a796b9f1b7734a7e47f75f91220f8e6764298904529839e0c9db80fe35' }
 $W = 'C:\work'; $O = 'C:\out'
 New-Item -ItemType Directory -Force $W, $O | Out-Null
 function Log($m) { $l = '{0:HH:mm:ss} {1}' -f (Get-Date), $m; Add-Content -LiteralPath "$O\run.log" -Value $l; Write-Host $l }
@@ -15,6 +17,11 @@ try {
   if ((Sha $W\SCUS_944.21) -ne $ExeSha) { throw 'SCUS_944.21 hash mismatch' }
   Copy-Item C:\in\dl\cmake-clang-v1-windows-x64.zip $W\tc.zip
   if ((Sha $W\tc.zip) -ne $ZipSha) { throw 'toolchain zip hash mismatch' }
+  foreach ($k in 'A', 'B', 'C') {
+    Copy-Item C:\in\stage\$k.exe $W\$k.exe; Copy-Item C:\in\stage\$k.seeds.txt $W\$k.seeds.txt
+    if ((Sha $W\$k.exe) -ne $ProgSha[$k]) { throw "program $k hash mismatch" }
+  }
+  Copy-Item C:\in\stage\seeds.txt $W\seeds.txt
   Log 'hashes ok'
 
   # 2. extract toolchain to a sandbox-local path; reject entries that escape it. install.ps1 is never run.
@@ -48,16 +55,21 @@ try {
   if (-not $an) { throw 'psxrecomp-analyze.exe not found after build' }
 
   # 6. analyze: (a) default whole-image scan + our seeds, (b) --exact reachability-only for comparison
-  foreach ($run in @(@('seeded', @('--seeds', 'C:\in\stage\seeds.txt')), @('exact', @('--exact')))) {
-    $n = $run[0]; $d = "$W\an_$n"; New-Item -ItemType Directory -Force $d, "$O\$n" | Out-Null
-    $a = @("$W\SCUS_944.21", '--out', $d, '--no-refs', '--emit-tsv', "$d\functions.tsv", '--emit-symbol-addrs', "$d\symbol_addrs.txt") + $run[1]
-    Run "analyze $n" { & $an.FullName @a *> "$O\analyze_$n.log" }
-    Copy-Item "$d\functions.tsv", "$d\symbol_addrs.txt" "$O\$n"   # addresses/sizes/names only
+  # label, image, seed file. Outputs: $O\<label>\{seeded,exact}\ (functions.tsv, symbol_addrs.txt); logs analyze_<label>_<mode>.log
+  $targets = @(, @('boot', "$W\SCUS_944.21", "$W\seeds.txt")) + @('A', 'B', 'C' | ForEach-Object { , @($_, "$W\$_.exe", "$W\$_.seeds.txt") })
+  foreach ($t in $targets) {
+    foreach ($mode in 'seeded', 'exact') {
+      $n = "$($t[0])_$mode"; $d = "$W\an_$n"; New-Item -ItemType Directory -Force $d, "$O\$($t[0])\$mode" | Out-Null
+      $a = @($t[1], '--out', $d, '--no-refs', '--emit-tsv', "$d\functions.tsv", '--emit-symbol-addrs', "$d\symbol_addrs.txt")
+      if ($mode -eq 'seeded') { $a += @('--seeds', $t[2]) } else { $a += '--exact' }
+      Run "analyze $n" { & $an.FullName @a *> "$O\analyze_$n.log" }
+      Copy-Item "$d\functions.tsv", "$d\symbol_addrs.txt" "$O\$($t[0])\$mode"   # addresses/sizes/names only
+    }
   }
 
   # 7. summary: counts, indirect-site classes, jump tables, unresolved sites (pc/reg/kind only; json "context" disassembly is not copied out)
   $s = New-Object Collections.Generic.List[string]
-  foreach ($n in 'seeded', 'exact') {
+  foreach ($n in $targets | ForEach-Object { $l = $_[0]; "${l}_seeded"; "${l}_exact" }) {
     $a = Get-Content -Raw "$W\an_$n\analysis.json" | ConvertFrom-Json
     $i = Get-Content -Raw "$W\an_$n\indirect.json" | ConvertFrom-Json
     $s.Add("== $n")
