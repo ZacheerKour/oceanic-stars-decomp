@@ -445,9 +445,13 @@ typedef struct { char pad0[0x20]; short h20; char pad22[2]; void (*fn24)(); } S_
 typedef struct S_800744DC_o { char pad0[4]; S_800744DC_vt *p4; } S_800744DC_o;
 typedef struct { char pad0[0x14]; S_800744DC_o *p14; } S_800744DC;
 typedef struct { char pad0[0x40]; short h40; char pad42[2]; void (*fn44)(); } S_80073CDC_vt;
-typedef struct { char pad0[4]; S_80073CDC_vt *p4; } S_80073CDC;
-typedef struct { char pad0[2]; short h2; } S_80073CDC_n;
-typedef struct { char pad0[0x5C]; S_80073CDC_n *p5C; } S_80073CDC_b;
+typedef struct { char pad0[0x30]; unsigned short h30; } S_80073ADC_f;
+typedef struct { char pad0[4]; S_80073CDC_vt *p4; char pad8[0xC]; S_80073ADC_f *p14; } S_80073CDC;
+typedef struct { short h0; short h2; char pad4[2]; short h6; short h8; char padA[2]; short hC; short hE; short h10; short h12[1]; } S_80073CDC_n;
+typedef struct { char pad0[0x48]; int w48; int w4C; char pad50[4]; int w54; int w58; S_80073CDC_n *p5C; } S_80073CDC_b;
+void func_80073CDC(S_80073CDC *, S_80073CDC_b *, unsigned short, short);
+void func_80069324();
+void func_80073ADC(S_80073CDC *, S_80073CDC_b *);
 typedef struct { char pad0[0x1C]; S_8003EC54_ot *p1C; } S_8004A438;
 extern short D_1F8001EC, D_1F8001EE, D_1F8001F0, D_1F8001F2;
 /* scratchpad RECT (4 shorts) passed by address; PsyQ getScratchAddr idiom: an integer-constant pointer, not a linked symbol (retail uses lui+ori) */
@@ -615,3 +619,9 @@ typedef struct { char pad0[32]; int w32; int w36; int w40; int w44; int w48; int
 typedef struct { char pad0[36]; int w36; } S_80047948b;
 extern int D_8004E458[];
 extern int D_8004EAF0[];
+
+/* wave 9 lane 3 */
+typedef struct { char pad0[0x10]; unsigned int w10; char pad14[0x44]; S_8003EC54_ot *p58; char pad5C[4]; unsigned short h60; char pad62[8]; unsigned short h6A; unsigned short h6C; } S_8007293C;
+typedef struct { unsigned short h0; unsigned short h2; short h4; } S_8007293Ct;
+typedef struct { union { int w0; S_8003EC54_tag tag; } u; unsigned int w4; short h8, hA; unsigned char bC, bD; unsigned short hE; short h10, h12; } S_8007293Cp;
+void func_800100EC();

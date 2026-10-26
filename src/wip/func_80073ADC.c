@@ -1,0 +1,1 @@
+/* 80073ADC: 318/512 bytes differ; wall class: masked/asm form. Retail's first div/rem pair (q,r of h0/hC) is raw 'div zero,..; mflo' with no zero/overflow checks, gcc+maspsx always emits the checked form; loop-body rem matches expanded. */
