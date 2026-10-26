@@ -446,6 +446,8 @@ typedef struct { char pad0[2]; short h2; } S_80073CDC_n;
 typedef struct { char pad0[0x5C]; S_80073CDC_n *p5C; } S_80073CDC_b;
 typedef struct { char pad0[0x1C]; S_8003EC54_ot *p1C; } S_8004A438;
 extern short D_1F8001EC, D_1F8001EE, D_1F8001F0, D_1F8001F2;
+/* scratchpad RECT (4 shorts) passed by address; PsyQ getScratchAddr idiom: an integer-constant pointer, not a linked symbol (retail uses lui+ori) */
+#define D_1F8001EC_P ((short *)0x1F8001EC)
 void func_800120D8();
 void func_80030D24();
 void func_80030CBC();
