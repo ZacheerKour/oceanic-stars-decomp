@@ -404,3 +404,8 @@ extern void *D_8004D4B8[], *D_8004D488[], *D_8004D428[];
 extern int D_8004EBF8, D_8004EBF0;
 typedef struct { char pad0[0x32]; signed char b32; } S_8004711C_r;
 S_8004711C_r *func_8001AB30();
+typedef struct { short h0; short h2; short h4; char pad6[2]; int w8; short hC; short hE; char pad10[2]; short h12; int w14; short h18; short h1A; char pad1C[8]; } S_8006F1A0p;
+typedef struct { char pad0[0x16]; unsigned short h16; char pad18[0x14]; unsigned short h2C; unsigned short h2E; unsigned short h30; char pad32[0x22]; void *p54; } S_8006F1A0;
+typedef struct { short h0; short h2; short h4; char pad6[6]; short hC; short hE; short h10; short h12; short h14; char pad16[0xE]; } S_8006F930p;
+typedef struct { short x; short y; short w; short h; } S_8006F88C_r;
+typedef struct { char pad0[0x38]; int w38; } S_8006F88C_o;
