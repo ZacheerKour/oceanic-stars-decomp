@@ -611,3 +611,7 @@ typedef struct { union { int w0; S_8003EC54_tag tag; } u; int w4; unsigned short
 typedef struct { unsigned short x, y, w, h; } S_800727A0r;
 void func_8004AFC4();
 void func_8004AFB4();
+typedef struct { char pad0[32]; int w32; int w36; int w40; int w44; int w48; int w52; } S_80047948;
+typedef struct { char pad0[36]; int w36; } S_80047948b;
+extern int D_8004E458[];
+extern int D_8004EAF0[];
