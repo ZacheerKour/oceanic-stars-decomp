@@ -1,0 +1,24 @@
+# wave5 lane3: addr	size	status
+0x8006F218	84	DONE (S_8006D324 pad8 split: wC)
+0x800744DC	84	DONE
+0x80073CDC	96	DONE (a2 passed through K&R vcall)
+0x8004A2BC	100	DONE (while(1)+break gives top-tested loop)
+0x8004A320	56	DONE (same)
+0x80041100	164	DONE (while(1)+break, a0->r[i].w[j], return a0)
+0x8004A438	200	DONE (tag as 24-bit addr bitfield, scratchpad rect as 4 scalars, 0x1F8001EC literal)
+0x8003EA00	216	DONE (bitfield tag)
+0x8003EC54	216	DONE
+0x8003ED2C	216	DONE
+0x8003F180	216	DONE
+0x80048D2C	160	OPEN (wip; while(1) top-test OK; wall: gcc merges (i==0)<<2 with i?4:80 into s3=4 + branch; tried !i, *4, <1U, flag var)
+0x800478E8	96	OPEN (wip; returns this; retail reloads w24/w28 after store, only volatile reproduces, fakematch)
+0x80073AA0	60	OPEN (wip; schedule: addu before fn lw; 80073A6C same shape matches)
+0x80041DA0	16	OPEN (wip; unfilled jr delay slot; wip file stale: member is w4[1])
+0x80042BB0	?	OPEN (wip; unfilled delay slot)
+0x80049248	104	OPEN (wip, referent CSE)
+0x8006EAC0	104	OPEN (wip, packed halfword args)
+0x8004B374	?	OPEN (wip, frame)
+0x80072AD4	68	OPEN (wip, untried this session)
+0x8006D5E0	92	TODO bitfield-ish
+0x8006D77C	144	TODO bitfield
+0x8006D80C	152	TODO bitfield
