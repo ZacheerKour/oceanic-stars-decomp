@@ -29,3 +29,17 @@ void func_80038854();
 void func_8003867C();
 void func_80035AA4();
 void func_800367B4();
+/* lane 1 additions */
+typedef struct S_8002F8A4 { int w0; void (*p4)(); } S_8002F8A4;
+extern S_8002F8A4 *D_8002F8DC;
+extern unsigned short D_8004D58C[];
+extern int D_8004DD94;
+extern int D_8004DDC8;
+extern unsigned char *D_8004DDD0;
+extern unsigned char *D_8004DDC4;
+void func_8002F8C4();
+int func_8002F8E0();
+int func_8002F974();
+int func_80031214();
+void func_80031070();
+extern int D_8004EFB0;
