@@ -148,3 +148,23 @@ extern S_80038DBC *D_8004EFC4;
 extern int D_8004ECE8, D_8004ECEC;
 extern S_80032918 D_8004ECD0[], D_8004ED90[], D_8004EE50[];
 extern int D_8004DE94, D_8004DE98;
+
+/* wave2 lane1 */
+typedef struct { char pad0[0xFEE]; short hFEE; } S_800317D4;
+typedef struct { char pad0[0x34]; unsigned short h34; char pad36[0x1E]; unsigned short h54; } S_80031CBC;
+typedef struct { char pad0[0xE0]; int *pE0; char padE4[2]; short hE6; } S_80032374;
+typedef struct { int w0; int w4; } S_8002FFAC;
+extern S_8002FFAC D_8004DFB8[];
+typedef struct { int w0; int w4; int w8; int wC; } S_800320F4;
+extern S_800320F4 D_8004EF30[];
+typedef struct { unsigned short h0; unsigned short h2; char pad4[0xC]; unsigned short h10; char pad12[2]; int w14; struct { int w18; unsigned short h1C; short pad1E; } ent[1]; } S_80035B64;
+void func_800340C0();
+void func_80031194();
+typedef struct { char pad0[8]; int w8[1]; char pad0C[0xE8]; short hF4; } S_800339F8;
+typedef struct { char pad0[4]; void *p4; } S_80035BA0;
+extern char D_8004B6D8[];
+void func_80033A2C();
+void func_80049458();
+int func_800343E4(int *, short);
+int func_80034428(int *, short);
+char *func_80032DEC();
