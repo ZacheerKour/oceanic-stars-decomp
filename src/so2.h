@@ -484,7 +484,7 @@ typedef struct { unsigned short w[998]; } S_8003161Ce;
 typedef struct { char pad0[0xC]; S_8003161Ce s[2]; } S_8003161C;
 extern unsigned char D_8004B8C8[];
 /* wave6 lane2 */
-typedef struct { char pad0[8]; short h8; char padA[2]; void (*fn0C)(); char pad10[0x18]; short h28; char pad2A[2]; void (*fn2C)(); } S_80036240_vt;
+typedef struct { char pad0[8]; short h8; char padA[2]; void (*fn0C)(); short h10; char pad12[2]; int (*fn14)(); short h18; char pad1A[2]; void (*fn1C)(); short h20; char pad22[2]; void (*fn24)(); short h28; char pad2A[2]; void (*fn2C)(); } S_80036240_vt;
 typedef struct { char pad0[4]; S_80036240_vt *p4; char pad8[8]; } S_80036240c;
 typedef struct { S_80036240c *p0; int w4; unsigned int w8; } S_80036240e;
 typedef struct { char pad0[8]; S_80036240e *p8; int wC; } S_80036240;
