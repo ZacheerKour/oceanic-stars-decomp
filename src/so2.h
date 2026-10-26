@@ -1,6 +1,6 @@
 /* Shared declarations for the main overlay (entry 1). Names are address-derived; layouts are inferred from accesses only. */
 typedef struct Node { int pad0; struct Node *next; } Node;
-typedef struct { char pad[2]; unsigned char b2; char pad3[0xD]; int w10; } Ctx;
+typedef struct { char pad[2]; unsigned char b2; char pad3[0xD]; int w10; char pad14[0x12]; short h26, h28; } Ctx;
 
 extern unsigned short *D_8004DDA4;
 extern void *D_8004DDB8;
@@ -241,7 +241,7 @@ typedef struct { char pad0[4]; void *p4; char pad8[0x50]; int w58; } S_80031C04;
 extern void *D_8004B470[];
 void func_8006AAC4();
 int func_800339A8();
-typedef struct { Ctx head; char pad14[0x4C]; } S_800340C0;
+typedef struct { Ctx head; char pad2C[0x34]; } S_800340C0;
 typedef struct { unsigned char b0; char pad1[0xCF]; } S_800340C0b;
 extern S_800340C0 *D_8004DDA8;
 extern S_800340C0b *D_8004DDAC;
@@ -390,3 +390,5 @@ typedef struct { int w0; void *p4; int w8; S_8003EA00t *pC; } S_8003EA00a;
 typedef struct { S_8003EA00a *p0; } S_8003EA00;
 extern int D_8004DED4;
 extern unsigned char D_8004E234[];
+extern int D_8004BCB4[];
+typedef struct { char pad0[0xFC0]; int wFC0, wFC4, wFC8, wFCC; } S_800380B8;
