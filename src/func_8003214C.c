@@ -1,5 +1,5 @@
 #include "so2.h"
-S_80030CBC *func_8003214C(S_80030CBC *o) {
+S_80032270 *func_8003214C(S_80032270 *o) {
 	int n;
 	short i;
 	int v;
@@ -8,8 +8,8 @@ S_80030CBC *func_8003214C(S_80030CBC *o) {
 	o->hE8 = 30;
 	o->hEA = 100;
 	o->hEE = 1;
-	o->u0.h[1] = 0;
-	for (n = 49; n >= 0; n--) ((int *)o)[n + 2] = 0;
+	o->h2 = 0;
+	for (n = 49; n >= 0; n--) o->p8[n] = 0;
 	func_80032320(o, D_8004ECE8, D_8004ECEC);
 	o->pF0 = func_8001FD94(16);
 	v = func_8002FFE4()->p4->w4;

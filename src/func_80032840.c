@@ -1,5 +1,5 @@
 #include "so2.h"
-void func_80032840(S_80030CBC *o, int a)
+void func_80032840(S_80032270 *o, int a)
 {
     S_80032840e *p;
     short idx;

@@ -1,5 +1,5 @@
 #include "so2.h"
-void func_80032B3C(S_80030CBC *o, int a, int n) {
+void func_80032B3C(S_80032270 *o, int a, int n) {
 	char buf[32];
 	char out[32];
 	int base, i, sum, r;

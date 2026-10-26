@@ -1,5 +1,5 @@
 #include "so2.h"
-void func_80032C58(S_80030CBC *o, int n)
+void func_80032C58(S_80032270 *o, int n)
 {
 	char buf[32]; int p; int w; short total; int pos; int t; int d;
 	p = o->wE0 + ((S_80033FD0p *)o->wE0)->w0;

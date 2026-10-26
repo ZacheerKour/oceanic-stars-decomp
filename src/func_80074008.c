@@ -1,4 +1,3 @@
-/* wip: needs D_8004DDC4->hC (halfword at 0xC), but S_80030CBC (lane 1 retype) has a pointer p8[1] there; two views of one address, unresolved. Matched in isolation under the old S_80030C00b type. */
 #include "so2.h"
 void func_80074008(S_80074008 *o)
 {

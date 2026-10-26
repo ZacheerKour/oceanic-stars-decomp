@@ -1,5 +1,5 @@
 #include "so2.h"
-void func_800329B0(S_80030CBC *o) {
+void func_800329B0(S_80032270 *o) {
 	S_80032840e *e;
 	S_8006E1A0 r, r2;
 

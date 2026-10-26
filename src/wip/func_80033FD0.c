@@ -1,6 +1,6 @@
 /* DIFF 97 bytes: reg alloc + arg schedule (retail loads o->wE0 straight into a1, then lw 4(a1), addu a1,a1,v0; g kept in v1/$3). Loop shape now matches via while(1)+break. Needs int->int* cast. */
 #include "so2.h"
-void func_80033FD0(S_80030CBC *o, unsigned char *dst, char *str) {
+void func_80033FD0(S_80032270 *o, unsigned char *dst, char *str) {
 	char *buf, *p;
 	int *t;
 	unsigned char *g;
