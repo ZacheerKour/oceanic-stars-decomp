@@ -1,0 +1,11 @@
+# wave6 lane1 (addr, size, status)
+0x80030D64	184	MATCH (cast removed: S_80030D64.b0[0x20] byte array, p = o->b0 + 15; p[32])
+0x8003469C	40	MATCH
+0x80032524	52	MATCH
+0x8002F8E4	144	MATCH (sine quarter-table D_8004D58C, 4 ranges)
+0x80031194	128	MATCH (D_8004DDD4 S_80031070e[16] reused)
+0x80031324	140	MATCH-PENDING (offset cast kept; no cast-free index form found, see dead ends)
+0x80034110	224	OPEN wip (12 diff with base+off; char* base variant worse)
+0x8003445C	56	OPEN wip (13, load-order/reg swap unchanged by 4 spellings)
+0x8003161C	184	OPEN wip (136; logic exact, loop-pointer giv shape)
+0x80031290	148	OPEN wip (same giv family as 80031324)
