@@ -1,4 +1,3 @@
-/* wall: register/materialization, 27 differing bytes: retail return !(f&2) is andi+sltiu with f in a0 (ours srl/xori/andi, f in v1) */
 #include "so2.h"
 int func_80038D14(int a, int b) {
     int i, j;
@@ -13,6 +12,8 @@ int func_80038D14(int a, int b) {
     }
     j = b - 1;
     g = D_8004EFC4[j].h0;
-    if ( !( g & 1 ) ) return 1;
-    return ( g & 2 ) == 0;
+    if ( g & 1 ) {
+        if ( g & 2 ) return 0;
+    }
+    return 1;
 }
