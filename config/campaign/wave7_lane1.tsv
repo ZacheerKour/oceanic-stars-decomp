@@ -33,3 +33,7 @@
 0x80032DEC	44	MATCH (top-tested loop; param int a -> short n local)
 0x80032DB8	52	MATCH (top-tested loop)
 0x80034768	124	MATCH (top-tested loop)
+0x8003236C	8	MATCH
+0x80032498	8	MATCH
+0x800317D4	12	MATCH
+0x80032E18	140	OPEN wip (1 byte: branch target, jump threading)
