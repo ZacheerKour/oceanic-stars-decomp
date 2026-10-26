@@ -288,7 +288,7 @@ typedef struct { char pad0[0xFF0]; int wFF0; int wFF4; int wFF8; int wFFC; int w
 extern int D_8004EBE4;
 int func_80011B98();
 void func_8003186C();
-typedef struct { char pad0[0x1E]; short h1E; short h20; char pad22[2]; int w24; } S_800323BCe;
+typedef struct { char pad0[0x1E]; short h1E; short h20; char pad22[2]; Node *p24; } S_800323BCe;
 typedef struct { char pad0[8]; S_800323BCe *p8[1]; } S_800323BC;
 void func_8003244C();
 /* wave3 lane2 */
