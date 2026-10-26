@@ -33,14 +33,6 @@ status = "confirmed"
 note = "program A (e1c0) only; byte-matched 148 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
 
 [[func]]
-pc = 0x8002F8E4
-name = "func_8002F8E4"
-size = 144
-emit = false
-status = "confirmed"
-note = "program A (e1c0) only; byte-matched 144 B, gcc-2.7.2-psx -O2 -G0 (config/matches.tsv)"
-
-[[func]]
 pc = 0x8002F974
 name = "func_8002F974"
 size = 148
