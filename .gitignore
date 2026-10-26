@@ -20,3 +20,6 @@ __pycache__/
 /build/
 /asm/
 /undefined_*_auto.txt
+
+# ---- Sandbox harness: generated per run (real paths, staged exe, results) ----
+/recomp/sandbox/_*
