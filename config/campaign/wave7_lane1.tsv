@@ -24,3 +24,5 @@
 0x80035A94	8	MATCH (trivial stub/accessor)
 0x8002F810	128	MATCH (vtable D_8002F8C4 typed S_8002F8A4_vt; S_8002F8A4 retyped, func_8002F8A4/func_80041D64 now use &D_8002F8C4)
 0x800316F4	216	OPEN wip (branch layout of early return 1 / return -1)
+0x80032840	216	MATCH (S_80030CBC p8/pC -> p8[2], padE4/padEE split; int param truncated via short local)
+0x800341F0	232	OPEN wip (10 bytes register swap base/off; needs casts)
