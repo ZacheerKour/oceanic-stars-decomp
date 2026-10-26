@@ -1,0 +1,777 @@
+# Indirect call/jump sites unresolved by psxrecomp-analyze (see analysis/indirect.py; RECOMP_NOTES.md "Indirect call resolution").
+# site_pc	program(boot|A|B|C)	kind	targets	confidence	note
+8002f84c	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+8002f874	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80030410	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80030464	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80030870	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80031a64	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+800362d0	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80036434	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80036468	A	vtable_dispatch	80038278,80041da0,800494e8,8004ff78,8006aaf4,8006ae00,8006e728,80073a38	low	vptr@+4 slot@+28; 28 vtable bases stored at +4, 8 distinct targets
+80036510	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+80036624	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80038294	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+800391d0	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+8003c498	A	static_slot_unassigned		none	slot 8004e170: zero/bss, no const store in image
+8003d224	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+8003d380	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+8003e4b8	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+80042624	A	vtable_dispatch	8004fd08	low	vptr@+76 slot@+20; 4 vtable bases stored at +76, 1 distinct targets
+80042688	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+80042754	A	vtable_dispatch	8004fd08	low	vptr@+76 slot@+20; 4 vtable bases stored at +76, 1 distinct targets
+800427c0	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+80042898	A	vtable_dispatch	8004fd08	low	vptr@+76 slot@+20; 4 vtable bases stored at +76, 1 distinct targets
+800428ec	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+80042910	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+80042a48	A	vtable_dispatch	8004fd08	low	vptr@+76 slot@+20; 4 vtable bases stored at +76, 1 distinct targets
+80042ac0	A	vtable_dispatch	8004f3ac,8004fb64,8006739c,8006ad98	low	vptr@+76 slot@+12; 4 vtable bases stored at +76, 4 distinct targets
+80043120	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80043418	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+800434c8	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80043588	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80043b60	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80043d68	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80043e10	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+800442c8	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80044524	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+800445c8	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80045174	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80045484	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+8004552c	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80045558	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80045b2c	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80045b48	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80045e18	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80045e3c	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80045f04	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80046360	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+8004661c	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+800466b4	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+80046af8	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80046d08	A	vtable_dispatch	80036be4,800382b4,80041db0,80048dcc,80048df4,80048e1c,80048e44,80048e6c,80048ee4,8006939c,8006ec8c,80073a6c	low	vptr@+4 slot@+44; 28 vtable bases stored at +4, 12 distinct targets
+80049b34	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+8004aecc	A	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+8004b344	A	static_slot_unassigned		none	slot 8004efe4: zero/bss, no const store in image
+80063768	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+80065430	A	vtable_dispatch	80038270,80048d2c,800494d0,8006a3c8,8006ac64,800703cc,80073a38,80073d4c,800742e4	low	vptr@+4 slot@+116; 28 vtable bases stored at +4, 9 distinct targets
+80069eec	A	vtable_dispatch	8006a004,8006a1d8,8006a388,8006a74c	low	vptr@+20 slot@+12; 4 vtable bases stored at +20, 4 distinct targets
+80069f14	A	vtable_dispatch	8006a04c,8006a0a0,8006a3c8	low	vptr@+20 slot@+28; 4 vtable bases stored at +20, 3 distinct targets
+80069f5c	A	vtable_dispatch	8006a054,8006a130,8006a60c	low	vptr@+20 slot@+36; 4 vtable bases stored at +20, 3 distinct targets
+80069f78	A	vtable_dispatch	8006a028,8006a22c,8006a830	low	vptr@+20 slot@+20; 4 vtable bases stored at +20, 3 distinct targets
+8006b85c	A	vtable_dispatch	800382ac,80048dcc,800494e8,8004ae1c,80065994,800672a8,80067320,80067348,8006a004,8006ac64,8006bb5c,800703cc,80073a38,80074008	low	vptr@+4 slot@+180; 28 vtable bases stored at +4, 14 distinct targets
+8006bbd0	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+8006bc20	A	vtable_dispatch	8004716c,800476d0,800477dc,80048c40,800494d0,8004950c,8006a054,8006bc5c,8006e6f8,80073910,80073d4c,800742e4,80074354	low	vptr@+4 slot@+204; 28 vtable bases stored at +4, 13 distinct targets
+8006bc3c	A	vtable_dispatch	800382b4,80048e44,80048e6c,80048e94,80048ebc,80048ee4,8004ae1c,8006a028,8006aaec,8006bd40,8006e6f0,800707f4,80073910,800742d0,80074314	low	vptr@+4 slot@+188; 28 vtable bases stored at +4, 15 distinct targets
+8006bde8	A	vtable_dispatch	800382b4,80048e44,80048e6c,80048e94,80048ebc,80048ee4,8004ae1c,8006a028,8006aaec,8006bd40,8006e6f0,800707f4,80073910,800742d0,80074314	low	vptr@+4 slot@+188; 28 vtable bases stored at +4, 15 distinct targets
+8006bed0	A	vtable_dispatch	80038270,80038278,800494d0,800494e8,8004ae1c,8006ac24,8006bdcc,8006ec8c,80073f1c	low	vptr@+4 slot@+172; 28 vtable bases stored at +4, 9 distinct targets
+80070040	A	vtable_dispatch	8002f890,8006564c,800703cc,80073d4c	low	vptr@+4 slot@+52; 28 vtable bases stored at +4, 4 distinct targets
+80070368	A	vtable_dispatch	8003823c,800476d0,800477dc,80047b28,80048298,80048a1c,8004950c,8006a74c,800707f4,80072b18,80072fbc,80073adc	low	vptr@+4 slot@+60; 28 vtable bases stored at +4, 12 distinct targets
+800738e4	A	vtable_dispatch	800360bc,80036acc,8003823c,8003867c,80041db0,800476d0,80047b28,80048298,80048a1c,80048c40,80048d2c,8004950c,80064c00,80065994,80065d38,800672a8,80067320,800673fc,80069240,8006aac4,8006ad98,8006e6a4,800736c8,800736f0,80073884	low	vptr@+4 slot@+12; 28 vtable bases stored at +4, 25 distinct targets
+80073994	A	vtable_dispatch	8002f890,80038270,800494d0,800692cc,8006aaec,8006adf8,8006e6f0	low	vptr@+4 slot@+20; 28 vtable bases stored at +4, 7 distinct targets
+800739dc	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+80073a54	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+80073a88	A	vtable_dispatch	8002f890,8006564c,800703cc,80073d4c	low	vptr@+4 slot@+52; 28 vtable bases stored at +4, 4 distinct targets
+80073ac4	A	vtable_dispatch	8003823c,800476d0,800477dc,80047b28,80048298,80048a1c,8004950c,8006a74c,800707f4,80072b18,80072fbc,80073adc	low	vptr@+4 slot@+60; 28 vtable bases stored at +4, 12 distinct targets
+80073d24	A	vtable_dispatch	80038270,800494d0,8006a830,80073d3c	low	vptr@+4 slot@+68; 28 vtable bases stored at +4, 4 distinct targets
+80073de0	A	vtable_dispatch	80038278,800494e8,8006495c,80064c64,80065b18,80065df8,800672d0,8006a3c8,8006ab68,8006ae54,8006e6a4,800736f0,80073f24	low	vptr@+4 slot@+76; 28 vtable bases stored at +4, 13 distinct targets
+80073e70	A	vtable_dispatch	80038278,800494e8,8006495c,80064c64,80065b18,80065df8,800672d0,8006a3c8,8006ab68,8006ae54,8006e6a4,800736f0,80073f24	low	vptr@+4 slot@+76; 28 vtable bases stored at +4, 13 distinct targets
+80073f78	A	vtable_dispatch	800382ac,8004ae1c,80064b18,80064f5c,8006a60c,8006aaec,8006e6f0,80073f1c	low	vptr@+4 slot@+84; 28 vtable bases stored at +4, 8 distinct targets
+80073fbc	A	vtable_dispatch	800382b4,80048df4,80048e1c,80048e44,80048e6c,80048e94,80048f0c,8006aaf4,8006e728,80074008	low	vptr@+4 slot@+92; 28 vtable bases stored at +4, 10 distinct targets
+800740ec	A	vtable_dispatch	8006a388,8006e6f8,80073884,80073910,800742d0	low	vptr@+4 slot@+100; 28 vtable bases stored at +4, 5 distinct targets
+800741cc	A	vtable_dispatch	800382b4,80048e1c,80048e44,80048e6c,80048e94,80048ebc,8004ae1c,8006a1d8,8006ab68,8006e6a4,80073d4c,80074354	low	vptr@+4 slot@+140; 28 vtable bases stored at +4, 12 distinct targets
+800741f0	A	vtable_dispatch	80048d2c,80048dcc,8006a22c,8006e6f0,80073adc,80073f1c,8007435c	low	vptr@+4 slot@+148; 28 vtable bases stored at +4, 7 distinct targets
+800742a4	A	vtable_dispatch	80038270,80048a1c,800494d0,800494e8,8006a130,8006be00,8006e6f8,80073884,80073f24,800742d0,80074380	low	vptr@+4 slot@+164; 28 vtable bases stored at +4, 11 distinct targets
+8007447c	A	vtable_dispatch	80038278,80041da0,800494e8,8004ff78,8006aaf4,8006ae00,8006e728,80073a38	low	vptr@+4 slot@+28; 28 vtable bases stored at +4, 8 distinct targets
+8007450c	A	vtable_dispatch	800382ac,8004ae1c,800692f4,8006e6f8,80073910	low	vptr@+4 slot@+36; 28 vtable bases stored at +4, 5 distinct targets
+8002f84c	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+8002f874	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
+80035038	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+8003509c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80035144	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80035188	B	vtable_dispatch	80034360,800351a0,8003d6ec,80040a38,80052a3c,80053c04,80067a04,800895f8,8008b948	low	vptr@+4 slot@+196; 54 vtable bases stored at +4, 9 distinct targets
+80035264	B	vtable_dispatch	80034360,800351a0,8003d6ec,80040a38,80052a3c,80053c04,80067a04,800895f8,8008b948	low	vptr@+4 slot@+196; 54 vtable bases stored at +4, 9 distinct targets
+800353d8	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80035434	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80035688	B	vtable_dispatch	8003ac38,8003d764,8003de88,80051fdc,80052a3c,80053f4c,80053f5c	low	vptr@+4 slot@+348; 54 vtable bases stored at +4, 7 distinct targets
+80035788	B	vtable_dispatch	8003ac38,8003d764,8003de88,80051fdc,80052a3c,80053f4c,80053f5c	low	vptr@+4 slot@+348; 54 vtable bases stored at +4, 7 distinct targets
+80035814	B	vtable_dispatch	8003bb84,8003edbc,8003f37c,80051fdc,80069170	low	vptr@+4 slot@+44; 54 vtable bases stored at +4, 5 distinct targets
+80035860	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800358e0	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+8003595c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800359d8	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80035a6c	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80035ae8	B	vtable_dispatch	80053c04,800678e8	low	vptr@+4 slot@+68; 54 vtable bases stored at +4, 2 distinct targets
+80035b90	B	vtable_dispatch	8003adc8,80053240,80065360,800654f4,800679ac	low	vptr@+4 slot@+84; 54 vtable bases stored at +4, 5 distinct targets
+80035bfc	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80035cb8	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+80035ce4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80035d48	B	vtable_dispatch	8003522c,8003c944,8003d764,8003fde4,80052ae0,80053e48,800678e8,80089694,8008aee0,8008ba98	low	vptr@+4 slot@+204; 54 vtable bases stored at +4, 10 distinct targets
+80035e38	B	vtable_dispatch	80039ef4,8003d328,8003d764,8003e894,8005287c,80053f44,800541d0,80054560,800679ac	low	vptr@+4 slot@+332; 54 vtable bases stored at +4, 9 distinct targets
+80035e60	B	vtable_dispatch	8003bc30,8003e210,800409e4,80053b1c,80053f5c,800540d8,8008bc50	low	vptr@+4 slot@+300; 54 vtable bases stored at +4, 7 distinct targets
+80035ef0	B	vtable_dispatch	80036980,8003ded8,8003e210,8003e720,8003f5f8,8003fcc4,80040308,80040ebc,80051fdc,8005287c,80053b1c,80088d00,8008b854	low	vptr@+4 slot@+236; 54 vtable bases stored at +4, 13 distinct targets
+80036004	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80036080	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+800360fc	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80036288	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+800362cc	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+800363f4	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+80036444	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80036518	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+800365b4	B	vtable_dispatch	80052a3c	low	vptr@+4 slot@+52; 54 vtable bases stored at +4, 1 distinct targets
+80036764	B	vtable_dispatch	8003c4f4,80047c90,80052ae0,80067a04	low	vptr@+4 slot@+60; 54 vtable bases stored at +4, 4 distinct targets
+800368b4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80036954	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+80036c9c	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80036e9c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80036f30	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003702c	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+8003715c	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+800371bc	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+800372d4	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003731c	B	vtable_dispatch	80034360,8003ac70,8003c944,8003d328,800416a4,80053b24,80053f44,800540d8	low	vptr@+4 slot@+316; 54 vtable bases stored at +4, 8 distinct targets
+80037338	B	vtable_dispatch	8003bc28,8003d52c,8003e8a8,80040630,80040658,80040680,800406a8,800406d0,800406f8,80040720,80040748,80040770,80040798,800407c0,80041558,80041580,800415a8,800415d0,800415f8,80053240,80053f54,80053f64,80089dc8,8008b0a0,8008c09c	low	vptr@+4 slot@+292; 54 vtable bases stored at +4, 25 distinct targets
+800373cc	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003743c	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+800374b0	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+800374d8	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+80037504	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003753c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80037574	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800376f8	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80037774	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800377d0	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80037840	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+80037880	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+800378a4	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+80037908	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+8003793c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80037a64	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+80037ad4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80037d38	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+80037e78	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80037f88	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003800c	B	vtable_dispatch	80036980,8003ded8,8003e210,8003e720,8003f5f8,8003fcc4,80040308,80040ebc,80051fdc,8005287c,80053b1c,80088d00,8008b854	low	vptr@+4 slot@+236; 54 vtable bases stored at +4, 13 distinct targets
+80038034	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003817c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80038304	B	vtable_dispatch	8003a658,8003dca0,8003deb4,80052a3c,80052ae0,80053f54,80053f64	low	vptr@+4 slot@+356; 54 vtable bases stored at +4, 7 distinct targets
+8003839c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80038634	B	vtable_dispatch	8003a658,8003dca0,8003deb4,80052a3c,80052ae0,80053f54,80053f64	low	vptr@+4 slot@+356; 54 vtable bases stored at +4, 7 distinct targets
+800386c8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800387f0	B	vtable_dispatch	8003a658,8003dca0,8003deb4,80052a3c,80052ae0,80053f54,80053f64	low	vptr@+4 slot@+356; 54 vtable bases stored at +4, 7 distinct targets
+80038948	B	vtable_dispatch	80036980,8003ded8,8003e210,8003e720,8003f5f8,8003fcc4,80040308,80040ebc,80051fdc,8005287c,80053b1c,80088d00,8008b854	low	vptr@+4 slot@+236; 54 vtable bases stored at +4, 13 distinct targets
+80038c38	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80038c5c	B	vtable_dispatch	8003bc40,8003de88,8003ded8,80052ae0,80053c04,80053f5c,800540d8	low	vptr@+4 slot@+364; 54 vtable bases stored at +4, 7 distinct targets
+80038ca0	B	vtable_dispatch	8003bc20,8003e5dc,8003e720,8003e894,80053e48,80053f4c,80053f5c	low	vptr@+4 slot@+284; 54 vtable bases stored at +4, 7 distinct targets
+800391bc	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+800391e0	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+800391fc	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+80039250	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003a03c	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+8003a060	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003a0f8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003a140	B	vtable_dispatch	80034360,8003bc38,8003d6ec,8003dca0,8003edbc,8003f37c,80051fdc,80053f54,800541d0,800541e0,80069170	low	vptr@+4 slot@+340; 54 vtable bases stored at +4, 11 distinct targets
+8003a1a0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003a710	B	vtable_dispatch	80036980,8003ded8,8003e210,8003e720,8003f5f8,8003fcc4,80040308,80040ebc,80051fdc,8005287c,80053b1c,80088d00,8008b854	low	vptr@+4 slot@+236; 54 vtable bases stored at +4, 13 distinct targets
+8003a8b0	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003a910	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ac94	B	vtable_dispatch	8003ac38,8003d764,8003de88,80051fdc,80052a3c,80053f4c,80053f5c	low	vptr@+4 slot@+348; 54 vtable bases stored at +4, 7 distinct targets
+8003ace8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ada8	B	vtable_dispatch	8003ac38,8003d764,8003de88,80051fdc,80052a3c,80053f4c,80053f5c	low	vptr@+4 slot@+348; 54 vtable bases stored at +4, 7 distinct targets
+8003ae80	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003aec4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003aee8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003af3c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003af98	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003afe4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b058	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b0a0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b108	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b144	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b1c4	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+8003b230	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b254	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b2d0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b374	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b398	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b3bc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b438	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b488	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+8003b4ac	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b4d0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b52c	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+8003b54c	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+8003b7dc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b804	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b82c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b854	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b87c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003b8ac	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003bbb8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003bbec	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003ce7c	B	vtable_dispatch	8003bb84,8003edbc,8003f37c,80051fdc,80069170	low	vptr@+4 slot@+44; 54 vtable bases stored at +4, 5 distinct targets
+8003ceb0	B	vtable_dispatch	800378c0,8003e8a0,80053240,80053c04,80053f54,800541e0	low	vptr@+4 slot@+276; 54 vtable bases stored at +4, 6 distinct targets
+8003cecc	B	vtable_dispatch	8003bb84,8003edbc,8003f37c,80051fdc,80069170	low	vptr@+4 slot@+44; 54 vtable bases stored at +4, 5 distinct targets
+8003cef8	B	vtable_dispatch	80053c04,800678e8	low	vptr@+4 slot@+68; 54 vtable bases stored at +4, 2 distinct targets
+8003cf3c	B	vtable_dispatch	8003adc8,80053240,80065360,800654f4,800679ac	low	vptr@+4 slot@+84; 54 vtable bases stored at +4, 5 distinct targets
+8003cf58	B	vtable_dispatch	800377ac,8003e060,8003ec40,8003faec,80040494,80052a3c,80053c04,80053f3c,800541e0,80089f50,8008b240	low	vptr@+4 slot@+260; 54 vtable bases stored at +4, 11 distinct targets
+8003d148	B	vtable_dispatch	8003bc20,8003e5dc,8003e720,8003e894,80053e48,80053f4c,80053f5c	low	vptr@+4 slot@+284; 54 vtable bases stored at +4, 7 distinct targets
+8003d19c	B	vtable_dispatch	8003785c,8003e784,8003e894,80052ae0,80053e48,80053f44	low	vptr@+4 slot@+268; 54 vtable bases stored at +4, 6 distinct targets
+8003d2f0	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d3d0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003d428	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003d454	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d4e4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003d510	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d5c8	B	vtable_dispatch	800378c0,8003e8a0,80053240,80053c04,80053f54,800541e0	low	vptr@+4 slot@+276; 54 vtable bases stored at +4, 6 distinct targets
+8003d5e4	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d65c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d6d0	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d748	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003d788	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003da30	B	vtable_dispatch	8003785c,8003e784,8003e894,80052ae0,80053e48,80053f44	low	vptr@+4 slot@+268; 54 vtable bases stored at +4, 6 distinct targets
+8003da9c	B	static_slot_init	8003daa4	high	
+8003dab8	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003dbcc	B	vtable_dispatch	8003785c,8003e784,8003e894,80052ae0,80053e48,80053f44	low	vptr@+4 slot@+268; 54 vtable bases stored at +4, 6 distinct targets
+8003dc60	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003dd48	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003de1c	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8003de70	B	vtable_dispatch	8003785c,8003e784,8003e894,80052ae0,80053e48,80053f44	low	vptr@+4 slot@+268; 54 vtable bases stored at +4, 6 distinct targets
+8003df6c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003df98	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003e0f8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003e36c	B	vtable_dispatch	8003785c,8003e784,8003e894,80052ae0,80053e48,80053f44	low	vptr@+4 slot@+268; 54 vtable bases stored at +4, 6 distinct targets
+8003e3e4	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+8003e56c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003e5c0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003e6f8	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003e764	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003e834	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8003ea24	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ea84	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003ec0c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ecac	B	vtable_dispatch	80034360,800351a0,8003d6ec,80040a38,80052a3c,80053c04,80067a04,800895f8,8008b948	low	vptr@+4 slot@+196; 54 vtable bases stored at +4, 9 distinct targets
+8003ed0c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003ed90	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ee8c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003eee8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ef8c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003efb8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003f224	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003f250	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003f4fc	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003f528	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003f62c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003f658	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003f6c0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003f7a0	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003f7e4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003f988	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003f9b4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003fac0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003fc00	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003fc2c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003fd0c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003fd38	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8003ffa0	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8003ffcc	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+800402a8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80040340	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8004036c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80040570	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80040cf0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80040d8c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80040db8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80040f00	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80040f2c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8004115c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+800411bc	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+800413e4	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80041410	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80042558	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+80042588	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+800425b8	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+800425e8	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+80042608	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+800443b0	B	static_slot_unassigned		none	slot 8006fe04: zero/bss, no const store in image
+80045f7c	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
+800461c8	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
+8004628c	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
+800462e0	B	vtable_dispatch	800300e0,80031390,80034fe8,8003beb0,8003c02c,8003c4f4,8003c944,800417bc,8004e0ec,80054560,80062a60,80064504,80064dd4,800654f4,80067a04,8007160c,80082cdc,80085b0c	low	vptr@+4 slot@+12; 54 vtable bases stored at +4, 18 distinct targets
+80046924	B	vtable_dispatch	80052a3c	low	vptr@+4 slot@+52; 54 vtable bases stored at +4, 1 distinct targets
+80046ef8	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+80046f2c	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+80049f74	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004a720	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+8004a954	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004ab48	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+8004ac84	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004ad04	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+8004ae4c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8004aeb0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004bb0c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004c9bc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004c9fc	B	vtable_dispatch	8003bc20,8003e5dc,8003e720,8003e894,80053e48,80053f4c,80053f5c	low	vptr@+4 slot@+284; 54 vtable bases stored at +4, 7 distinct targets
+8004d06c	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+8004d1f0	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+8004da98	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004dad4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004db0c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8004e058	B	static_slot_unassigned		none	slot 8006fe04: zero/bss, no const store in image
+80050244	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050268	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800502dc	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80050338	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80050450	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800504a4	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80050510	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800505e4	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+8005065c	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+800506cc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050774	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050798	B	vtable_dispatch	8003b928,80053f44	low	vptr@+4 slot@+124; 54 vtable bases stored at +4, 2 distinct targets
+80050830	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005091c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050a40	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050a88	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050aac	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050be8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050c14	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+80050cb4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050cf0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050d18	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050d48	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050d7c	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80050db0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050de4	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80050e2c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80050e60	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80050ea0	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80050ef4	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+8005101c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051074	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800510bc	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+800510e8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051128	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051168	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+800511d4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051214	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+80051290	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800512d0	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+8005138c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800513c4	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+800513ec	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051458	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800514c0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051528	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800515cc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800515fc	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+80051660	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800516c8	B	vtable_dispatch	8003c944,8003e894,80053f4c,800678e8	low	vptr@+4 slot@+140; 54 vtable bases stored at +4, 4 distinct targets
+800516f4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051720	B	vtable_dispatch	8003c944,8003e894,80053f4c,800678e8	low	vptr@+4 slot@+140; 54 vtable bases stored at +4, 4 distinct targets
+80051750	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005177c	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+800517a8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800517d4	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+800517fc	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+80051828	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051854	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+800518d0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051938	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051964	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+80051998	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800519c4	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+80051a04	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051a30	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+80051a70	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051a9c	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+80051e54	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051ec4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80051f0c	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+80052038	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+80052134	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+80052bec	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80052c34	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80052f3c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80052ff4	B	vtable_dispatch	8003a088,8003e720,80047578,80053b1c,800670a8,80067960,80069170	low	vptr@+4 slot@+92; 54 vtable bases stored at +4, 7 distinct targets
+80053018	B	vtable_dispatch	8003a088,8003e720,80047578,80053b1c,800670a8,80067960,80069170	low	vptr@+4 slot@+92; 54 vtable bases stored at +4, 7 distinct targets
+800537c8	B	vtable_dispatch	8003bb7c,80051fdc,8005287c,800540d8,800679ac	low	vptr@+4 slot@+172; 54 vtable bases stored at +4, 5 distinct targets
+80053830	B	vtable_dispatch	8003bb7c,80051fdc,8005287c,800540d8,800679ac	low	vptr@+4 slot@+172; 54 vtable bases stored at +4, 5 distinct targets
+800538b0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800538d4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80053918	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80053bac	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80053fa4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80053fd4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80053ff8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005401c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054058	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005407c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800545b0	B	table_unreadable		none	table 8006fea8 stride 4 n=0 (no sltiu guard found)
+80054928	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054970	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800549c8	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054a2c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054a94	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054ac0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054afc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054b4c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054bfc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054c28	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054c9c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054d50	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054d94	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054e60	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054e98	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80054ebc	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054ef0	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80054f1c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054f50	B	vtable_dispatch	80034360,8003b93c,80047c90,80053f54,800654f4,80067960	low	vptr@+4 slot@+148; 54 vtable bases stored at +4, 6 distinct targets
+80054f94	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80054fe0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80055048	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800550b0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80055158	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+80055188	B	vtable_dispatch	8003bb44,8003c944,8004e0ec,8005287c,80053f5c,800670a8,800679ac	low	vptr@+4 slot@+156; 54 vtable bases stored at +4, 7 distinct targets
+80055248	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800555b4	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005563c	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005815c	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+8005b540	B	struct_member		none	off 312 base a0
+8005b668	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8005c29c	B	vtable_dispatch	8003bb7c,80051fdc,8005287c,800540d8,800679ac	low	vptr@+4 slot@+172; 54 vtable bases stored at +4, 5 distinct targets
+8005c300	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8005d760	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+8005e238	B	struct_member		none	off -20 base v0+80070000
+80062904	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+80062aa0	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+800643b4	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+80064ba8	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+80064d7c	B	vtable_dispatch	80037a80,8003bea8,8003c02c,800458f8,80047578,8005287c,80067960	low	vptr@+4 slot@+28; 54 vtable bases stored at +4, 7 distinct targets
+80065240	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+80066b5c	B	vtable_dispatch	8003bc20,8003e5dc,8003e720,8003e894,80053e48,80053f4c,80053f5c	low	vptr@+4 slot@+284; 54 vtable bases stored at +4, 7 distinct targets
+80066ba0	B	vtable_dispatch	8003b8f4,80053f3c,80069170	low	vptr@+4 slot@+116; 54 vtable bases stored at +4, 3 distinct targets
+800679e8	B	vtable_dispatch	8002f890,80034360,8003bef0,800416a4,80045838,80062bfc,80064c44,80065360,800670a8,800678e8,80087c98	low	vptr@+4 slot@+20; 54 vtable bases stored at +4, 11 distinct targets
+80068004	B	vtable_dispatch	8003bb84,8003edbc,8003f37c,80051fdc,80069170	low	vptr@+4 slot@+44; 54 vtable bases stored at +4, 5 distinct targets
+8006a038	B	static_slot_unassigned		none	slot 80070b2c: zero/bss, no const store in image
+8006af68	B	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+800719a4	B	complex		none	ld(('add', ('reg', 'at'), ('reg', 's2')))
+800722dc	B	jump_table_unguarded	800722e4,80072484,800722e4,800724f0,800725ec,80072648,800726fc,8007273c,80072824,8007287c,800729e4,80072ac4,80072b00,80072c94,80072e20,80072ef0,800729e4	medium	table 80079020 stride 4 n=17 guard 17
+8007ad98	B	struct_member		none	off 76 base v0
+8007bac4	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007baf0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007bd98	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007bdc4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007bf8c	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+8007bfa8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007c078	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007d8a0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007d904	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007d930	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007da20	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007da98	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007e46c	B	table_unreadable		none	table 801f9774 stride 4 n=0 guard 5
+8007e928	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007e960	B	vtable_dispatch	80035168,8003d328,80051fdc,80052ae0,80054560,8008b260	low	vptr@+4 slot@+188; 54 vtable bases stored at +4, 6 distinct targets
+8007e984	B	vtable_dispatch	80034360,8003532c,8003dca0,8003e8d0,8003ed28,8003ef04,8003f0ec,8003f460,8003f674,8003fa00,8003ff24,800400f4,80040588,80040830,80040998,80040c98,80053240,80053c04,80067960,8008814c,80089f70,8008b390	low	vptr@+4 slot@+212; 54 vtable bases stored at +4, 22 distinct targets
+8007eaa0	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007ecc4	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007ef08	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007f0e4	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007f1d8	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007f2e8	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007f51c	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007f700	B	vtable_dispatch	80037b9c,8003c944,8003c9e4,800417bc,8004e0ec,80053f3c,80053f64,800541d8	low	vptr@+4 slot@+308; 54 vtable bases stored at +4, 8 distinct targets
+8007f9e0	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007fa1c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007fb1c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007fc34	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8007fd74	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8007fda0	B	struct_member		none	off 100 base v0
+80081b40	B	jump_table_unguarded	80081f34,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80082318,80081b48,80081b5c,80081b70,80081b84,80081b98,80081bac,80081bc0,80081be0,80081bf4,80082144,80081c08,80081c1c,80081c30,80081c44,80081c58,80081c6c,80082318,80081cbc,80081c80,80081c94,80081c94,80081ca8,80081cbc,80081e74,8008206c,80082318,80081cd0,80082318,80081ce4,80081cf0,80081d00,80081d20,80081d34,80082318,80082318,80081d40,80082318,80081d4c,80081d58,80082318,80081d64,80081d84,80082318,80081e00,80081e0c,80081e18,80081e38,80081e44,80081e50,80081e5c,80081e68,80082318,80082318,80081e74,80081e88,80081e94,80081ea8,80081ebc,80081ed0,80081ee4,80081ef8,80081f0c,80081f20,80082318,80081f48,80082318,80081f5c,80082110,80081f70,80081f90,80082318,80082318,80082318,80081fa4,80081fc4,80081fd8,80081fec,80082000,80082014,80082020,80082318,80082034,80082040,8008204c,8008206c,80082080,80082094,80082318,80082318,800820a0,80082318,800820ac,800820b8,800820c4,800820d0,800820dc,800820e8,80082318,800820f4,80082110,80082124,80082318,80082138,80082110,80082144,80082158,80081e38,80082124,80082164,80082170,80082318,8008217c,80082190,8008219c,800821a8,800821bc,800821c8,800821d4,800821e0,800821ec,800821f8,80082204,80082318,80082210,8008221c,80082228,80082234,80082240,8008224c,80082258,80082264,80082270,80082284,80082290,800822a4,800822b8,800822c4,800822d0,800822dc,800822e8,800822f4,80082318,80082318,800822fc,80082318,80082308	medium	table 80084b20 stride 4 n=187 guard 187
+80082d98	B	vtable_dispatch	8003b794,8003c02c,8003f9d0,80053e48,80064dd4,80067960	low	vptr@+4 slot@+76; 54 vtable bases stored at +4, 6 distinct targets
+80084020	B	table_unreadable		none	table 800851b0 stride 4 n=0 (no sltiu guard found)
+80085bf4	B	fnptr_table	80085b0c,80087730,80087c98	low	table 80088020 stride 4 n=3 (no sltiu guard found)
+800861c0	B	vtable_dispatch	8003e210,80045838,80053b24,800679ac,80069170	low	vptr@+4 slot@+108; 54 vtable bases stored at +4, 5 distinct targets
+80086ddc	B	jump_table_unguarded	80087404,80087404,80086de4,80086e6c,80086ff0,80087044,80087058,800871a4,80087050	medium	table 80087fec stride 4 n=9 guard 9
+800883ec	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80088454	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80088480	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+800888ec	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80088918	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80088da0	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+80088dcc	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008932c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+80089350	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008966c	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008a014	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008a274	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008a2e4	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008a704	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008b2b8	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008b308	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008b44c	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008b478	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008b71c	B	vtable_dispatch	800541d0,800629ec,800679ac,8008ba24	low	vptr@+4 slot@+36; 54 vtable bases stored at +4, 4 distinct targets
+8008b7e4	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008b838	B	vtable_dispatch	8003bc30,8003e210,800409e4,80053b1c,80053f5c,800540d8,8008bc50	low	vptr@+4 slot@+300; 54 vtable bases stored at +4, 7 distinct targets
+8008b8fc	B	vtable_dispatch	80035508,8003c9e4,80047578,80052a3c,800541d0,80069170	low	vptr@+4 slot@+180; 54 vtable bases stored at +4, 6 distinct targets
+8008b928	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008b9f8	B	vtable_dispatch	80037098,8003d52c,800541d8,80067960,800679ac	low	vptr@+4 slot@+100; 54 vtable bases stored at +4, 5 distinct targets
+8008ba80	B	vtable_dispatch	8003bc30,8003e210,800409e4,80053b1c,80053f5c,800540d8,8008bc50	low	vptr@+4 slot@+300; 54 vtable bases stored at +4, 7 distinct targets
+8002f84c	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+8002f874	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8002fe28	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8002fe7c	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80030184	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+800302d0	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+800345d8	C	vtable_dispatch	80034574	low	vptr@+12 slot@+20; 1 vtable bases stored at +12, 1 distinct targets
+80034794	C	vtable_dispatch	8003455c	low	vptr@+12 slot@+12; 1 vtable bases stored at +12, 1 distinct targets
+800347d4	C	vtable_dispatch	8003455c	low	vptr@+12 slot@+12; 1 vtable bases stored at +12, 1 distinct targets
+800367d4	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80036938	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+8003696c	C	vtable_dispatch	8003877c,80043654,80045a90,800521e8,800573d0,800584f8,8005f604,8006ef28,8006ef48	low	vptr@+4 slot@+28; 18 vtable bases stored at +4, 9 distinct targets
+80036a14	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+80036b28	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80038798	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+8003a12c	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+8003d3f4	C	static_slot_unassigned		none	slot 80074368: zero/bss, no const store in image
+8003da20	C	vtable_dispatch		none	vptr@+1016 slot@+20; 1 vtable bases stored at +1016, 0 distinct targets
+8003ed5c	C	vtable_dispatch		none	vptr@+1016 slot@+36; 1 vtable bases stored at +1016, 0 distinct targets
+8003edb4	C	vtable_dispatch		none	vptr@+1016 slot@+28; 1 vtable bases stored at +1016, 0 distinct targets
+80043184	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80046a3c	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80046a6c	C	vtable_dispatch	8002f890,80045a3c	low	vptr@+4 slot@+52; 18 vtable bases stored at +4, 2 distinct targets
+80046c04	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80046c3c	C	vtable_dispatch	8002f890,80045a3c	low	vptr@+4 slot@+52; 18 vtable bases stored at +4, 2 distinct targets
+80046c6c	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80046cb0	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80046ce8	C	vtable_dispatch	8002f890,80045a3c	low	vptr@+4 slot@+52; 18 vtable bases stored at +4, 2 distinct targets
+80046d18	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80047564	C	vtable_dispatch		none	vptr@+8 slot@+0; 0 vtable bases stored at +8, 0 distinct targets
+800477e8	C	struct_member		none	off 0 base s5
+80049150	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+80049180	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+800491b0	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+8004929c	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+800492cc	C	vtable_dispatch		none	vptr@+76 slot@+12; 0 vtable bases stored at +76, 0 distinct targets
+8004936c	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+8004941c	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+8004a088	C	vtable_dispatch		none	vptr@+76 slot@+12; 0 vtable bases stored at +76, 0 distinct targets
+8004a174	C	vtable_dispatch		none	vptr@+76 slot@+12; 0 vtable bases stored at +76, 0 distinct targets
+8004a6e4	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8004a7fc	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8004a99c	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8004ad1c	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8004b724	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8004be40	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+8004be74	C	vtable_dispatch		none	vptr@+44 slot@+20; 0 vtable bases stored at +44, 0 distinct targets
+8004bea8	C	vtable_dispatch		none	vptr@+84 slot@+20; 0 vtable bases stored at +84, 0 distinct targets
+8004bedc	C	vtable_dispatch		none	vptr@+124 slot@+20; 0 vtable bases stored at +124, 0 distinct targets
+8004c1d0	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+8004c7d0	C	vtable_dispatch	8003877c,80043654,80045a90,800521e8,800573d0,800584f8,8005f604,8006ef28,8006ef48	low	vptr@+4 slot@+28; 18 vtable bases stored at +4, 9 distinct targets
+8004c874	C	jump_table_unguarded	8004c87c,8004d9e8,8004d944,8004da30,8004d95c,8004d998,8004e3cc,8004e4a4,8004e990,8004eb84,8004ed88,8004efa4,8004f090,8004f484,8004f4f8,8004f650,8004f8b4,8004f928,8004f95c,8004f980,8004f9e0,8004fa54,8004fb88,8004fc74,8004fce0,8004fd04,8004fd4c,8004fdfc,800501c4,800505cc,800509d4,80050b50,80050bd0,80050c74	medium	table 80072fe4 stride 4 n=34 guard 34
+8004cad8	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+8004f4d0	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80051804	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+80051abc	C	vtable_dispatch	8003877c,80043654,80045a90,800521e8,800573d0,800584f8,8005f604,8006ef28,8006ef48	low	vptr@+4 slot@+28; 18 vtable bases stored at +4, 9 distinct targets
+800529e0	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+80052a34	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+80052ad4	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+800542d4	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+800545c4	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+80054644	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+8005495c	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+800549bc	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80054ad4	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80054b88	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80055080	C	vtable_dispatch	800387b0,800459c0,80055d98,8006ef10	low	vptr@+4 slot@+36; 18 vtable bases stored at +4, 4 distinct targets
+80056228	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80059940	C	struct_member	8004c0cc	low	off 348 base s0; 1 const stores at off 348
+8005c064	C	struct_member	8004b7a8	low	off 344 base s4; 1 const stores at off 344
+80066274	C	vtable_dispatch	800370e8,800387b8,80048a84,8006ef28	low	vptr@+4 slot@+44; 18 vtable bases stored at +4, 4 distinct targets
+80068210	C	vtable_dispatch	8002f890,80038774,8006ef10	low	vptr@+4 slot@+20; 18 vtable bases stored at +4, 3 distinct targets
+80069d38	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+8006a760	C	vtable_dispatch	800304e8,800365c0,80036fd0,80038740,80038b80,800441d0,80045d30,80046ae4,80048a84,80055d98,80057790,800584f8,8005f108,8006b944,8006ef48	low	vptr@+4 slot@+12; 18 vtable bases stored at +4, 15 distinct targets
+80070c2c	C	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+800715c4	C	static_slot_unassigned		none	slot 80078880: zero/bss, no const store in image
+800715f8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800717a0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80072aa4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80072bb4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074854	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074868	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074978	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074994	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074aa0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074ab4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074c0c	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074ccc	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80074ddc	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800751c4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800751d0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076370	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076378	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800763e0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800763e4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076464	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076468	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800764e4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800764e8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076564	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076568	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800765e0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800765e8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076660	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076664	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f04	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f14	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f18	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f84	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f88	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f8c	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f90	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80076f98	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80077008	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+8007700c	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80077010	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80077014	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800773d8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800773ec	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+8007747c	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80078054	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80078058	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+80078120	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800781ec	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800781f0	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800782c4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800782c8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800783a8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800783ac	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800784a4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800784a8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800785b8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800785bc	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800786f4	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800786f8	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+800786fc	C	data_as_code		none	inside analyzer pseudo-function 800715f4 (syscall+gte tags = data)
+8001058c	boot	call_return		none	result of jal 8001fe30
+80011004	boot	vtable_dispatch	8001079c,80010a7c,80013500,80018f2c	low	vptr@+4 slot@+28; 5 vtable bases stored at +4, 4 distinct targets
+800130d4	boot	null_target		none	constant 0 on this path (guarded/uninitialised callback)
+800131d4	boot	complex		none	('add', ('unk',), ('c', 16))
+800135f0	boot	vtable_dispatch	8001079c,80010a7c,80013500,80018f2c	low	vptr@+4 slot@+28; 5 vtable bases stored at +4, 4 distinct targets
+8001420c	boot	vtable_dispatch	800134f8	low	vptr@+4 slot@+20; 5 vtable bases stored at +4, 1 distinct targets
+80018ed4	boot	vtable_dispatch	8001079c,80010a7c,80013500,80018f2c	low	vptr@+4 slot@+28; 5 vtable bases stored at +4, 4 distinct targets
+8001be80	boot	static_slot_stored	80018e84,8001de60,8001e7f4	medium	slot 8002b79c assigned by const stores / setter-call arguments
+8001def8	boot	static_slot_stored	800145ec	medium	slot 8002d798 assigned by const stores / setter-call arguments
+8001e528	boot	static_slot_stored	80014674	medium	slot 8002d79c assigned by const stores / setter-call arguments
+8001e5e0	boot	static_slot_stored	80014674	medium	slot 8002d79c assigned by const stores / setter-call arguments
+8001e910	boot	static_slot_stored	800145ec	medium	slot 8002d798 assigned by const stores / setter-call arguments
+8001e954	boot	static_slot_stored	80014648	medium	slot 8002d794 assigned by const stores / setter-call arguments
+8001f05c	boot	static_slot_stored	80014674	medium	slot 8002d79c assigned by const stores / setter-call arguments
+80020078	boot	global_struct_member	800201f4	medium	struct pointer @8002cfe4, field +12; 1 struct bases, 1 targets
+800200a8	boot	global_struct_member	8002049c	medium	struct pointer @8002cfe4, field +8; 1 struct bases, 1 targets
+800200d8	boot	global_struct_member		none	struct pointer @8002cfe4, field +4; 1 struct bases, 0 targets
+8002010c	boot	global_struct_member		none	struct pointer @8002cfe4, field +20; 1 struct bases, 0 targets
+8002013c	boot	global_struct_member		none	struct pointer @8002cfe4, field +20; 1 struct bases, 0 targets
+8002016c	boot	global_struct_member	800205e4	medium	struct pointer @8002cfe4, field +16; 1 struct bases, 1 targets
+8002019c	boot	global_struct_member	80020684	medium	struct pointer @8002cfe4, field +24; 1 struct bases, 1 targets
+800203a0	boot	struct_member		none	off 0 base s2
+800207b8	boot	struct_member		none	off 0 base s0
+8002092c	boot	struct_member		none	off 0 base s2
+80020c38	boot	global_struct_member	800231e0	medium	struct pointer @8002d0ac, field +52; 1 struct bases, 1 targets
+80020d20	boot	global_struct_member	800231e0	medium	struct pointer @8002d0ac, field +52; 1 struct bases, 1 targets
+80020e40	boot	struct_member		none	off 16 base v0
+80020eac	boot	global_struct_member	80023330	medium	struct pointer @8002d0ac, field +60; 1 struct bases, 1 targets
+8002104c	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+800210e4	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+8002114c	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+800211ac	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+80021260	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+800213a4	boot	global_struct_member	800223f0	medium	struct pointer @8002d0ac, field +44; 1 struct bases, 1 targets
+80021418	boot	global_struct_member	80023330	medium	struct pointer @8002d0ac, field +60; 1 struct bases, 1 targets
+80021434	boot	global_struct_member	80022bf4	medium	struct pointer @8002d0ac, field +20; 1 struct bases, 1 targets
+800214a8	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+8002154c	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+80021624	boot	global_struct_member	80022cd0	medium	struct pointer @8002d0ac, field +8; 1 struct bases, 1 targets
+80021708	boot	global_struct_member	80022bbc	medium	struct pointer @8002d0ac, field +16; 1 struct bases, 1 targets
+80021860	boot	global_struct_member	80022bbc	medium	struct pointer @8002d0ac, field +16; 1 struct bases, 1 targets
+80021b20	boot	global_struct_member	80022bbc	medium	struct pointer @8002d0ac, field +16; 1 struct bases, 1 targets
+80021b4c	boot	global_struct_member	80022bbc	medium	struct pointer @8002d0ac, field +16; 1 struct bases, 1 targets
+80021bd0	boot	global_struct_member	800223d8	medium	struct pointer @8002d0ac, field +56; 1 struct bases, 1 targets
+80022dd4	boot	arg_register		none	a0 of func 80022cd0; 1 direct callers, 0 const
+800230d0	boot	table_unreadable		none	table 8002df88 stride 32 n=0 (no sltiu guard found)
+800231a8	boot	static_slot_unassigned		none	slot 8002d0c0: zero/bss, no const store in image
+80023750	boot	global_struct_member	80022700	medium	struct pointer @8002d0ac, field +32; 1 struct bases, 1 targets
+8002383c	boot	global_struct_member	8002293c	medium	struct pointer @8002d0ac, field +28; 1 struct bases, 1 targets
+8002397c	boot	global_struct_member	80022c34	medium	struct pointer @8002d0ac, field +24; 1 struct bases, 1 targets
+80023a80	boot	global_struct_member	80022c34	medium	struct pointer @8002d0ac, field +24; 1 struct bases, 1 targets
+80023c90	boot	static_slot_unassigned		none	slot 0000dffc: zero/bss, no const store in image
+80023ca8	boot	kernel_ram		none	const target a000dfac (kernel/uncached alias, not image code)
+80023ce0	boot	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+80023d74	boot	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+80023e18	boot	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+8002508c	boot	static_slot_unassigned		none	slot 8002dc88: zero/bss, no const store in image
+800250a0	boot	static_slot_unassigned		none	slot 8002dc8c: zero/bss, no const store in image
+800250c0	boot	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+80025138	boot	bios_dispatch		high	BIOS vector b0 (function number in $t1)
+80026124	boot	static_slot_stored	800110b0,80025248,800270ec	medium	slot 8002d390 assigned by const stores / setter-call arguments
+80026158	boot	static_slot_stored	80010b2c,80025220	medium	slot 8002d38c assigned by const stores / setter-call arguments
+800263ac	boot	static_slot_stored	800110b0,80025248,800270ec	medium	slot 8002d390 assigned by const stores / setter-call arguments
+800263e0	boot	static_slot_stored	80010b2c,80025220	medium	slot 8002d38c assigned by const stores / setter-call arguments
+8002681c	boot	static_slot_stored	800110b0,80025248,800270ec	medium	slot 8002d390 assigned by const stores / setter-call arguments
+80026850	boot	static_slot_stored	80010b2c,80025220	medium	slot 8002d38c assigned by const stores / setter-call arguments
+80027078	boot	static_slot_stored	800110b0,80025248,800270ec	medium	slot 8002d390 assigned by const stores / setter-call arguments
+800270ac	boot	static_slot_stored	80010b2c,80025220	medium	slot 8002d38c assigned by const stores / setter-call arguments
+800272e0	boot	static_slot_stored	80025270	medium	slot 8002d698 assigned by const stores / setter-call arguments
+8002779c	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+80027874	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+8002796c	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+80027a40	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+80027ae0	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+80027b20	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+80027b68	boot	static_slot_stored	8002a1dc	medium	slot 8002d6e4 assigned by const stores / setter-call arguments
+80027c20	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+80027c78	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+80027d30	boot	static_slot_unassigned		none	slot 8002d6f8: zero/bss, no const store in image
+80027e54	boot	static_slot_stored	80029d68	medium	slot 8002d6d0 assigned by const stores / setter-call arguments
+80027f6c	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+80027f88	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+800280dc	boot	static_slot_stored	8002a374	medium	slot 8002d6f0 assigned by const stores / setter-call arguments
+80028140	boot	static_slot_stored	8002a374	medium	slot 8002d6f0 assigned by const stores / setter-call arguments
+80028154	boot	static_slot_stored	80029e5c	medium	slot 8002d6f4 assigned by const stores / setter-call arguments
+80028368	boot	fnptr_table	80029570,800295b8,80029690,8002973c,80029800	low	table 8002d758 stride 4 n=5 (no sltiu guard found)
+800283d4	boot	static_slot_stored	80029d68	medium	slot 8002d6d0 assigned by const stores / setter-call arguments
+8002840c	boot	static_slot_stored	80029d68	medium	slot 8002d6d0 assigned by const stores / setter-call arguments
+80028c04	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+80028cf0	boot	static_slot_stored	8002a6b8	medium	slot 8002d6ec assigned by const stores / setter-call arguments
+80029248	boot	static_slot_stored	8002a6b8	medium	slot 8002d6ec assigned by const stores / setter-call arguments
+800293a4	boot	static_slot_stored	8002a6b8	medium	slot 8002d6ec assigned by const stores / setter-call arguments
+800294a8	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+80029584	boot	static_slot_stored	8002a264	medium	slot 8002d6e8 assigned by const stores / setter-call arguments
+800295fc	boot	static_slot_unassigned		none	slot 8002d700: zero/bss, no const store in image
+80029610	boot	static_slot_unassigned		none	slot 8002d6fc: zero/bss, no const store in image
+8002963c	boot	static_slot_stored	8002a264	medium	slot 8002d6e8 assigned by const stores / setter-call arguments
+80029654	boot	static_slot_stored	8002a264	medium	slot 8002d6e8 assigned by const stores / setter-call arguments
+800296bc	boot	static_slot_stored	8002a264	medium	slot 8002d6e8 assigned by const stores / setter-call arguments
+800296d4	boot	static_slot_stored	8002a264	medium	slot 8002d6e8 assigned by const stores / setter-call arguments
+8002979c	boot	static_slot_stored	80029f28	medium	slot 8002d6dc assigned by const stores / setter-call arguments
+800297b8	boot	static_slot_stored	80029e6c	medium	slot 8002d6d8 assigned by const stores / setter-call arguments
+8002983c	boot	static_slot_stored	80029f28	medium	slot 8002d6dc assigned by const stores / setter-call arguments
+80029890	boot	static_slot_stored	80029f28	medium	slot 8002d6dc assigned by const stores / setter-call arguments
+800298a8	boot	static_slot_stored	80029e6c	medium	slot 8002d6d8 assigned by const stores / setter-call arguments
+80029970	boot	static_slot_stored	8002a374	medium	slot 8002d6f0 assigned by const stores / setter-call arguments
+800299cc	boot	static_slot_stored	8002a374	medium	slot 8002d6f0 assigned by const stores / setter-call arguments
+800299f8	boot	static_slot_stored	8002a374	medium	slot 8002d6f0 assigned by const stores / setter-call arguments
+80029a0c	boot	static_slot_stored	80029e5c	medium	slot 8002d6f4 assigned by const stores / setter-call arguments
+80029a2c	boot	static_slot_stored	80029e6c	medium	slot 8002d6d8 assigned by const stores / setter-call arguments
+80029abc	boot	static_slot_stored	80029e6c	medium	slot 8002d6d8 assigned by const stores / setter-call arguments
+80029b64	boot	static_slot_stored	80029d68	medium	slot 8002d6d0 assigned by const stores / setter-call arguments
+8002a2c8	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+8002a348	boot	struct_member	80028d8c,80029294,80029410	low	off 20 base s0; 3 const stores at off 20
+8002a3cc	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+8002a4b8	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+8002a520	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
+8002a5a0	boot	struct_member	80028e34,800292b0,80029464	low	off 24 base s0; 3 const stores at off 24
+8002a668	boot	static_slot_stored	80029d00	medium	slot 8002d6d4 assigned by const stores / setter-call arguments
