@@ -52,3 +52,5 @@ typedef struct {
 } S_8006EBFC;
 void func_8006E20C();
 void func_8006EBFC();
+typedef struct { char pad0[8]; unsigned char b8[1]; } S_8004A2BC;
+extern S_8004A2BC *D_8004EC20;
