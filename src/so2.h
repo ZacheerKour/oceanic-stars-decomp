@@ -323,7 +323,7 @@ typedef struct { char pad0[4]; void *p4; char pad8[0x10]; unsigned char b18; cha
 typedef struct { char pad0[0x447C]; S_80042BB0 *p447C; } S_8004137C;
 extern char D_8004D548[];
 extern short D_8004ECB0[];
-extern void *D_8004EBFC, *D_8004EC24;
+extern void *D_8004EC24;
 int func_8003C57C(S_8003C57C *, int);
 int func_8003C5B4(S_8003C57C *, int);
 void func_80011B48();
@@ -494,3 +494,5 @@ int func_80024AC0();
 void func_80024B00();
 S_800368EC *func_800368EC();
 extern S_800368EC *D_8004EFB4;
+typedef struct { char pad0[0x184]; short h184, h186; } S_8003A5AC;
+extern S_8003A5AC *D_8004EBFC;
