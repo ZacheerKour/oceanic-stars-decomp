@@ -1,4 +1,4 @@
-/* DIFF 136 bytes: logic exact; loop pointer shape (retail bumps the base pointer itself, ours copies it; slot stride 1996 at o+12). Wall: giv/CFG. */
+/* DIFF 92 bytes: logic and loop shape exact (r++ pointer bump, wave9); only register allocation differs (retail r=v1 a=a1 b=a0 q=a2 const8834=v0; ours r=a1 a=v1 q=v0 const=a2). Wall: register. 120 decl-order permutations and separate-pointer variants tried, no change. */
 #include "so2.h"
 int func_8003161C(S_8003161C *o) {
 	S_8003161Ce *q = &o->s[1];
@@ -9,7 +9,8 @@ int func_8003161C(S_8003161C *o) {
 	r = (short *)o->s[0].w;
 	if (a == 8834) {
 		for (i = 0; i < 15; i++) {
-			if (r[968 + i] > 0) return 2;
+			if (r[968] > 0) return 2;
+			r++;
 		}
 		return 1;
 	}
@@ -17,7 +18,8 @@ int func_8003161C(S_8003161C *o) {
 	r = (short *)q->w;
 	if (b == 8834) {
 		for (i = 0; i < 15; i++) {
-			if (r[968 + i] > 0) return 2;
+			if (r[968] > 0) return 2;
+			r++;
 		}
 		return 1;
 	}
