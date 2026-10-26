@@ -502,3 +502,6 @@ typedef struct { char pad0[0x60]; unsigned short h60; char pad62[0x22]; } S_8003
 typedef struct { char pad0[4]; void *p4; char pad8[8]; S_80039068p *p10; int w14; char pad18[4]; int w1C; } S_80039068;
 extern int D_8004B974[];
 S_80039068 *func_80039068();
+typedef struct { short x, y, w; unsigned short h; } S_8003C8F8_r;
+typedef struct { char pad0[8]; int w8; } S_8003C8F8;
+void func_8003C8F8();

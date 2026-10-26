@@ -1,0 +1,19 @@
+# wave6 lane2: addr	size	status
+0x8003B5DC	92	MATCH-PENDING (byte-exact; R4 cast for variable byte-offset half read; packed-union/index recoveries cannot give lh at e+a2)
+0x8003CA94	260	DONE (E04 call was outside the n test; return via int r)
+0x8003B47C	228	DONE (separate flag var per test)
+0x8003B638	376	OPEN (wip, 150 bytes: crossjump tail merge A into B, C last)
+0x800382BC	152	OPEN (wip, top-tested loop: c is int so bare lbu+beqz rotates; dst[n++] and return-in-loop notes in file)
+0x80038354	220	DONE (unsigned char c blocks rotation; dst[n++] giv init; k=0 before cnt=mode)
+0x80039068	232	DONE (ctor, by-value S_8006E1A0 r; h60++ twice; func_8006E5E0 now returns void *)
+0x8003BDAC	216	DONE (int params; 240 - e - f)
+0x80038960	188	DONE (local S_80038DBC accessed via p=&s at top; returns func_80038A1C)
+0x80036240	356	OPEN (wip, 17 bytes: reg swap f/j in the two flag-OR loops)
+0x800363A4	252	DONE (k==-1 branch split from the call branch)
+0x800364A0	160	DONE
+0x800365A4	180	DONE
+0x800368EC	480	DONE (ctor; D_8004EFB4 retyped S_800368EC *)
+0x80038A1C	392	OPEN (wip, frame 56 vs 64 only: third 20-byte-stride loop reserves 8 bytes)
+0x8003A5AC	396	DONE (while(1) loops; separate var for the two percent adjusts; D_8004EBFC retyped)
+0x8003EAD8	380	DONE (two ot locals)
+0x8003C8F8	412	DONE (found via funcscan)
