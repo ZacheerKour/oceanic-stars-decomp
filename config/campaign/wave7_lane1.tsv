@@ -37,3 +37,8 @@
 0x80032498	8	MATCH
 0x800317D4	12	MATCH
 0x80032E18	140	OPEN wip (1 byte: branch target, jump threading)
+0x800305C4	224	OPEN wip (frame 72 vs 32: dead local in original)
+0x800323BC	144	OPEN wip (register, unchanged)
+0x800316F4	216	OPEN wip
+0x800341F0	232	OPEN wip
+0x8002FEE0	204	NOT TRIED (giv loop family)
