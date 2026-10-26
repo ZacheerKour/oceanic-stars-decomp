@@ -333,3 +333,12 @@ void func_8004A500();
 void func_8004950C();
 short func_8006DAC0(int, int, int, short, short);
 extern short D_80074BD0, D_80074BD4;
+/* wave4 lane 1 additions */
+typedef struct S_80034BF0 { char pad0[8]; short h8; short hA; } S_80034BF0;
+void func_800315F4();
+void func_8003161C();
+void func_800316F4();
+int func_80034110();
+int func_800341F0();
+S_80034BF0 *func_80034C14();
+S_80034BF0 *func_80034D98();
