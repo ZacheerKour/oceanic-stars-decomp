@@ -373,3 +373,8 @@ int func_80063350();
 typedef struct S_80036170e { int w0; int w4; int w8; } S_80036170e;
 typedef struct S_80036170 { char pad0[8]; S_80036170e *p8; int w0C; } S_80036170;
 typedef struct S_800359B8 { char pad0[2]; unsigned short h2; } S_800359B8;
+void func_8006D4C8();
+extern char D_8004B5C8;
+typedef struct S_80032270 { char pad0[8]; S_800323BCe *p8[50]; char padD0[0x20]; void *pF0; } S_80032270;
+void func_800323BC(S_80032270 *, short);
+typedef struct S_80030E1C { char pad0[0x1B]; signed char b1B; } S_80030E1C;
