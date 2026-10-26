@@ -64,3 +64,21 @@ Other compilers on the same 10:
 | 2.7.2-cdk, 2.8.0-psx, 2.8.1-psx | 5-6/10; fail the global-store setters (0x80032134, 0x80033FB0, 0x80034390, 0x800343A0) and, for 2.8.x, the loop at 0x8003093C |
 
 Confidence: **GCC 2.7.2-psx -O2 -G0 now ~90%** (only 2.6.0-psx remains close, ~8%). Still unproven: assembler version (ASPSX 2.77 assumed; no function here is sensitive to it), and anything with calls/stack frames/switches/data - all matched functions are frameless leaves. Next: match functions with a stack frame and calls to see saved-register/prologue behaviour.
+
+### 5b. Functions with frames, calls and loops (2026-10-26)
+19 more functions byte-match with **gcc-2.7.2-psx -O2 -G0** (29 total in `config/matches.tsv`; `src/so2.h` holds the shared extern declarations, `extern`/`func_<ADDR>` symbols resolve to their address at link time). All have `addiu sp` frames with saved ra (and s0/s1), `jal` calls, branches or loops: 0x80030CBC, 0x80030D24, 0x80031214 (8-iteration loop), 0x80031C58, 0x8003244C (recursive), 0x800344D0, 0x80034534, 0x80034584, 0x800345B8, 0x80034600 (loop), 0x800346C4, 0x80034714 (loop), 0x80034FB4, 0x80034FF8, 0x8003544C, 0x80035AFC, 0x80035FDC, 0x8003823C, 0x80038DBC. 12-124 bytes.
+
+| Compiler | Result on the 29 |
+|---|---|
+| 2.7.2-psx | 29/29 |
+| 2.6.0-psx | 24/29. Fails 0x80032950 (register), 0x80031214 (loop shape, 34 bytes), 0x80034714 (18 bytes), 0x80035AFC (reloads the stored halfword with `lhu` after `sh`; retail keeps it in a register), 0x80038DBC (swaps `addu` operand order) |
+
+Not tried on the new set: 2.7.2-cdk, 2.8.x (already ruled out in section 4).
+
+So 2.7.2-psx still fits once frames/calls/loops are involved, and four functions are matched only by 2.7.2 (0x80031214, 0x80034714, 0x80035AFC, 0x80038DBC) plus 0x80032950 from before. That is the evidence separating it from 2.6.0. Confidence 2.7.2-psx: ~95%; 2.6.0 ~4%. Unproven: assembler version (still no sensitivity seen), switch tables, `.data`/`.rodata`, functions with s2+ or larger frames.
+
+Source-level findings: plain `char` is **unsigned** in this gcc (retail `lb` needs `signed char`); `-G0` globals via `extern T D_<ADDR>;`; unused callee arguments pass through untouched registers (declare callees K&R `()`, pass the real arguments only). Loop pitfalls: 0x80034714 needed `r = 1; if (n != 0) { for ... } else r = 0;` for block order; 0x80031214 needed indexing `p[i * 0x30]` (a pointer-bump loop makes gcc count down).
+
+Not matched (dead ends, source not kept):
+- 0x800361CC (116 B, search loop over 12-byte records): registers and instructions match, but retail lays out the match body before the `i++; j top` block; every spelling tried (`for(;;)`+return, `while`, `if (!=) {i++; continue;}`, `for(i=0;;i++)`) puts the `i++` block first (112 B vs 116 B) or rotates the loop. Wall class: control-flow/block layout.
+- 0x800386FC (100 B): retail test-at-top loop `while (i < D) f(++i)` (not rotated, `j top`); gcc 2.7.2 here always rotates it (`blez` guard + bottom test), also with `for(;;){if(..)break;}`, `continue`, and a `volatile` bound (the latter was an experiment only, not kept). Wall class: control-flow; the retail unrotated loops (these two) might need a different source construct or flag, undetermined.
