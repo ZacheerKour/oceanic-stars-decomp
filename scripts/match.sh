@@ -2,11 +2,13 @@
 # Runs inside the so2-decomp container (cwd /work). Usage: scripts/match.sh [gcc-dir-name]  e.g. gcc-2.7.2-psx
 # Compiles each src/<name>.c listed in config/matches.tsv, links it at its retail address and compares the
 # bytes with the retail overlay (build/main.bin, made by splat from analysis/out). Prints MATCH/DIFF per function.
-GCC=${1:-${GCC:-gcc-2.7.2-psx}}; CFLAGS=${CFLAGS:--O2 -G0}
+GCC0=${1:-${GCC:-gcc-2.7.2-psx}}; CFLAGS=${CFLAGS:--O2 -G0}
 ASV=${ASV:-2.77}; MASPSX_FLAGS=${MASPSX_FLAGS---expand-div}  # retail aspsx expands 3-operand div/rem with zero/overflow checks
-BASE=0x8002f810; B=build/obj/$GCC; mkdir -p $B; rc=0
-while IFS=$'\t' read -r name vram size _; do
+BASE=0x8002f810; rc=0
+# optional 4th column = compiler dir for that row (PsyQ library code is built with another gcc than the game code)
+while IFS=$'\t' read -r name vram size gccrow _; do
   case "$name" in ''|\#*) continue;; esac
+  GCC=${gccrow:-$GCC0}; B=build/obj/$GCC; mkdir -p $B
   cpp -P -Isrc src/$name.c 2>$B/$name.cpperr | /opt/$GCC/cc1 $CFLAGS -quiet -o $B/$name.s 2>$B/$name.err || { echo "$name: COMPILE-FAIL ($GCC)"; rc=1; continue; }
   python3 tools/maspsx/maspsx.py --aspsx-version=$ASV $MASPSX_FLAGS --run-assembler -march=r3000 -mabi=32 -o $B/$name.o < $B/$name.s || { echo "$name: ASM-FAIL"; rc=1; continue; }
   mipsel-linux-gnu-objcopy --set-section-alignment .text=4 $B/$name.o  # gas pads .text to 16; retail addresses are only 4-aligned

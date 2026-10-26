@@ -609,3 +609,5 @@ typedef struct { char pad0[0x1A]; unsigned short h1A; } S_80071AA0o;
 typedef struct { char pad0[0xC]; S_8006E1A0 r0C; char *p14; short h18; short h1A; } S_80071AA0;
 typedef struct { union { int w0; S_8003EC54_tag tag; } u; int w4; unsigned short h8, hA; unsigned char b0C, b0D; unsigned short h0E; unsigned short h10, h12; } S_800727A0p;
 typedef struct { unsigned short x, y, w, h; } S_800727A0r;
+void func_8004AFC4();
+void func_8004AFB4();
