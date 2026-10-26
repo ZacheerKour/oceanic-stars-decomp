@@ -2,7 +2,6 @@
 typedef struct Node { int pad0; struct Node *next; } Node;
 typedef struct { short h0; unsigned char b2; char pad3[0xD]; int w10; char pad14[0x12]; short h26, h28; } Ctx;
 
-extern unsigned short *D_8004DDA4;
 extern void *D_8004DDB8;
 extern Ctx *D_8004DDCC;
 extern void *D_8004B5A8, *D_8004B838, *D_8004B898;
@@ -35,8 +34,7 @@ extern S_8002F8A4 *D_8002F8DC;
 extern unsigned short D_8004D58C[];
 extern int D_8004DD94;
 extern int D_8004DDC8;
-extern unsigned char *D_8004DDD0;
-extern unsigned char *D_8004DDC4;
+extern unsigned char D_8004B5D0[];
 void func_8002F8C4();
 int func_8002F8E0();
 int func_8002F974();
@@ -123,7 +121,9 @@ typedef struct {
 	char pad10[9];
 	signed char b19;
 	signed char b1A;
-	char pad1B[0x39];
+	char pad1B[0x19];
+	signed char b34;
+	char pad35[0x1F];
 	unsigned short h54;
 	char pad56[0x7E];
 	int wD4;
@@ -241,7 +241,14 @@ extern void *D_8004B470[];
 void func_8006AAC4();
 int func_800339A8();
 typedef struct { Ctx head; char pad2C[0x34]; } S_800340C0;
-typedef struct { unsigned char b0; char pad1[0xCF]; } S_800340C0b;
+typedef struct { unsigned char b0; char pad1[0x3A]; unsigned char b3B; char pad3C[0x20]; signed char b5C[1]; char pad5D[0x73]; } S_800340C0b;
+/* D_8004DDA4: sound/menu context; h0 is a u16 table (func_800344D0), bC24 a flag (func_80030C00) */
+typedef struct { unsigned short h0[0x612]; unsigned char bC24; } S_80030C00;
+typedef struct { char pad0[0x14]; unsigned char b14; char pad15; signed char b16; char pad17[6]; signed char b1D; } S_80030C00b;
+extern S_80030C00 *D_8004DDA4;
+extern S_80030C00b *D_8004DDC4;
+extern S_800340C0b *D_8004DDD0;
+void func_800342D8();
 extern S_800340C0 *D_8004DDA8;
 extern S_800340C0b *D_8004DDAC;
 typedef struct { char b0; char b1; short h2; short h4; char pad6[6]; int w0C; } S_80035F8C;
