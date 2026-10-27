@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL3/SDL.h>
 
 uint16_t gpu_vram_peek(int x, int y);
 __declspec(dllimport) unsigned long long __stdcall GetTickCount64(void);
@@ -27,15 +28,35 @@ static void dump_to(const char *name, unsigned frame) {
     fprintf(stderr, "[psxrt-diag] wrote %s at frame %u\n", name, frame);
 }
 
-void psxrt_diag_dump_now(const char *tag, unsigned frame) {   /* script DUMP action: vram_<tag>.ppm */
-    static unsigned n;
+int present_shot_request(const char *path);   /* main.cpp: staged, written as PNG by the next window present */
+
+/* script DUMP action: vram_<tag>.ppm now, and win_<tag>.png = the composed window (letterbox, scaling, OSD) at the next present */
+void psxrt_diag_dump_now(const char *tag, unsigned frame) {
     char name[64];
     snprintf(name, sizeof name, "vram_%s.ppm", tag && *tag ? tag : "x");
     dump_to(name, frame);
-    (void)n;
+    snprintf(name, sizeof name, "win_%s.png", tag && *tag ? tag : "x");
+    present_shot_request(name);
+}
+
+/* PSXRT_WINDOW_AT=<frame>:<w>x<h>: resize the game window at that guest frame (window-resize redraw / letterbox tests) */
+static void window_at(unsigned frame) {
+    static unsigned at = ~0u;
+    static int w, h;
+    if (at == ~0u) {
+        const char *e = getenv("PSXRT_WINDOW_AT");
+        if (!e || sscanf(e, "%u:%dx%d", &at, &w, &h) != 3) at = 0;
+    }
+    if (!at || frame != at) return;
+    int n = 0;
+    SDL_Window **ws = SDL_GetWindows(&n);
+    if (ws && n > 0) SDL_SetWindowSize(ws[0], w, h);
+    fprintf(stderr, "[psxrt-diag] window -> %dx%d at frame %u (%d windows)\n", w, h, frame, n);
+    SDL_free(ws);
 }
 
 void psxrt_diag_frame(unsigned frame) {
+    window_at(frame);
     static int sec = -1;
     static unsigned long long next;
     static unsigned k;
@@ -50,3 +71,4 @@ void psxrt_diag_frame(unsigned frame) {
     snprintf(name, sizeof name, "vram_%02u.ppm", k++);
     dump_to(name, frame);
 }
+
