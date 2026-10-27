@@ -23,6 +23,12 @@ for ln in (REPO / 'config/seeds_overlays.txt').read_text().splitlines():
     elif ln.strip() and not ln.startswith('#') and cur:
         seeds[cur].append(ln.strip())
 
+croot = {}   # config/seeds_callroot.txt: `call_root 0xADDR` lines per module replace the plain seed line
+cur = None
+for ln in (REPO / 'config/seeds_callroot.txt').read_text().splitlines():
+    if ln.startswith('# module '): cur = ln.split()[2]; croot[cur] = set()
+    elif ln.startswith('call_root '): croot[cur].add(ln.split()[1][2:].lower())
+
 for name, (fn, entry, mod) in PROGS.items():
     raw = (DATA / 'analysis/out/d1' / fn).read_bytes()
     size, md5 = ovl[entry]
@@ -39,5 +45,5 @@ for name, (fn, entry, mod) in PROGS.items():
     assert s and int(s[0], 16) == LOAD, f'{name}: seed list does not start at load address'
     (STAGE / f'{name}.exe').write_bytes(exe)
     # 0x prefix: psxrecomp-analyze parses seeds with stoul base 0 (bare hex is rejected or read as decimal)
-    (STAGE / f'{name}.seeds.txt').write_text(''.join(f'0x{a}\n' for a in s))
+    (STAGE / f'{name}.seeds.txt').write_text(''.join(f'call_root 0x{a}\n' if a.lower() in croot.get(mod, ()) else f'0x{a}\n' for a in s))
     print(f'{name} entry={entry} exe_sha256={hashlib.sha256(exe).hexdigest()} seeds={len(s)}')

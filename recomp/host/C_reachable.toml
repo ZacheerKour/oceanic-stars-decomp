@@ -1,0 +1,11 @@
+# Generator config for main program C as a standalone image, used only to compare discovery modes
+# on the host (RECOMP_NOTES.md '2026-10-26 Host compile, A data region, overlay decoder'). Not the AOT path:
+# the real pipeline compiles overlays with --overlay (exact entries). C.exe = stage_overlays.py wrapper.
+[game]
+name = "SO2 program C"
+exe = "C.exe"
+
+[recompiler]
+seeds = "C.seeds.txt"
+out_dir = "generated"
+discovery = "reachable"   # exact-entry walk from the seeds (no whole-image data-as-code sweep)
