@@ -30,7 +30,7 @@ not proof that the game plays; only the rows marked with evidence are known to w
 ## Known limits
 - A mid-session disc swap is manual: F10 (or Select+Start) opens the pause menu, row Swap disc. Before 2026-10-27 F10 did nothing in this build (the runtime's menu is launcher-only); the pause menu replaces it.
 - Closing the window quits without a prompt; the pause menu's Quit asks for a second confirm.
-- Tab is both L2 on the keyboard and the runtime's hold-to-fast-forward key.
+- Fast-forward: hold F2 (the runtime's default hold key, Tab, is L2 here, so play.ps1 rebinds it) or toggle with F3.
 - Audio peaks sometimes reach full scale (possible clipping).
 - The disc load after the PlayStation logo runs the game at 15-25% speed for about 1.5 s: the logo jingle has a ~1 s gap.
 - The Enix/tri-Ace logos are silent because the game plays nothing there (no SPU key-ons); not compared with a real PS1.

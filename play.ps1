@@ -40,13 +40,18 @@ $t += "`n[controller]`np1_device = `"auto`"`np1_mode = `"digital`"`ndeadzone = $
 $abuf = if ($set['audio.buffer_ms']) { [int]$set['audio.buffer_ms'] } else { 180 }   # the runtime rejects values outside 30..500
 $t += "`n[audio]`nbuffer_ms = $abuf`n"
 # Display (settings.ini, see settings.default.ini): game.toml [video] keys, plus the scale mode for stubs/psxrt_video.h.
-function Pick($k, $def, $ok) { $v = "$($set[$k])"; if (-not $v) { $v = $def }; if ($v -notmatch $ok) { Fail "settings.ini $k = $v is not valid" }; $v }
-$ww = Pick 'window_width' '960' '^(?:3[2-9]\d|[4-9]\d\d|[1-7]\d\d\d)$'   # 320..7999
+function Pick($k, $def, $ok) {   # a bad or missing value falls back to the default (never aborts); the note goes to play\settings.warn
+    $v = "$($set[$k])".ToLower(); if (-not $v) { return $def }
+    if ($v -match $ok) { return $v }
+    $script:warn += "settings.ini $k = $($set[$k]) is not valid; using $def`n"; Write-Host "PLAY: settings.ini $k = $($set[$k]) is not valid; using $def" -ForegroundColor Yellow; $def }
+$warn = ''
+$ww = Pick 'window_width' '960' '^(?:6[4-9]\d|[7-9]\d\d|[1-6]\d{3}|7[0-5]\d\d|76[0-7]\d|7680)$'   # 640..7680, the runtime's range (a value outside it is a fatal game.toml error)
 $rs = Pick 'render_scale' '1' '^[1-8]$'
 $flt = Pick 'filter' 'linear' '^(linear|nearest)$'
 $set['env.PSXRT_SCALE_MODE'] = Pick 'scale_mode' 'fit' '^(fit|integer|stretch)$'   # env.* lines reach the game on both paths below
 $t = $t -replace '(?m)^\[video\].*$', "`$0`nwindow_width = $ww`nsupersampling = $rs`nantialiasing = $(($flt -eq 'linear').ToString().ToLower())"
 [IO.File]::WriteAllText((Join-Path $P 'game.toml'), $t)
+[IO.File]::WriteAllText((Join-Path $P 'settings.warn'), $warn)
 
 # Keyboard: key.<button> = <key>[, <alt key>] in settings.ini (SDL key names); defaults below. Rewritten into keybinds.ini each start.
 $keys = [ordered]@{ up = 'W, Up'; down = 'S, Down'; left = 'A, Left'; right = 'D, Right'
@@ -59,8 +64,8 @@ foreach ($k in 'ls_up', 'ls_down', 'ls_left', 'ls_right', 'rs_up', 'rs_down', 'r
 [IO.File]::WriteAllText((Join-Path (Split-Path $exe) 'keybinds.ini'), $kb)
 
 # Host hotkeys (runtime config.ini [KeyMap], rewritten each start): F8 state browser (F5/F6/F7/F9 are the quick-save keys, built
-# into the runtime patch), F11 also toggles fullscreen, scanlines/fast-forward-latch moved off F6/F9. F10 = pause menu (built in).
-[IO.File]::WriteAllText((Join-Path (Split-Path $exe) 'config.ini'), "; written by play.ps1`n[KeyMap]`nSaveStateMenu = F8`nFullscreen = Alt+Return, Ctrl+F, F11`nScanlines = F4`nTurboToggle = F3`n")
+# into the runtime patch), F11 also toggles fullscreen, scanlines/fast-forward-latch moved off F6/F9, hold-to-fast-forward moved from Tab (L2) to F2. F10 = pause menu (built in).
+[IO.File]::WriteAllText((Join-Path (Split-Path $exe) 'config.ini'), "; written by play.ps1`n[KeyMap]`nSaveStateMenu = F8`nFullscreen = Alt+Return, Ctrl+F, F11`nScanlines = F4`nTurboToggle = F3`nTurbo = F2`n")
 
 # Odd gamepads: gamecontrollerdb.txt next to PLAY.bat or the game exe (SDL mapping lines; env SDL_GAMECONTROLLERCONFIG also works).
 foreach ($d in @($root, (Split-Path $exe))) { $f = Join-Path $d 'gamecontrollerdb.txt'
