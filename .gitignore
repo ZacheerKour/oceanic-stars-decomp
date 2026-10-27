@@ -42,3 +42,9 @@ __pycache__/
 .beads/proxieddb/
 /install.log
 /.install/
+
+# ---- Internal tooling (never published) ----
+/.beads/
+/.claude/
+/.codex/
+/.agents/
