@@ -48,6 +48,7 @@ static uint32_t s_frame;
 #define K_F8 0x40000041
 #define K_F9 0x40000042
 #define K_F10 0x40000043
+#define K_F12 0x40000045
 #define MOD_BLOCK 0x0FC0   /* SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI: Alt/Ctrl+F5 etc. are not ours */
 static int s_slot;   /* 0..HK_SLOTS-1, in memory only: a new start begins at slot 1 */
 
@@ -62,7 +63,7 @@ int psxrt_hk_action(int key, int mod, int repeat) {
     return HK_NONE;
 }
 int psxrt_key_by_name(const char *n) {
-    static const struct { const char *n; int k; } t[] = { {"F5", K_F5}, {"F6", K_F6}, {"F7", K_F7}, {"F8", K_F8}, {"F9", K_F9}, {"F10", K_F10} };
+    static const struct { const char *n; int k; } t[] = { {"F5", K_F5}, {"F6", K_F6}, {"F7", K_F7}, {"F8", K_F8}, {"F9", K_F9}, {"F10", K_F10}, {"F12", K_F12} };
     for (unsigned i = 0; i < sizeof t / sizeof t[0]; i++) if (!_stricmp(n, t[i].n)) return t[i].k;
     return 0;
 }
@@ -271,6 +272,8 @@ static void vpad_tick(uint32_t fr, uint16_t live) { (void)fr; (void)live; }
 
 #ifndef PSXRT_IO_SELFTEST
 void host_osd_push(const char *msg, int duration_ms);
+int psxrt_evlog_enabled(void);
+void psxrt_evlog_request_dump(void);   /* stubs/psxrt_evlog.c */
 int savestate_slot_exists(int slot);
 int psx_runtime_menu_open(void);
 void psx_runtime_menu_close(void);
@@ -300,6 +303,11 @@ void psxrt_hk_run(int act) {
     fprintf(stderr, "[psxrt-hk] action %d slot %d\n", act, s_slot + 1);
 }
 int psxrt_hotkey_key(int key, int mod, int repeat) {   /* called from main.cpp's SDL key-down branch; 1 = consumed */
+    if (key == K_F12 && psxrt_evlog_enabled() && !repeat && !(mod & MOD_BLOCK)) {   /* write the event log (stubs/psxrt_evlog.c) */
+        psxrt_evlog_request_dump();
+        host_osd_push("Event log saved (saves/logs)", 1500);
+        return 1;
+    }
     const int act = psxrt_hk_action(key, mod, repeat);
     if (act) psxrt_hk_run(act);
     return act != HK_NONE;
@@ -365,10 +373,12 @@ int psxrt_hotkey_key(int k, int m, int r) { (void)k; (void)m; (void)r; return 0;
 #endif
 
 void psxrt_diag_frame(unsigned frame);   /* stubs/psxrt_diag.c */
+void psxrt_evlog_frame(unsigned frame);  /* stubs/psxrt_evlog.c */
 
 static void script_apply(void) {
     uint32_t fr = s_frame++;
     psxrt_diag_frame(fr);
+    psxrt_evlog_frame(fr);
     if (s_nsteps < 0) { psxrt_prof_start(); load_script(); }
     {
         static int logon = -1;
@@ -505,6 +515,7 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
 uint16_t sio_get_pad_buttons_slot(int s) { (void)s; return 0xFFFF; }
 void sio_set_pad_state_slot(int s, uint16_t b) { (void)s; (void)b; }
 void psxrt_diag_frame(unsigned f) { (void)f; }
+void psxrt_evlog_frame(unsigned f) { (void)f; }
 void psxrt_diag_dump_now(const char *t, unsigned f) { (void)t; (void)f; }
 void psxrt_prof_start(void) {}
 int savestate_request_save(int s) { return s; }
