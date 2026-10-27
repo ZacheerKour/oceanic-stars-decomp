@@ -7,6 +7,7 @@ extern "C" {
 #endif
 void psxrt_input_script_apply(void);
 void psxrt_audio_tap(const void *buf, int bytes);
+uint32_t psxrt_occ_crc(uint32_t phys, int *valid);   /* stubs/psxrt_evlog.c */
 
 /* Hotkeys (F5 save, F9 load, F6/F7 slot -/+) and the pad chord; see psxrt_io.c. */
 enum { HK_NONE, HK_SAVE, HK_LOAD, HK_SLOT_PREV, HK_SLOT_NEXT };

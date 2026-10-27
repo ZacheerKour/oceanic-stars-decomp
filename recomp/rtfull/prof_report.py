@@ -26,7 +26,7 @@ def main():
     keys = [s[0] for s in syms]
     fn, obj = collections.Counter(), collections.Counter()
     for r in rvas:
-        if r == 0xFFFFFFFF:
+        if r >= 0xFFFFFFF0:
             fn['<outside exe: DLL/kernel>'] += 1; obj['<outside exe>'] += 1; continue
         i = bisect.bisect_right(keys, r) - 1
         name, o = (syms[i][1], syms[i][2]) if i >= 0 else ('?', '?')
