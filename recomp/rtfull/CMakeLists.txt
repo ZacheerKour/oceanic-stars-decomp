@@ -127,13 +127,27 @@ psxrt_patch(runtime/src/main.cpp
     "static_assert(!frame_interpolation_offered && !skip_fmv_offered,"
     "static_assert(true, /* psxrt: MSVC C2131 */"
     "static void env_pad_hold_apply(void) {"
-    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */")
+    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */"
+    "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames)"
+    "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames), psxrt_audio_pulled(&s_drc, stream, len) /* psxrt: stubs/psxrt_audio.c */")
 # Audio evidence tap (stubs/psxrt_io.c, off unless PSXRT_AUDIO_RMS=1): sees the exact bytes handed to the SDL3 stream.
 psxrt_patch(runtime/src/psx_sdl_audio.cpp
     "        s_audio_callback(s_audio_userdata, buffer, chunk)"
-    "        s_audio_callback(s_audio_userdata, buffer, chunk), psxrt_audio_tap(buffer, chunk)")
+    "        s_audio_callback(s_audio_userdata, buffer, chunk), psxrt_audio_tap(buffer, chunk)"
+    "static void SDLCALL psx_sdl3_audio_feed("
+    "PSXRT_AUDIO_ACCESSORS /* psxrt: device reopen, stubs/psxrt_audio.h */\nstatic void SDLCALL psx_sdl3_audio_feed(")
+# Audio bridge: after the ring runs dry, wait until it is refilled to the target before playing again. Upstream stays
+# primed, so after any stall (disc load, device switch) it played each sample as it arrived from a near-empty ring: one
+# underrun became many short ones (crackle) and the fill took ~30 s to climb back (correction is capped at 0.5%).
+# Re-prime at a third of the target: the pacer catches up after a stall faster than real time, and a full ring then
+# overflowed (measured 4135 dropped frames after the boot-load stall with a full-target re-prime).
+psxrt_patch(runtime/src/recomp_audio_drc.h
+    "                b->stats.underrun_events++"
+    "                b->stats.underrun_events++, b->primed = 0 /* psxrt: re-prime after a stall */"
+    "if (!b->primed && fill_ms >= c->target_ms)"
+    "if (!b->primed && fill_ms >= c->target_ms * (b->stats.underrun_events ? 0.34 : 1.0)) /* psxrt */")
 set_property(SOURCE "${PATCHED}/main.cpp" "${PATCHED}/psx_sdl_audio.cpp" APPEND PROPERTY COMPILE_OPTIONS
-    "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_io.h")
+    "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_io.h" "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_audio.h")
 # GCC __atomic builtins, unguarded only here (every other use has an _WIN32/_MSC_VER branch); int-sized, so the
 # MSVC Interlocked intrinsics give the same (stronger, seq-cst) ordering.
 psxrt_patch(runtime/src/gpu_gl_renderer.c
@@ -160,7 +174,7 @@ endif()
 add_executable(psxrecomp-game
     ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES} ${OVERLAY_SOURCES} stubs/psxrt_ovstats.c
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
-    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c stubs/psxrt_prof.c)
+    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c stubs/psxrt_prof.c stubs/psxrt_audio.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
