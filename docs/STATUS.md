@@ -11,6 +11,7 @@ not proof that the game plays; only the rows marked with evidence are known to w
 | All game code as compiled C (boot exe, three main programs, 89 SLZ modules) | AOT run counts in `docs/notes/2026-10-26-aot-static-for-all-89-slz-chunks-our-seeds-msvc-compile.md`; interpreted code after boot is a few hundred instructions per second |
 | SLZ decoder | `python -I tests/slz/run_tests.py` (480 round trips, 18 vectors) |
 | Quick save/load, slots, pad chords, pause menu (disc swap row) | `recomp/rtfull/input/qs_*.txt` scripted runs (`qrun.ps1`): title screenshot hash identical after F5 then F9 (also via menu, via pad chord, and in a second process after restart); menu screenshots; key/chord/menu logic by `cl /DPSXRT_IO_SELFTEST psxrt_io.c` (selftest OK) |
+| Audio output (2026-10-27) | stats/WAV runs in `docs/notes/2026-10-27-audio.md`: 150 s boot run 26 dropout gaps before, 2 after; simulated 6 s window drags keep full speed with 0 underruns; forced device reopens on WASAPI with 0 underruns |
 | Decomp | 460 main-program functions byte-match; 457 pass `scripts/rules.py` |
 
 ## Untested (expect bugs)
@@ -21,6 +22,7 @@ not proof that the game plays; only the rows marked with evidence are known to w
 - Anything past the first cave; only scripted input has been used.
 - The real keyboard and a real gamepad for the new hotkeys/pause menu (events were injected with SDL_PushEvent and script pad words; pad Back+Start menu open, F10 menu open, fullscreen toggle from the menu, Quit and the disc swap row were not exercised end to end).
 - Save states taken in the intro movie / mid-field with a real window; only the static title was hash-compared.
+- Real title-bar drags/resizes with the mouse and real audio device switches (KVM, unplug, sleep): only simulated (`SC_MOVE` modal loop, forced reopen).
 - Gamepads and rumble beyond what SDL3 provides; no real-hardware pad matrix.
 
 ## Known limits
@@ -28,6 +30,8 @@ not proof that the game plays; only the rows marked with evidence are known to w
 - Closing the window quits without a prompt; the pause menu's Quit asks for a second confirm.
 - Tab is both L2 on the keyboard and the runtime's hold-to-fast-forward key.
 - Audio peaks sometimes reach full scale (possible clipping).
+- The disc load after the PlayStation logo runs the game at 15-25% speed for about 1.5 s: the logo jingle has a ~1 s gap.
+- The Enix/tri-Ace logos are silent because the game plays nothing there (no SPU key-ons); not compared with a real PS1.
 - Building needs the Visual Studio C++ toolchain; there is no prebuilt download, by design (see NOTICE).
 - Other regions are not supported; only the USA discs listed in `recomp/game.toml`.
 

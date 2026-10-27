@@ -114,12 +114,15 @@ from other pads; it only sees SDL3 gamepads. What to do:
 ## Saves and settings
 - Memory cards (`card1.mcd`, `card2.mcd`) live in `saves\` and savestates in `saves\states\` next to `PLAY.bat`. Back that folder up.
 - `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`,
+- Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAY.bat`. Back that folder up.
+- `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`, `audio.buffer_ms` (sound buffer, default 180),
   `extra_args = ...` for the runtime, and `env.NAME = value` lines for runtime environment options.
 - The run directory `play\` holds the generated `game.toml` and the logs of the last start (`last.log`, `last.err`).
 
 ## Known issues
 - Only the opening has been played (by script). Battles, in-game saving and disc 2 are untested.
 - Audio peaks sometimes hit full scale (possible clipping).
+- The disc load right after the PlayStation logo runs the game slowly for about a second, which cuts the logo jingle.
 - The first cave needs real play: a scripted run stops at the sealed door ("Might there be some way to open the door").
 - Building needs the full Visual Studio C++ toolchain; there is no prebuilt download, by design (see Legal).
 
@@ -139,6 +142,8 @@ this repository is MIT licensed ([LICENSE](LICENSE)). Licences of everything the
 
 ## For developers
 - Input checks: `env.PSXRT_INPUT_LOG = 1` in `settings.ini` logs the PS1 pad word per key/pad press to `play\last.err`; `env.PSXRT_VPAD_TEST = 1` attaches a virtual gamepad and prints PASS/FAIL per button.
+- Audio checks: `env.PSXRT_AUDIO_STATS = 1` logs SPU and device rates, buffer fill, underruns and device events once a second;
+  `env.PSXRT_AUDIO_WAV = <file>` records exactly what goes to the sound device ([docs/notes/2026-10-27-audio.md](docs/notes/2026-10-27-audio.md)).
 - Maintainer setup: `INSTALL.bat` also accepts a folder holding the disc files when `SO2_DEV=1` is set, and `SO2_VERBOSE=1`
   echoes the log to the console. `SO2_DATA` (build_all.ps1) points the build at another checkout's `tools\` and `roms\`.
 - `PLAY.exe` source: `recomp/launcher/play.c` (it runs `play.ps1 -Prepare` hidden, then starts the game exe directly).
