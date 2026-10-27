@@ -26,6 +26,9 @@ This file overrides the skills' defaults.
 3. DONE 2026-10-26 (ANALYSIS.md section 5b): +19 functions with frames/calls/loops match with 2.7.2-psx (29/29; 2.6.0-psx 24/29). Two non-rotated loops (0x800361CC, 0x800386FC) unmatched. Next: switch tables, larger frames, `.rodata`.
 
 
+## Priority (user, 2026-10-26)
+The top goal is a fully playable native port as soon as possible; the decomp serves it. Do not pause between jobs. Valid reasons to stop: usage limits, context ceiling (hand off), or the user must supply/download something (a PS1 BIOS: none on this machine; place it in roms/). Do not delete files, branches or worktrees; list them in CLEANUP_LATER.md instead.
+
 ## Project profile (decomp-code-rules, pinned 2026-10-26)
 Applies to everything under `src/`. These are the project's rulings; workers do not pick their own style.
 - **Compiler / flags:** gcc-2.7.2-psx `cc1 -O2 -G0` after host `cpp -P -Isrc`, then maspsx (`--aspsx-version=2.77`) + GNU as, linked at the retail address (`scripts/match.sh`).
