@@ -3,7 +3,7 @@ Headless boot of recomp\rtfull\_build\psxrecomp-game.exe for a bounded time. Run
 is recomp\game.toml with the exe/disc paths pointed at the local dumps. Log: _run\boot_<bios>.log.
 Usage: $env:SO2_DATA=<main checkout>; powershell -NoProfile -ExecutionPolicy Bypass -File recomp\rtfull\run.ps1 [-Bios openbios|<path>] [-Seconds 60]
 #>
-param([string]$Bios = 'openbios', [int]$Seconds = 60, [string]$GenOut = '_out', [string[]]$Extra = @(), [string]$BuildDir = '_build', [string]$LogTag = '')
+param([string]$Bios = 'openbios', [int]$Seconds = 60, [string]$GenOut = '_out', [string[]]$Extra = @(), [string]$BuildDir = '_build', [string]$LogTag = '', [switch]$Window)
 $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
 $repo = (Resolve-Path (Join-Path $here '..\..')).Path
@@ -19,9 +19,12 @@ $t = $t.Replace('"disc/Star Ocean - The Second Story (USA) (Disc 1).cue"', "`"$d
 # this exe links only the OpenBIOS backend: a run on it needs openbios allowed (recomp/game.toml pins retail, see BIOS usage)
 if ($Bios -eq 'openbios') { $t = $t -replace '(?m)^openbios = false', 'openbios = true ' }
 [IO.File]::WriteAllText("$R\game.toml", $t)
-$a = @('--headless', '--no-launcher', '--game', "$R\game.toml") + $Extra
+New-Item -ItemType Directory -Force "$R\memcard" | Out-Null
+$a = @('--no-launcher', '--game', "$R\game.toml", '--memcard-dir', "$R\memcard") + $Extra
+if (-not $Window) { $a = @('--headless') + $a }
 $tag = 'openbios'
-if ($Bios -ne 'openbios') { $a += @('--bios', (Resolve-Path $Bios).Path); $tag = [IO.Path]::GetFileNameWithoutExtension($Bios) }
+if ($Bios -eq 'openbios') { $a += @('--bios', "$B\bios\openbios.bin") }  # --memcard-dir also moves bios.cfg
+else { $a += @('--bios', (Resolve-Path $Bios).Path); $tag = [IO.Path]::GetFileNameWithoutExtension($Bios) }
 if ($LogTag) { $tag = $LogTag }  # PowerShell names are case-insensitive: $Tag would be $tag
 $log = "$R\boot_$tag.log"
 $p = Start-Process -FilePath "$B\psxrecomp-game.exe" -ArgumentList ($a | ForEach-Object { "`"$_`"" }) -WorkingDirectory $R `
