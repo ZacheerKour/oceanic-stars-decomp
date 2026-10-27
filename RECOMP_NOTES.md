@@ -554,3 +554,19 @@ How psxrecomp consumes it (clone f42d2c0, `docs/BIOS_SELECTION.md`, `docs/config
   (0x8D8CB7E4). `game.toml`: `[recompiler] bios_config = "psxrecomp/bios/SCPH5501.toml"` (game codegen address model) and `[runtime] openbios = false` (retail required).
 - `bios_hle` stays off (runtime default false, `runtime/src/main.cpp`); `BIOS_SELECTION.md` calls it "on by default", which the code contradicts.
 Not done: no build or run; OpenBIOS `patch_hook` hashes; the 0xDF80 code path; an upstream OpenBIOS fix (store the table size, not its end, at 0x154).
+
+## 2026-10-27 boot bring-up
+Runs: `recomp\rt\run_rt.ps1 -Name <n> -Roms <home>\star-cean-second\roms -Vblanks N -Frames 60` (logs, `ram.bin`, `vram.ppm`, `display.ppm`, `frames\fNNNNN.ppm` in the gitignored `recomp\rt\_out\`).
+Debug switches added to `rt_boot.exe`: `--trace-pc <hex>` (registers when the interpreter reaches a pc, 40 hits), `--watch <hex>` (stores to one word, 60 hits), `--dump <dir>`, `--frames N`.
+The run now writes files, but only into the `--dump` directory (`_out`).
+
+1. **Exception-vector clobber at 0x8003F900 = missing GPU read-back.** The function at 0x8003F2xx (program A, logo "dissolve" effect) mallocs a buffer, `StoreImage`s the
+   framebuffer into it (0x80021168, DMA2 GPU->RAM), `DrawSync`s, then adds one particle per non-zero pixel to `[obj+0x2C]`. rt's DMA2 did nothing, so the buffer kept heap garbage:
+   `--watch 800EE564` showed the count climbing to 0x111C (4380) at vblank 271; the primitive-pool allocator 0x8003C434 (pool 0, 2 x 64 KB at 0x80107578/0x80117588) then
+   failed (`--trace-pc 8003c484`: `a1 000155CC` = 4380*20 bytes) and returned NULL, and 0x8003F7B8's caller filled packets at NULL+0x10.. over 0x80-0x8C.
+   Not a generated-code fault. **Fix:** `recomp/rt/gpu.c`, a software GPU (1 MB VRAM, GP0 fill/copy/CPU<->VRAM/DMA2 block both directions, linked lists fed to GP0,
+   flat/gouraud/textured polygons, rectangles, lines, draw area/offset, GPUSTAT from GP1 state). Evidence: run `g1`, 600 vblanks, no vector write, `gpu cmds 107577`;
+   `vram.ppm` shows the tri-Ace / ENIX / SCEA logos and the dissolve particles. Commit 1129028.
+2. **`VSync: timeout` x200 = cycle model too fast for compiled loops.** Vcount (0x8002D024) did advance (0x10B at stop). libetc `v_wait` (0x8001FFC8) counts `timeout << 15`
+   iterations of a 2-block loop; rt charged 8 cycles per compiled block, so 32768 iterations took ~524k cycles < one frame (564,480). **Fix:** 15 cycles per block
+   (`psx_check_interrupts_at`). Evidence: run `g2`, 1200 vblanks, 0 `VSync: timeout` (was 462 in 600), C0.0A ChangeClearRCnt calls 464 -> 2.

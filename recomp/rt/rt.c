@@ -251,7 +251,9 @@ static int irq_ready(void) {
 void psx_check_interrupts_at(CPUState *c, uint32_t resume) {
     (void)c;
     n_checks++;
-    tick(8);                                           /* shortcut: ~8 cycles per compiled block, not cycle-exact */
+    /* shortcut: flat ~15 cycles per compiled block (not cycle-exact; use psxrecomp block cycles if timing matters).
+     * At 8, libetc v_wait's 2-block loop (0x8001FFF0) spun its 32768-iteration timeout in < 1 frame: 'VSync: timeout'. */
+    tick(15);
     if ((n_checks & 0xFFFFF) == 0 && (double)(clock() - t0) / CLOCKS_PER_SEC > max_seconds) summary("time limit");
     if (irq_ready()) { n_irq++; exception(0, resume, 0); longjmp(g_top, 1); }
 }
