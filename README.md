@@ -50,29 +50,53 @@ against a fixed SHA-256).
 2. Put your two disc files anywhere and run `INSTALL.bat "<folder with the discs>"`, or drag the disc files onto
    `INSTALL.bat`. The first install downloads psxrecomp (pinned commit `f42d2c0`) and the SDL3/zlib sources (SHA-256
    checked), then builds; on a 16-core PC the whole install took about 4 minutes.
-3. Double-click `PLAY.bat`.
+3. Double-click `PLAY.exe` (built by the installer; `PLAY.bat` does the same through PowerShell and is the fallback).
 
 Re-running `INSTALL.bat` is safe: finished steps are skipped. After `git pull`, run it again to rebuild.
 
 ## Controls
-Keyboard (rebind in `recomp\rtfull\_build_final\keybinds.ini`, written on the first start); SDL-compatible gamepads work
-too.
+Keyboard and gamepad both work from the first start (they can be used at the same time). Keyboard keys are rebindable in
+`settings.ini` (`key.<button> = <key>[, <second key>]` lines, SDL key names such as `Space`, `Left Shift`, `Tab`, `Return`;
+`None` unbinds; applied on every start, see `settings.default.ini`). The table is Star Ocean 2 oriented: Cross confirms,
+Circle cancels, Triangle opens the menu, L1/R1 switch characters, L2/R2 are used in battle.
 
-| PlayStation | Key |
-|---|---|
-| D-pad / left stick | Arrow keys |
-| Cross | X |
-| Circle | S |
-| Square | Z |
-| Triangle | A |
-| L1 / R1 / L2 / R2 | Q / W / E / R |
-| L3 / R3 | T / Y |
-| Start | Enter |
-| Select | Right Shift |
+| PlayStation | Keyboard (main / second key) | Gamepad (by position) |
+|---|---|---|
+| D-pad | W A S D / arrow keys | d-pad and left stick |
+| Cross (confirm) | Space / 1 | bottom face button (Xbox A, PlayStation Cross, Switch B) |
+| Circle (cancel) | Q / 2 | right face button |
+| Square | E / 3 | left face button |
+| Triangle (menu) | R / 4 | top face button |
+| L1 / R1 | Left Shift / F (second: Z / X) | left / right bumper |
+| L2 / R2 | Tab / G (second: C / V) | left / right trigger |
+| Start | Esc / Enter | Start (Menu) |
+| Select | Backspace / Right Shift | Back (View, Share) |
+| L3 / R3 | T / Y | stick clicks |
+
+Gamepads (Xbox, DualShock/DualSense, Switch Pro, 8BitDo, generic XInput/DirectInput pads known to SDL3) are picked up
+automatically, also when plugged in while the game runs; the first pad is player 1. The left stick acts as a digital d-pad
+(`pad.deadzone` in `settings.ini`, default 9000 of 32767); rumble is not used. SDL3 maps face buttons by position, so a
+Nintendo-style pad gets Cross on its bottom button too. A pad SDL does not know: add its line to a `gamecontrollerdb.txt`
+(community list: <https://github.com/mdqinc/SDL_GameControllerDB>) next to `PLAY.bat`/`PLAY.exe`, or set the
+`SDL_GAMECONTROLLERCONFIG` environment variable.
+
+### Steam Controller / Steam Deck
+**Untested** (no Steam installation was available for testing). What the code says: the game cannot tell a Steam Controller
+from other pads; it only sees SDL3 gamepads. What to do:
+1. Steam > *Add a Non-Steam Game* > *Browse* > pick **`PLAY.exe`** in this folder (Steam lists only `.exe` files; `PLAY.bat` does
+   not show up). Set *Start In* to this folder. No launch options are needed. `PLAY.exe` starts the game as its own child
+   process and waits for it, so Steam tracks the game and Steam Input and the overlay attach to it.
+2. Controller settings for the game: the **Gamepad** template (recommended), or the **Keyboard (WASD) and Mouse** template, which
+   matches the WASD map above. With the Gamepad template Steam presents a virtual Xbox-style pad, which is the normal case
+   above.
+3. With Steam Input off, SDL3 can talk to Steam hardware itself: the SDL3 version built here (3.4.10) contains HIDAPI drivers
+   for the Steam Controller (original), the Steam Deck controller, the HORI Steam controller and a newer Steam Controller
+   (checked in the source), enabled by default, and this runtime turns SDL's HIDAPI support on. Whether they work on your
+   hardware is untested.
 
 ## Saves and settings
 - Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAY.bat`. Back that folder up.
-- `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`,
+- `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`,
   `extra_args = ...` for the runtime, and `env.NAME = value` lines for runtime environment options.
 - The run directory `play\` holds the generated `game.toml` and the logs of the last start (`last.log`, `last.err`).
 
@@ -97,6 +121,8 @@ this repository is MIT licensed ([LICENSE](LICENSE)).
 - tri-Ace and Enix for the game.
 
 ## For developers
+- Input checks: `env.PSXRT_INPUT_LOG = 1` in `settings.ini` logs the PS1 pad word per key/pad press to `play\last.err`; `env.PSXRT_VPAD_TEST = 1` attaches a virtual gamepad and prints PASS/FAIL per button.
+- `PLAY.exe` source: `recomp/launcher/play.c` (it runs `play.ps1 -Prepare` hidden, then starts the game exe directly).
 - Recomp build details: [recomp/README.md](recomp/README.md); research log: [RECOMP_NOTES.md](RECOMP_NOTES.md).
 - Decomp tooling (Docker image with the PSX GCC builds, objdiff, maspsx, splat): `INSTALL_DEV.bat "<disc folder>"`, see
   [TOOLCHAIN.md](TOOLCHAIN.md) and [AGENTS.md](AGENTS.md).
