@@ -57,7 +57,7 @@ function Invoke-Logged([string]$label, [string]$cmdline) {
     $sw = [Diagnostics.Stopwatch]::StartNew(); $i = 0; $sub = ''; $spin = '|/-\'
     while (-not $p.HasExited) {
         if ($i % 8 -eq 0) {   # last "== step" line the tool wrote, as a hint
-            try { $l = Get-Content $log -Tail 60 | Where-Object { $_ -match '^== ' } | Select-Object -Last 1; if ($l) { $sub = (Ascii $l).Substring(3) } } catch {}
+            try { $l = Get-Content $log -Tail 60 | ForEach-Object { if ($_ -match '^>>> ') { $l0 = $null } elseif ($_ -match '^== ') { $l0 = $_ } }; $l = $l0; if ($l) { $sub = (Ascii $l).Substring(3) } } catch {}
         }
         $t = '  {0} {1:00}:{2:00} {3}' -f $spin[$i % 4], [int][math]::Floor($sw.Elapsed.TotalMinutes), $sw.Elapsed.Seconds, $sub
         Write-Host ("`r" + $t.PadRight(74).Substring(0, 74)) -NoNewline
