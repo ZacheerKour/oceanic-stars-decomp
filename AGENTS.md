@@ -27,7 +27,7 @@ This file overrides the skills' defaults.
 
 
 ## Priority (user, 2026-10-26)
-The top goal is a fully playable native port as soon as possible; the decomp serves it. Do not pause between jobs. Valid reasons to stop: usage limits, context ceiling (hand off), or the user must supply/download something (a PS1 BIOS: none on this machine; place it in roms/). Do not delete files, branches or worktrees; list them in CLEANUP_LATER.md instead.
+The top goal is a fully playable native port as soon as possible; the decomp serves it. Do not pause between jobs. Valid reasons to stop: usage limits, context ceiling (hand off), or the user must supply/download something (e.g. SDL3/zlib sources). No Sony BIOS is needed: use OpenBIOS built from source or audited, or HLE BIOS calls. Do not delete files, branches or worktrees; list them in CLEANUP_LATER.md instead.
 
 ## Project profile (decomp-code-rules, pinned 2026-10-26)
 Applies to everything under `src/`. These are the project's rulings; workers do not pick their own style.
