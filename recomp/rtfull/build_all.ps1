@@ -2,13 +2,13 @@
 One reproducible build of psxrecomp-game.exe from a clean checkout plus the local dumps (all output gitignored):
   1. SDL3 + zlib (build_deps.ps1; skipped when _deps\install has them; extracts the pinned archives if needed)
   2. boot exe C (recomp\host\build_generate.ps1 -Program boot)
-  3. SCPH-5501 BIOS C from roms\scph5501.bin (recomp\bios\gen_scph5501.ps1)
+  3. SCPH-5501 BIOS C from roms\scph5501.bin if present (recomp\bios\gen_scph5501.ps1)
   4. overlay C for all 89 SLZ chunks, seeds config\seeds_final, ONE combined profile (recomp\aot\run_static_all.py
      --mode final --combined ALL) in a work copy recomp\aot\_psxrecomp = git clone of the pinned clone +
      recomp\aot\psxrecomp_overlay.patch + analysis\slz.py (the clone itself is only read)
   5. MSVC build + import audit (build.ps1 -OverlayDir ... -BuildDir _build_final)
 Needs: $env:SO2_DATA = main checkout with tools\ref\psxrecomp (f42d2c0, clean), tools\dl\{SDL3-3.4.10,zlib-1.3.1}.tar.gz,
-roms\scph5501.bin, roms\disc1\*.cue; VS 2022 Build Tools; python 3.11 on PATH.
+roms\disc1\*.cue, optionally roms\scph5501.bin (else OpenBIOS only); VS 2022 Build Tools; python 3.11 on PATH.
 Usage: powershell -NoProfile -ExecutionPolicy Bypass -File recomp\rtfull\build_all.ps1 [-BuildDir _build_final] [-OverlayOpt /Od]
 Then:  run.ps1 -BuildDir _build_final -Bios <SO2_DATA>\roms\scph5501.bin -Window
 #>
@@ -44,7 +44,10 @@ Step 'deps' {
     Run-Child "$here\build_deps.ps1" @('-Dl', "$data\tools\dl", '-Src', $rd)
 }
 Step 'boot exe C' { Run-Child "$repo\recomp\host\build_generate.ps1" @('-Program', 'boot') }
-Step 'SCPH-5501 BIOS C' { Run-Child "$repo\recomp\bios\gen_scph5501.ps1" @() }
+Step 'SCPH-5501 BIOS C' {   # optional: without the user's own dump the exe links OpenBIOS only (play.ps1 then uses OpenBIOS)
+    if (-not (Test-Path (Join-Path $data 'roms\scph5501.bin'))) { 'no roms\scph5501.bin: OpenBIOS only'; return }
+    Run-Child "$repo\recomp\bios\gen_scph5501.ps1" @()
+}
 
 $cp = Join-Path $repo 'recomp\aot\_psxrecomp'
 $patch = Join-Path $repo 'recomp\aot\psxrecomp_overlay.patch'
