@@ -1,5 +1,6 @@
 # ---- Game data: never commit (user supplies their own discs) ----
-/roms/
+/roms/*
+!/roms/README.txt
 /extracted/
 *.7z
 *.zip
@@ -28,7 +29,7 @@ __pycache__/
 /settings.ini
 /saves/
 /play/
-/PLAY.exe
+/PLAYTHISGAME.exe
 
 # ---- Dev scratch / superseded (kept locally, not published) ----
 /analysis/cc/
@@ -49,6 +50,5 @@ __pycache__/
 /.codex/
 /.agents/
 
-# ---- Built by INSTALL.exe ----
-/StarOcean2.exe
+# ---- Built by INSTALL.bat ----
 /recomp/launcher/_build/

@@ -67,7 +67,7 @@ try {
   Copy-Item C:\in\stage\seeds.txt $W\seeds.txt
   Log 'hashes ok'
 
-  # 2. extract toolchain to a sandbox-local path; reject entries that escape it. install.ps1 is never run.
+  # 2. extract toolchain to a sandbox-local path; reject entries that escape it. The installer is never run.
   Add-Type -AssemblyName System.IO.Compression.FileSystem
   $root = [IO.Path]::GetFullPath("$W\tc") + '\'
   $z = [IO.Compression.ZipFile]::OpenRead("$W\tc.zip")

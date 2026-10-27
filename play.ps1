@@ -2,8 +2,8 @@
 Starts the built game windowed (PLAY.bat). Settings: settings.ini (created from settings.default.ini on first start).
 Memory cards and savestates: saves\. Run files (game.toml, logs): play\. Works from any directory.
 #>
-# NOTE: PLAY.exe (recomp\launcher\play.c) now does all of this natively. This script is the PLAY.bat fallback when PLAY.exe is missing, and the reference for recomp\launcher\equiv.ps1.
-param([switch]$Prepare)   # -Prepare (used by PLAY.exe): write play\launch.txt instead of starting the game
+# NOTE: PLAYTHISGAME.exe (recomp\launcher\play.c) now does all of this natively. This script is the PLAY.bat fallback when PLAYTHISGAME.exe is missing, and the reference for recomp\launcher\equiv.ps1.
+param([switch]$Prepare)   # -Prepare (used by PLAYTHISGAME.exe): write play\launch.txt instead of starting the game
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $exe = Join-Path $root 'recomp\rtfull\_build_final\psxrecomp-game.exe'
@@ -75,7 +75,7 @@ foreach ($d in @($root, (Split-Path $exe))) { $f = Join-Path $d 'gamecontrollerd
 foreach ($k in $set.Keys) { if ($k -like 'env.*') { Set-Item "env:$($k.Substring(4))" $set[$k] } }   # env.PSX_VSYNC = 1 etc.
 $a = @('--no-launcher', '--game', (Join-Path $P 'game.toml'), '--memcard-dir', $S, '--bios', (Resolve-Path $bios).Path)
 if ($set['extra_args']) { $a += $set['extra_args'] -split '\s+' }
-if ($Prepare) {   # PLAY.exe starts the game itself (a direct child, so Steam sees the process): exe, args, run dir, env lines
+if ($Prepare) {   # PLAYTHISGAME.exe starts the game itself (a direct child, so Steam sees the process): exe, args, run dir, env lines
     $env_ = foreach ($k in $set.Keys) { if ($k -like 'env.*') { "$($k.Substring(4))=$($set[$k])" } }
     if ($env:SDL_GAMECONTROLLERCONFIG_FILE) { $env_ += "SDL_GAMECONTROLLERCONFIG_FILE=$env:SDL_GAMECONTROLLERCONFIG_FILE" }
     $argline = ($a | ForEach-Object { "`"$_`"" }) -join ' '

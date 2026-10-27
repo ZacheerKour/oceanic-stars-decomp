@@ -5,3 +5,4 @@
 config/matches.tsv merge=union
 src/so2.h merge=union
 INSTALL.exe binary
+*.bat text eol=crlf

@@ -20,7 +20,7 @@ if (& git -C $src status --porcelain --ignored) { throw 'psxrecomp clone is not 
 if (-not (Test-Path "$gen\SCUS_944.21_dispatch.c")) { throw "no generated boot C in $gen (run recomp\host\build_generate.ps1)" }
 if (-not (Test-Path "$deps\lib\SDL3.lib")) { throw "no deps in $deps (run recomp\rtfull\build_deps.ps1)" }
 
-$vs = if ($env:SO2_VS) { $env:SO2_VS } else { 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' }   # INSTALL.exe sets SO2_VS (vswhere)
+$vs = if ($env:SO2_VS) { $env:SO2_VS } else { 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' }   # INSTALL.bat sets SO2_VS (vswhere)
 cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul 2>nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] } }
 $env:Path = "$vs\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;$vs\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;$env:Path"
 New-Item -ItemType Directory -Force $B | Out-Null

@@ -1,5 +1,5 @@
-<# Equivalence check: play.ps1 -Prepare vs PLAY.exe --prepare on the same settings.ini, in two throwaway trees under %TEMP%.
-   Run: powershell -ExecutionPolicy Bypass -File recomp\launcher\equiv.ps1   (needs PLAY.exe built). Prints DIFF lines; empty = identical.
+<# Equivalence check: play.ps1 -Prepare vs PLAYTHISGAME.exe --prepare on the same settings.ini, in two throwaway trees under %TEMP%.
+   Run: powershell -ExecutionPolicy Bypass -File recomp\launcher\equiv.ps1   (needs PLAYTHISGAME.exe built). Prints DIFF lines; empty = identical.
    Env lines of launch.txt are sorted before comparing (play.ps1's hashtable order is unspecified). #>
 $ErrorActionPreference = 'Continue'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -25,7 +25,7 @@ foreach ($c in $cases.Keys) {
     Copy-Item (Join-Path $repo 'settings.default.ini') $r -Force; Copy-Item (Join-Path $repo 'play.ps1') $r -Force
     [IO.File]::WriteAllText((Join-Path $r 'settings.ini'), $cases[$c])
     if ($mode -eq 'ps') { & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $r 'play.ps1') -Prepare 2>$null >$null; $rc = $LASTEXITCODE }
-    else { $pr = Start-Process (Join-Path $repo 'PLAY.exe') -ArgumentList '--prepare', '--root', "`"$r`"" -Wait -PassThru -WindowStyle Hidden; $rc = $pr.ExitCode }
+    else { $pr = Start-Process (Join-Path $repo 'PLAYTHISGAME.exe') -ArgumentList '--prepare', '--root', "`"$r`"" -Wait -PassThru -WindowStyle Hidden; $rc = $pr.ExitCode }
     $txt = "rc=$rc`n"
     foreach ($f in 'play\game.toml', 'play\settings.warn', 'play\prepare.err', 'play\launch.txt', 'recomp\rtfull\_build_final\keybinds.ini', 'recomp\rtfull\_build_final\config.ini') {
       $p = Join-Path $r $f; $b = if (Test-Path $p) { [IO.File]::ReadAllText($p) } else { '<absent>' }

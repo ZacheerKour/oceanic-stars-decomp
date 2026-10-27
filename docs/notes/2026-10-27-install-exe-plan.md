@@ -1,16 +1,18 @@
-# Plan: native INSTALL.exe and a single game exe (not implemented)
+# Plan: native installer and a single game exe
 
-Date 2026-10-27. Status: phase 1 implemented (below); the rest is still a plan. Implemented so far: PLAY.exe no longer needs PowerShell (recomp/launcher/play.c,
+**Superseded in part (2026-10-27):** no binary is tracked any more. `INSTALL.bat` (plain cmd) finds MSVC or asks Y/N for winget Build Tools, compiles `recomp/installer/install.c` into `.install\setup.exe` and runs it; the player-facing file is `PLAYTHISGAME.exe` (was StarOcean2.exe). Discs go in `roms\`. install.ps1 and the tracked INSTALL.exe/.sha256 are gone. Text below that says INSTALL.exe/INSTALL.bat describes the installer program in general.
+
+Date 2026-10-27. Status: phase 1 implemented (below); the rest is still a plan. Implemented so far: PLAYTHISGAME.exe no longer needs PowerShell (recomp/launcher/play.c,
 `--prepare`, `--selftest`; recomp/launcher/equiv.ps1 diffs it against play.ps1). play.ps1 is kept only as the PLAY.bat
-fallback when PLAY.exe is absent and as the equivalence reference.
+fallback when PLAYTHISGAME.exe is absent and as the equivalence reference.
 
 ## End state
-Clone, drag two disc files onto `INSTALL.exe`, end with one `StarOcean2.exe` at the repo root that starts the game, shows an
+Clone, drag two disc files onto `INSTALL.bat`, end with one `PLAYTHISGAME.exe` at the repo root that starts the game, shows an
 icon, uses relative paths, keeps the right working dir, and stays the foreground process until the game exits (Steam tracks it).
 No PowerShell window or script for the player.
 
 ## install.ps1 steps, MSVC need, native replacement
-| # | install.ps1 step | Needs MSVC? | What INSTALL.exe does instead |
+| # | install.ps1 step | Needs MSVC? | What INSTALL.bat does instead |
 |---|---|---|---|
 | 0 | Log to install.log, stamps in .install\ | no | Same, with C file I/O. Stamps = SHA-1 of tracked inputs (Tree-Stamp); hashing via bcrypt.dll (built into Windows). |
 | 1 | Discs: drag args or file dialog; .7z/.zip/.cue/.bin/.chd; reject .iso and folders; SHA-1 against two known hashes; copy to roms\discN with a generated .cue | no | GetOpenFileName dialog; bcrypt SHA-1; file copy. zip: miniz or the shell; .7z: embed the LZMA SDK (public domain) or keep fetching the pinned 7zr.exe (SHA-256 checked); .chd: keep the "needs chdman" error, or embed libchdr later. |
@@ -18,7 +20,7 @@ No PowerShell window or script for the player.
 | 3 | extract_boot.py, extract.py (disc to extracted\, analysis\out) | no | Keep the private Python for now (hidden CreateProcess, output to install.log). Later: port to C (ISO9660 + the game archive format). |
 | 4 | Clone psxrecomp at pinned commit f42d2c0; download SDL3 3.4.10 and zlib 1.3.1 tarballs (SHA-256) | no | WinHTTP download of the commit zip and both tarballs, SHA-256 verify, extract with tar.exe (ships with Windows 10+) or miniz/libarchive. |
 | 5 | build_all.ps1: recompiler, optional SCPH-5501 backend, AOT overlays, cmake/ninja of rtfull with SDL3 + zlib, psxrecomp-game.exe (about 10 min) | yes: cl, link, cmake, ninja, Windows SDK | Run it hidden with CreateProcess, log to install.log, progress from the "== step" lines. build_all.ps1 stays a script run by the exe, or its steps move into a command table in the exe. Do not touch recomp/rtfull stubs. |
-| 6 | Build PLAY.exe (recomp\launcher\build.ps1, cl) | yes | Gone: INSTALL.exe ships the launcher prebuilt (our own code, no game data) as a hash-pinned release asset, or the launcher is merged into the game exe (below). |
+| 6 | Build PLAYTHISGAME.exe (recomp\launcher\build.ps1, cl) | yes | Gone: INSTALL.bat ships the launcher prebuilt (our own code, no game data) as a hash-pinned release asset, or the launcher is merged into the game exe (below). |
 | 7 | Desktop shortcut (Y/N) | no | IShellLink in C, plus the Steam hint below. |
 
 ## (1) Compiler without asking the player to install Visual Studio
@@ -27,7 +29,7 @@ Step 5 is the only real MSVC dependency (plus step 6 today). Options:
    `-latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64`, falling back to the fixed BuildTools path.
    Use it if found. Always do this.
 2. Download MSVC ourselves without the VS installer (msvc-wine style): the public VS manifest (aka.ms/vs/17/release/channel)
-   lists the VC tools and Windows SDK packages as .vsix/.msi payloads with SHA-256. INSTALL.exe downloads only the needed
+   lists the VC tools and Windows SDK packages as .vsix/.msi payloads with SHA-256. INSTALL.bat downloads only the needed
    packages (roughly 1.5-2 GB for cl, link, headers, libs, SDK), verifies each against the manifest, unpacks to tools\msvc and
    sets INCLUDE/LIB/PATH itself. Pros: no admin, far smaller than 8 GB, pinned. Cons: the Microsoft license must be shown and
    accepted (ask Y/N); the manifest format is unofficial; redistribution is not allowed, so download only, never bundle.
@@ -40,19 +42,19 @@ Step 5 is the only real MSVC dependency (plus step 6 today). Options:
 Recommendation: 1, then 2 (own hash-verified download, license shown) as the default, 3 as a fallback behind a Y/N question,
 4 as a later research bead.
 
-## (2) Where the final exe lands; merge PLAY.exe and the game exe?
-Today PLAY.exe (root) prepares the config, then starts recomp\rtfull\_build_final\psxrecomp-game.exe as a child with args and
-env, and waits. The game exe is built per player (game-derived); PLAY.exe is generic.
-- Recommended (phase 1): keep two programs. The player-facing file is `StarOcean2.exe` at the repo root, the current PLAY.exe
+## (2) Where the final exe lands; merge PLAYTHISGAME.exe and the game exe?
+Today PLAYTHISGAME.exe (root) prepares the config, then starts recomp\rtfull\_build_final\psxrecomp-game.exe as a child with args and
+env, and waits. The game exe is built per player (game-derived); PLAYTHISGAME.exe is generic.
+- Recommended (phase 1): keep two programs. The player-facing file is `PLAYTHISGAME.exe` at the repo root, the current PLAYTHISGAME.exe
   renamed, with an icon resource added at build. It holds no game data, so it can be a prebuilt release asset. It stays the
   foreground process and waits on the child, so Steam sees one running game. Minimal change, already working.
 - Phase 2 (optional): link the launcher's prepare()/settings code into the rtfull game exe (call it at the top of main before
   SDL init, use the in-memory Prep, no child). One exe, nothing to wait on. Cost: touches recomp/rtfull (out of scope here), and
   a launcher bug can then break the game binary. Only worth it if Steam overlay or Steam Input misbehaves with the child.
-INSTALL.exe's last step puts the exe at the root and writes nothing outside the folder (except the optional shortcut).
+INSTALL.bat's last step puts the exe at the root and writes nothing outside the folder (except the optional shortcut).
 
 ## (3) Steam: add as a non-Steam game
-Player steps: Steam > Games > Add a Non-Steam Game to My Library > Browse > pick `StarOcean2.exe` > Add. Steam sets Target to
+Player steps: Steam > Games > Add a Non-Steam Game to My Library > Browse > pick `PLAYTHISGAME.exe` > Add. Steam sets Target to
 the exe path and Start In to its folder. What the exe must do:
 1. Be a real .exe (done) with an embedded icon and version info so Steam shows the right icon.
 2. Resolve every path from its own location, never the current directory (done: `--root` defaults to the exe folder and
@@ -67,7 +69,7 @@ the exe path and Start In to its folder. What the exe must do:
    on an explicit Y.
 
 ## Suggested beads
-1. INSTALL.exe skeleton: log, stamps, bcrypt hashes, hidden CreateProcess runner (replaces Invoke-Logged).
+1. INSTALL.bat skeleton: log, stamps, bcrypt hashes, hidden CreateProcess runner (replaces Invoke-Logged).
 2. Disc intake in C (dialog, zip/7z, SHA-1, cue generation).
 3. Downloader: WinHTTP + SHA-256 for the pinned psxrecomp commit zip, SDL3, zlib, Python.
 4. Toolchain: vswhere detect, then manifest-based MSVC fetch, then winget fallback.
@@ -75,15 +77,15 @@ the exe path and Start In to its folder. What the exe must do:
 6. Steam steps on the final screen; manual Steam test.
 
 ## Phase 1 as implemented (2026-10-27)
-- `recomp/installer/install.c` is INSTALL.exe (console app, bcrypt SHA-1/SHA-256, WinHTTP downloads, hidden `cmd /c` runner with
-  everything logged to install.log, stamps in `.install\exe_*.stamp`). `INSTALL.exe` is **tracked** (the one allowed binary): it
-  holds no game code or data, and `scripts/repo_guard.py` fails if its SHA-256 differs from `recomp/installer/INSTALL.exe.sha256`
+- `recomp/installer/install.c` is INSTALL.bat (console app, bcrypt SHA-1/SHA-256, WinHTTP downloads, hidden `cmd /c` runner with
+  everything logged to install.log, stamps in `.install\exe_*.stamp`). `INSTALL.bat` is **tracked** (the one allowed binary): it
+  holds no game code or data, and `scripts/repo_guard.py` fails if its SHA-256 differs from `recomp/installer/INSTALL.bat.sha256`
   (rebuild with `recomp/installer/build.ps1`, commit both). Unsigned, so SmartScreen may warn; `INSTALL.bat` stays as the fallback
   (runs the exe, or install.ps1 when the exe is absent). install.ps1 is kept until the exe has been used by a few people.
 - Compiler: vswhere (needs the C++ and CMake components), else the fixed BuildTools path, else winget Build Tools behind Y/N.
   Child scripts honour `SO2_VS`. Option 2 (own manifest-based MSVC download) is NOT implemented: see follow-up below.
 - Private Python 3.11.9 and MinGit 2.47.1 (both SHA-256 pinned) replace the winget Git; 7zr.exe is fetched only for .7z.
-- StarOcean2.exe is compiled by INSTALL.exe from play.c (+ play.rc with a generated icon, version info, asInvoker manifest), so
+- PLAYTHISGAME.exe is compiled by INSTALL.bat from play.c (+ play.rc with a generated icon, version info, asInvoker manifest), so
   the launcher is not a prebuilt asset. build_all.ps1 is still run (hidden) as a script; porting it into the exe is a follow-up.
 - Follow-up: MSVC without the VS installer (msvc-wine style manifest fetch, per-package SHA-256, show the Microsoft license
   URL/text and require an explicit Y/N, no admin, download only), test with a small fake package first; then port build_all.

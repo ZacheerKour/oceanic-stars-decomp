@@ -1,9 +1,9 @@
-/* INSTALL.exe: native replacement for install.ps1 (kept as the INSTALL.bat fallback). Drag the two Star Ocean 2 (USA) disc files
- * onto it, or run it and pick them in the file dialog. It checks the discs by SHA-1, finds or (after a Y/N question) installs the
- * MSVC compiler, fetches pinned, SHA-256-checked private copies of Python / MinGit / SDL3 / zlib, unpacks the game data, runs
- * recomp\rtfull\build_all.ps1 hidden and builds StarOcean2.exe (the launcher, recomp\launcher\play.c) at the repo root.
+/* setup.exe: the installer program, compiled on the player's PC by INSTALL.bat from this file (no binary is tracked). It looks
+ * for the two Star Ocean 2 (USA) discs in roms\ (or takes them as arguments / a file dialog), checks them by SHA-1,
+ * fetches pinned, SHA-256-checked private copies of Python / MinGit / SDL3 / zlib, unpacks the game data, runs
+ * recomp\rtfull\build_all.ps1 hidden and builds PLAYTHISGAME.exe (the launcher, recomp\launcher\play.c) at the repo root.
  * All tool output goes to install.log; the console shows short progress lines. Finished stages are skipped (stamps in .install\).
- * Contains no game code and no game data. Build: recomp\installer\build.ps1 (the built exe is tracked, see its .sha256).
+ * Contains no game code and no game data. Normally started by INSTALL.bat, which passes --root.
  * Flags: --selftest, --fetch <url> <sha256> <dest> (test the downloader), --root <dir>. Env: SO2_NOASK=1 (never pause or ask),
  * SO2_VERBOSE=1 (echo log tail after each tool). */
 #include <windows.h>
@@ -83,7 +83,7 @@ static void fail(const char *f, ...) {
     char *m = malloc(n + 1); va_start(a, f); vsnprintf(m, n + 1, f, a); va_end(a);
     say(""); say("The install did not finish."); say("%s", m); log_note(m);
     if (exists(logp)) { say(""); say("Last lines of the log:"); tail_lines(15); say(""); say("Full log: %s", logp); }
-    say("Run INSTALL.exe again after fixing the problem; finished stages are skipped.");
+    say("Run INSTALL.bat again after fixing the problem; finished stages are skipped.");
     pause_if_alone(); exit(1);
 }
 static int ask(const char *q) {
@@ -139,7 +139,7 @@ static char *http_get(const char *url, const char *dest) {   /* returns an error
 static void download(const char *url, const char *sha, const char *dest) {
     if (exists(dest)) {
         if (verify(dest, sha)) return;
-        fail("The file %s does not match its expected SHA-256 fingerprint (%s), so it was not used. Delete that file and run INSTALL.exe again.", dest, sha);
+        fail("The file %s does not match its expected SHA-256 fingerprint (%s), so it was not used. Delete that file and run INSTALL.bat again.", dest, sha);
     }
     mkdirs(parent(dest)); log_note(fmt("download %s", url));
     char *part = fmt("%s.part", dest), *e = http_get(url, part);
@@ -267,23 +267,45 @@ static char *seven_zip(void) {
 }
 static char *tar_exe(void) { return fmt("%s\\System32\\tar.exe", getenv("SystemRoot") ? getenv("SystemRoot") : "C:\\Windows"); }
 
+static void scan_roms(List *out) {   /* disc files lying directly in roms\ (archives, .bin/.cue/.chd; not the BIOS) */
+    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW(W(fmt("%s\roms\*", root)), &fd); if (h == INVALID_HANDLE_VALUE) return;
+    do {
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
+        char *n = U(fd.cFileName), *e = lower(ext_of(n)), *l = lower(n);
+        if (!strncmp(l, "scph", 4)) continue;
+        if (!strcmp(e, ".7z") || !strcmp(e, ".zip") || !strcmp(e, ".cue") || !strcmp(e, ".bin") || !strcmp(e, ".chd") || !strcmp(e, ".iso")) push(out, fmt("%s\roms\%s", root, n));
+    } while (FindNextFileW(h, &fd));
+    FindClose(h);
+}
+static void disc_help(void) {
+    say("  Put BOTH Star Ocean 2 (USA) disc images into this folder, then run INSTALL.bat again:");
+    say("    %s\roms", root);
+    say("  Accepted: .7z or .zip archives, or .bin (+ .cue) files, any names, any order (see roms\README.txt).");
+    say("  Or drag the two disc files onto INSTALL.bat.");
+}
 static void step_discs(List *given) {
     if (disc_ok(1) && disc_ok(2)) { say("  Both discs are already installed."); return; }
-    char *tmp = fmt("%s\\roms\\_unpack", root); int interactive = given->n == 0, attempt = 0, k = 0;
+    int interactive = given->n == 0;
+    if (interactive) {
+        scan_roms(given);
+        if (given->n) say("  Found %d file(s) in roms\.", given->n);
+        else { say("  No disc files found in roms\."); disc_help(); if (noask) fail("No disc files found. Put both disc images in %s\roms and run INSTALL.bat again.", root); say("  Opening a file picker as a fallback..."); }
+    }
+    char *tmp = fmt("%s\\roms\\_unpack", root); int attempt = 0, k = 0;
     while (!(disc_ok(1) && disc_ok(2))) {
         attempt++;
         if (given->n == 0) {
-            if (!interactive || attempt > 3) break;
+            if (!interactive || attempt > 3 || noask) break;
             int have = disc_ok(1) ? 1 : disc_ok(2) ? 2 : 0;
             char *t = have ? fmt("Select the file for disc %d", 3 - have) : "Select BOTH Star Ocean 2 disc files (hold Ctrl to pick two)";
             say("  %s...", t); pick_files(t, given);
-            if (!given->n) fail("No disc files were selected. Drag your two Star Ocean 2 (USA) disc files onto INSTALL.exe, or run it again and pick them in the window.");
+            if (!given->n) { disc_help(); fail("No disc files were selected."); }
         }
         List images = { 0 };
         for (int i = 0; i < given->n; i++) {
             char *g = given->v[i], *e = lower(ext_of(g)); k++;
-            if (!exists(g)) fail("Cannot find '%s'. Drag the disc files themselves onto INSTALL.exe.", g);
-            if (is_dir(g)) fail("'%s' is a folder. Drag the two disc FILES (.7z, .zip, .bin/.cue or .chd) onto INSTALL.exe, not a folder.", base(g));
+            if (!exists(g)) fail("Cannot find '%s'. Drag the disc files themselves onto INSTALL.bat.", g);
+            if (is_dir(g)) fail("'%s' is a folder. Drag the two disc FILES (.7z, .zip, .bin/.cue or .chd) onto INSTALL.bat, not a folder.", base(g));
             if (!strcmp(e, ".7z") || !strcmp(e, ".zip")) {
                 char *dir = fmt("%s\\a%d", tmp, k); say("  Unpacking %s...", ascii(base(g))); mkdirs(dir);
                 int rc = !strcmp(e, ".zip") ? run("tar x zip", NULL, fmt("\"%s\" -xf \"%s\" -C \"%s\"", tar_exe(), g, dir))
@@ -322,7 +344,7 @@ static void step_discs(List *given) {
         if (exists(tmp)) run("cleanup unpack dir", NULL, fmt("rmdir /s /q \"%s\"", tmp));
         given->n = 0; if (!interactive) break;
     }
-    for (int n = 1; n <= 2; n++) if (!disc_ok(n)) fail("Disc %d was not found among the files you gave. Star Ocean 2 (USA) has two discs; give me both (any order), as .7z or .bin/.cue files.", n);
+    for (int n = 1; n <= 2; n++) if (!disc_ok(n)) { disc_help(); fail("Disc %d was not found among the files you gave. Star Ocean 2 (USA) has two discs; give me both (any order), as .7z or .bin/.cue files.", n); }
 }
 
 /* ---------- tools ---------- */
@@ -340,13 +362,13 @@ static char *step_tools(void) {
     char *vs = find_vs();
     if (!vs) {
         /* shortcut: no own MSVC download (plan option 2); winget Build Tools behind a Y/N, see the follow-up note in docs/notes */
-        if (!on_path(L"winget.exe")) fail("The Visual Studio C++ compiler is needed but winget is not available. Install the Visual Studio 2022 Build Tools with the \"Desktop development with C++\" workload yourself (see README), then run INSTALL.exe again.");
+        if (!on_path(L"winget.exe")) fail("The Visual Studio C++ compiler is needed but winget is not available. Install the Visual Studio 2022 Build Tools with the \"Desktop development with C++\" workload yourself (see README), then run INSTALL.bat again.");
         if (!ask("  Visual Studio 2022 Build Tools (C++) are needed (about 8 GB). Install them now with winget? Windows will ask for your approval."))
-            fail("The Visual Studio C++ compiler is needed to build the game. Install it (see README) and run INSTALL.exe again.");
+            fail("The Visual Studio C++ compiler is needed to build the game. Install it (see README) and run INSTALL.bat again.");
         say("  Installing Build Tools (this can take a while)...");
         if (run("winget BuildTools", NULL, "winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --accept-package-agreements --accept-source-agreements --override \"--passive --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\""))
             fail("Installing the Build Tools failed or was cancelled.");
-        vs = find_vs(); if (!vs) fail("The Build Tools install did not finish (a restart may be needed). Restart Windows if asked, then run INSTALL.exe again.");
+        vs = find_vs(); if (!vs) fail("The Build Tools install did not finish (a restart may be needed). Restart Windows if asked, then run INSTALL.bat again.");
     }
     setenv_("SO2_VS", vs); log_note(fmt("compiler: %s", vs));
     if (!on_path(L"git.exe")) {   /* private MinGit, no admin and no winget needed */
@@ -370,7 +392,7 @@ static char *step_tools(void) {
     return vs;
 }
 
-/* ---------- icon for StarOcean2.exe (generated, so no binary asset is tracked) ---------- */
+/* ---------- icon for PLAYTHISGAME.exe (generated, so no binary asset is tracked) ---------- */
 static int in_star(double x, double y) {   /* 5-point star, outer radius .86, inner .36, point up; even-odd ray cast */
     double px[10], py[10]; const double PI = 3.14159265358979;
     for (int i = 0; i < 10; i++) { double r = i % 2 ? .36 : .86, a = -PI / 2 + i * PI / 5; px[i] = r * cos(a); py[i] = r * sin(a); }
@@ -415,10 +437,10 @@ int wmain(int argc, wchar_t **argv) {
     if (!r) { wchar_t d[MAX_PATH]; GetModuleFileNameW(NULL, d, MAX_PATH); *wcsrchr(d, L'\\') = 0; r = U(d); }
     path_prepend(fmt("%s\\System32", getenv("SystemRoot") ? getenv("SystemRoot") : "C:\\Windows"));   /* build_all.ps1 calls bare `tar`: use bsdtar, not a GNU tar from Git Bash/MSYS */
     root = r; SetCurrentDirectoryW(W(root)); logp = fmt("%s\\install.log", root); mkdirs(fmt("%s\\.install", root));
-    char *hdr = fmt("Star Ocean 2 install log (INSTALL.exe)\r\n"); write_file(logp, hdr, strlen(hdr));
+    char *hdr = fmt("Star Ocean 2 install log (INSTALL.bat)\r\n"); write_file(logp, hdr, strlen(hdr));
     const char *commit = "f42d2c004b3dd6ef6ccb83101b40ede55f24bf59";   /* audited psxrecomp pin (RECOMP_NOTES '2026-10-26 psxrecomp safety audit') */
     say("Star Ocean: The Second Story - PC install"); say("A detailed log is written to install.log."); say("");
-    if (!exists(fmt("%s\\recomp\\rtfull\\build_all.ps1", root))) fail("This folder does not look like the game repository (recomp\\rtfull\\build_all.ps1 is missing). Keep INSTALL.exe at the top of the cloned folder.");
+    if (!exists(fmt("%s\\recomp\\rtfull\\build_all.ps1", root))) fail("This folder does not look like the game repository (recomp\\rtfull\\build_all.ps1 is missing). Keep INSTALL.bat at the top of the cloned folder.");
 
     say("[1/6] Checking your discs..."); step_discs(&given);
     say("[2/6] Checking tools..."); char *vs = step_tools();
@@ -453,17 +475,17 @@ int wmain(int argc, wchar_t **argv) {
         stamp_set("exe_build.stamp", bstamp);
     }
 
-    const char *ld[] = { "recomp\\launcher" }; char *lstamp = tree_stamp(ld, 1, "launcher1"), *out = fmt("%s\\StarOcean2.exe", root);
-    if (exists(out) && stamp_ok("exe_launcher.stamp", lstamp)) say("[6/6] StarOcean2.exe is up to date.");
+    const char *ld[] = { "recomp\\launcher" }; char *lstamp = tree_stamp(ld, 1, "launcher1"), *out = fmt("%s\\PLAYTHISGAME.exe", root);
+    if (exists(out) && stamp_ok("exe_launcher.stamp", lstamp)) say("[6/6] PLAYTHISGAME.exe is up to date.");
     else {
-        say("[6/6] Building StarOcean2.exe..."); char *ldir = fmt("%s\\recomp\\launcher", root); mkdirs(fmt("%s\\_build", ldir)); write_ico(fmt("%s\\_build\\star.ico", ldir));
+        say("[6/6] Building PLAYTHISGAME.exe..."); char *ldir = fmt("%s\\recomp\\launcher", root); mkdirs(fmt("%s\\_build", ldir)); write_ico(fmt("%s\\_build\\star.ico", ldir));
         char *cl = fmt("call \"%s\\VC\\Auxiliary\\Build\\vcvars64.bat\" >nul && rc /nologo /fo _build\\play.res play.rc && cl /nologo /O2 /MT /GS- /utf-8 /wd4996 /Fo_build\\ \"/Fe%s\" play.c _build\\play.res /link /MANIFEST:NO /SUBSYSTEM:WINDOWS user32.lib kernel32.lib shell32.lib", vs, out);
-        if (run("StarOcean2.exe", ldir, cl) || !exists(out)) fail("Building StarOcean2.exe failed.");
-        if (run("StarOcean2 selftest", NULL, fmt("\"%s\" --selftest", out))) fail("StarOcean2.exe was built but its self-test failed.");
+        if (run("PLAYTHISGAME.exe", ldir, cl) || !exists(out)) fail("Building PLAYTHISGAME.exe failed.");
+        if (run("PLAYTHISGAME selftest", NULL, fmt("\"%s\" --selftest", out))) fail("PLAYTHISGAME.exe was built but its self-test failed.");
         stamp_set("exe_launcher.stamp", lstamp);
     }
 
-    say(""); say("Done. Double-click StarOcean2.exe:"); say("  %s", out);
+    say(""); say("Done. Double-click PLAYTHISGAME.exe:"); say("  %s", out);
     if (con_out && !noask && ask("Create a Desktop shortcut?")) {
         wchar_t desk[MAX_PATH]; IShellLinkW *sl = NULL; IPersistFile *pf = NULL; int ok = 0;
         CoInitialize(NULL);
@@ -472,9 +494,9 @@ int wmain(int argc, wchar_t **argv) {
             if (SUCCEEDED(sl->lpVtbl->QueryInterface(sl, &IID_IPersistFile, (void **)&pf))) { ok = SUCCEEDED(pf->lpVtbl->Save(pf, W(fmt("%s\\Star Ocean 2.lnk", U(desk))), TRUE)); pf->lpVtbl->Release(pf); }
             sl->lpVtbl->Release(sl);
         }
-        say(ok ? "  Shortcut created on the Desktop." : "  Could not create the shortcut; start StarOcean2.exe from the folder above.");
+        say(ok ? "  Shortcut created on the Desktop." : "  Could not create the shortcut; start PLAYTHISGAME.exe from the folder above.");
     }
-    say(""); say("Steam: Games > Add a Non-Steam Game to My Library > Browse > pick StarOcean2.exe > Add.");
+    say(""); say("Steam: Games > Add a Non-Steam Game to My Library > Browse > pick PLAYTHISGAME.exe > Add.");
     say("Steam sets Start In to this folder; the exe waits for the game, so Steam tracks it.");
     pause_if_alone(); return 0;
 }

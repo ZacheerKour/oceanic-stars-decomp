@@ -44,7 +44,7 @@ because the analyzer takes seeds as a file and the logon script must come from s
 
 ## What `run_in_sandbox.ps1` does
 1. Copies the exe, A/B/C and zip to `C:\work`, then verifies SHA-256 of the local copies (exe `b93e4246...`, zip `28da9742...`).
-2. Extracts the zip with .NET `ZipFile` to `C:\work\tc`, rejecting entries that escape the target. `install.ps1` is never run.
+2. Extracts the zip with .NET `ZipFile` to `C:\work\tc`, rejecting entries that escape the target. The installer is never run.
 3. Session-only `PSXRECOMP_TOOLCHAIN_DIR=C:\work\tc` and `PATH=C:\work\tc\bin;...`. `psxrecomp_cli.py` is not used (its `analyze` calls `ensure_toolchain`/`ensure_analyzer`, which can fetch things); `cmake` is called directly.
 4. Copies the source to `C:\work\src` without `.git`.
 5. `cmake -S recompiler -G Ninja -DCMAKE_BUILD_TYPE=Release -DPSXRECOMP_ENABLE_CHD=OFF -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`, then `--target psxrecomp-analyze psxrecomp-game`.

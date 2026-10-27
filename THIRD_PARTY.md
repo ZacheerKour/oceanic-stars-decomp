@@ -1,7 +1,7 @@
 # Third-party components
 
 Nothing below is redistributed by this repository. "Fetched" means the installer downloads it from the official source
-(SHA-256 pinned in `install.ps1` / `recomp/rtfull/build_deps.ps1` unless noted). "Referenced" means it is only named in
+(SHA-256 pinned in `recomp/installer/install.c` / `recomp/rtfull/build_deps.ps1` unless noted). "Referenced" means it is only named in
 docs or code comments. See [NOTICE](NOTICE) for the summary.
 
 | Component | Version / commit | Licence | How obtained | Redistributed here |
@@ -18,4 +18,4 @@ docs or code comments. See [NOTICE](NOTICE) for the summary.
 | Sony PS1 BIOS (optional SCPH-5501) | n/a | Copyright Sony | Referenced: optional, supplied by the user | No |
 
 A game built here links psxrecomp, so it is for noncommercial use only and must not be redistributed (see NOTICE).
-When a pin changes, update this table, `NOTICE` and the pins in `install.ps1` in the same commit.
+When a pin changes, update this table, `NOTICE` and the pins in `recomp/installer/install.c` in the same commit.

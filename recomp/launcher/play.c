@@ -1,4 +1,4 @@
-/* PLAY.exe: the Steam-friendly launcher, with no PowerShell dependency. "Add a Non-Steam Game" lists only .exe files, and Steam
+/* PLAYTHISGAME.exe: the Steam-friendly launcher, with no PowerShell dependency. "Add a Non-Steam Game" lists only .exe files, and Steam
  * tracks the process it starts, so this waits for the game as a direct child.
  * prepare() is a native port of play.ps1 (kept as the PLAY.bat fallback and as the equivalence reference): it reads settings.ini,
  * writes play\game.toml, play\settings.warn, play\launch.txt, keybinds.ini and config.ini, and fills Prep for the launch.
@@ -179,7 +179,7 @@ static int prepare(const char *root, Prep *o) {
     /* Host hotkeys (runtime config.ini [KeyMap]): F8 state browser, Turbo (hold to fast-forward) = F2; F10 pause menu is built in. */
     write_str(fmt("%s\\config.ini", exedir), "; written by play.ps1\n[KeyMap]\nSaveStateMenu = F8\nFullscreen = Alt+Return, Ctrl+F, F11\nScanlines = F4\nTurboToggle = F3\nTurbo = F2\n");
 
-    /* Odd gamepads: gamecontrollerdb.txt next to PLAY.exe or the game exe */
+    /* Odd gamepads: gamecontrollerdb.txt next to PLAYTHISGAME.exe or the game exe */
     const char *dirs[2] = { root, exedir };
     for (int i = 0; i < 2; i++) { char *f = fmt("%s\\gamecontrollerdb.txt", dirs[i]);
         if (exists(f) && !GetEnvironmentVariableW(L"SDL_GAMECONTROLLERCONFIG_FILE", NULL, 0)) SetEnvironmentVariableW(L"SDL_GAMECONTROLLERCONFIG_FILE", W(f)); }
@@ -274,7 +274,7 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
     HANDLE err = CreateFileW(W(fmt("%s\\last.err", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
     STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi; DWORD rc = 1;
     si.dwFlags = STARTF_USESTDHANDLES; si.hStdOutput = out; si.hStdError = err; si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-    if (!CreateProcessW(W(o.exe), cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, W(o.run), &si, &pi)) die("Cannot start the game exe. Run INSTALL.exe first.");
+    if (!CreateProcessW(W(o.exe), cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, W(o.run), &si, &pi)) die("Cannot start the game exe. Run INSTALL.bat first.");
     WaitForSingleObject(pi.hProcess, INFINITE);
     GetExitCodeProcess(pi.hProcess, &rc);
     return (int)rc;
