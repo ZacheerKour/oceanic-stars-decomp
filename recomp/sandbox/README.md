@@ -16,7 +16,7 @@ Tested for run 2: both scripts parse, `make_wsb.ps1` runs on the host (hashes, s
 | `stage_overlays.py` | host side (`python -I`, called by `make_wsb.ps1`); checks size/md5 of `analysis\out\d1\{0001_312,2129_24323,2576_30736}.dec` against `config\overlays.tsv`, wraps each in a PS-X EXE header, writes per-program seed lists. |
 | `..\..\scripts\compare_analyzer.py` | host side, after the run: matched functions vs analyzer output for program A, seed overlap. |
 | `run_in_sandbox.ps1` | guest side (LogonCommand). Copied into `_stage\` by `make_wsb.ps1` (with `recomp\game.toml`). |
-| `..\hostuild_generate.ps1` | host build of the same two targets with VS 2022 Build Tools, only at the audited commit; output `recomp\host\_out\` (gitignored) |
+| `..\host\build_generate.ps1` | host build of the same two targets with VS 2022 Build Tools, only at the audited commit; output `recomp\host\_out\` (gitignored) |
 | `_stage\`, `_out\` (run 1, kept), `_out_run2\`, `_run.wsb` | generated, gitignored (`/recomp/sandbox/_*`) |
 
 ## Steps
