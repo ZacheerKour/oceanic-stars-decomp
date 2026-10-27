@@ -8,7 +8,7 @@ possible in data; psxrecomp validates seeds).  Also merges the call-type targets
 import os, re, sys, json, struct
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 sys.path.insert(0, os.path.join(ROOT, 'analysis'))
-import slz
+import slz, seedcheck
 
 EXE_BASE, EXE_END = 0x80010000, 0x8002f800
 P = lambda *a: os.path.join(ROOT, *a)
@@ -84,9 +84,9 @@ def extra_seeds():
     return out
 
 
-def main():
+def load_mods():
+    """[(overlays.json entry, decompressed bytes)] for each distinct module (local discs only)."""
     import iso, toc
-    exe = open(PD('extracted', 'SCUS_944.21'), 'rb').read()[0x800:0x800 + 0x1f800]
     D = iso.Disc(PD('roms', 'disc1', 'Star Ocean - The Second Story (USA) (Disc 1).bin')); w, sz = toc.load(D)
     mods, seen, cache = [], set(), {}
     for o in json.load(open(P('config', 'overlays.json')))['overlays']:
@@ -97,6 +97,12 @@ def main():
         if e not in cache:
             l, n = toc.ent(w, sz, e); cache[e] = slz.dec_all(D.read(l, n * 2048))
         mods.append((o, cache[e][o['chunk']]))
+    return mods
+
+
+def main():
+    exe = open(PD('extracted', 'SCUS_944.21'), 'rb').read()[0x800:0x800 + 0x1f800]
+    mods = load_mods()
     matched = [l.rstrip('\n').split('\t') for l in open(P('config', 'matches.tsv')) if not l.startswith('#')]
     mset = {int(m[1], 16): (m[0], int(m[2])) for m in matched}
     # an `addiu sp` that gcc scheduled into a byte-matched body of program A is not an entry (RECOMP_NOTES 2026-10-26)
@@ -106,25 +112,29 @@ def main():
     exe_seeds = {t for t in jal0 if inexe(t)} | pro0 | {0x80010008}
     sections, cross, scanned = [], 0, []
     mods_by_id = [(o['id'], b) for o, b in mods]
+    ix_exe, ix_mod = indirect_seeds()
+    extra = extra_seeds()
     for o, b in mods:
         base = int(o['load_addr'], 16)
         jal, pro = scan(b, base)
-        cross_t = {t for t in jal if inexe(t)}
+        drop = {t for t in pro if inside(t)} - jal if o['id'] == 'e1c0' else set()
+        # only the module's own bytes seed it, and a jal counts only when it sits in code reached from a verified entry
+        # (a jal word in data seeded wrong entries, e.g. E3107C0 0x80040004; RECOMP_NOTES 2026-10-27 overlay seeds)
+        trusted = {a for a in set(ix_mod.get(o['id'], ())) | extra.get(o['id'], set()) | (set(mset) if o['id'] == 'e1c0' else set())
+                   if base <= a < base + len(b) and a % 4 == 0}
+        trusted |= {a for a in stubs(b, base) if a in jal}   # BIOS stubs end in `jr t2`, so the walk cannot accept them
+        own, found, vj, _ = seedcheck.verify(seedcheck.words(b), base, pro - drop, trusted)
+        cross_t = {t for t in vj if inexe(t)}
         exe_seeds |= cross_t; cross += len(cross_t)
-        own = {t for t in jal if base <= t < base + len(b) and t % 4 == 0} | pro
         if o['id'] == 'e1c0':
-            drop = {t for t in pro if inside(t)} - jal
-            own = (own - drop) | set(mset)   # every byte-matched function is an entry, caller found or not
             print('e1c0: prologue seeds inside matched functions dropped:', ' '.join(f'{t:08x}' for t in sorted(drop)))
-        sections.append((o, base, sorted(own))); scanned.append(set(own))
-    ix_exe, ix_mod = indirect_seeds()
+        sections.append((o, base, sorted(own))); scanned.append(found)
     # call_root: BIOS stubs, plus high-confidence indirect-only call targets (no jal, no prologue found: the exact walk cannot start a host function there unless trusted)
     croots = {o['id']: sorted(set(a for a in stubs(b, int(o['load_addr'], 16)) if a in ents) |
                               {a for m, a in TRUSTED if m == o['id'] and int(o['load_addr'], 16) <= a < int(o['load_addr'], 16) + len(b) and a not in sc})
               for (o, b), (_, _, ents), sc in zip(mods, sections, scanned)}
     exe_seeds |= ix_exe
-    extra = extra_seeds()
-    sections = [(o, base, sorted(set(ents) | extra.get(o['id'], set()) | {a for a in ix_mod.get(o['id'], ()) if a < base + len(dict(mods_by_id)[o['id']])}))
+    sections = [(o, base, sorted(set(ents) | extra.get(o['id'], set()) | {a for a in ix_mod.get(o['id'], ()) if base <= a < base + len(dict(mods_by_id)[o['id']])}))
                 for o, base, ents in sections]
     main_a = next(s for s in sections if s[0]['id'] == 'e1c0')
     # splat labels (local build/asm only)

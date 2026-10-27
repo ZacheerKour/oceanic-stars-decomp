@@ -1,0 +1,5 @@
+# E1984C8 load=0x8008c1f4 size=1688: 4 verified function entries (config/seeds_overlays.txt + verified psxrecomp-discovered extras)
+8008c1f4
+8008c1fc
+8008c290
+8008c47c

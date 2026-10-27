@@ -1,0 +1,15 @@
+# E3020C0 load=0x8007e000 size=5200: 14 verified function entries (config/seeds_overlays.txt + verified psxrecomp-discovered extras)
+8007e000
+8007e068
+8007e09c
+8007e170
+8007e48c
+8007e598
+8007e740
+8007e7ec
+8007eb0c
+8007eb50
+8007ebd4
+8007edc4
+8007eec8
+8007f028
