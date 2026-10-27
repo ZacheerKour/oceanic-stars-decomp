@@ -14,4 +14,13 @@ void     host_cd_write(uint32_t reg, uint8_t v, uint32_t *i_stat);
 void     host_cd_dma(uint8_t *ram, uint32_t addr, uint32_t words);
 void     host_cd_tick(uint64_t cycles, uint32_t *i_stat);
 void     host_cd_summary(void);
+
+/* Software GPU (gpu.c): VRAM, GP0/GP1, transfers, rasteriser, PPM dumps. */
+void     gpu_gp0(uint32_t w);
+void     gpu_gp1(uint32_t w);
+uint32_t gpu_read(void);
+uint32_t gpu_stat(int odd_field);
+void     gpu_dump_vram(const char *path);
+void     gpu_dump_display(const char *path);
+extern uint64_t g_gpu_prims;
 #endif

@@ -43,6 +43,9 @@ static uint32_t ring[32]; static int ring_i;
 static uint32_t page_hits[0x800]; /* interpreted pcs per 1 KB of RAM/ROM window */
 static uint64_t max_vblanks = 600; static double max_seconds = 20; static clock_t t0;
 static int verbose;
+static uint32_t trace_pc[8]; static int n_trace_pc, trace_left = 40; /* --trace-pc: print regs when the interpreter reaches it */
+static const char *dump_dir;  /* --dump: RAM image + VRAM PPMs written at stop (gitignored _out dir) */
+static uint64_t frame_every;  /* --frames N: display-area PPM every N vblanks into <dump>/frames */
 extern int g_cd_trace;
 static uint32_t unk_io[64][2]; static int n_unk_io;
 
@@ -67,15 +70,21 @@ static void dma_run(int ch) {
     uint32_t addr = r[0] & 0x1FFFFC, chcr = r[2], i, n;
     uint32_t *dicr = (uint32_t *)(io + 0x0F4);
     n_dma[ch]++;
-    if (ch == 2 && ((chcr >> 9) & 3) == 2) {          /* GPU linked list: walk to the end marker */
+    if (ch == 2 && ((chcr >> 9) & 3) == 2) {          /* GPU linked list: feed each packet to GP0 */
         for (i = 0; i < 0x100000; i++) {
-            uint32_t h = rd32(ram + addr);
+            uint32_t h = rd32(ram + addr), k;
+            for (k = 1; k <= h >> 24; k++) gpu_gp0(rd32(ram + ((addr + 4 * k) & 0x1FFFFC)));
             n_gp0 += h >> 24;
             if ((h & 0x800000) || (h & 0xFFFFFF) == 0xFFFFFF) break;
             addr = h & 0x1FFFFC;
         }
-    } else if (ch == 2) {
-        n_gp0 += (r[1] & 0xFFFF) * (((chcr >> 9) & 3) ? (r[1] >> 16) : 1);
+    } else if (ch == 2) {                             /* block: chcr bit0 1 = RAM->GPU, 0 = GPU->RAM */
+        n = (r[1] & 0xFFFF) * (((chcr >> 9) & 3) ? (r[1] >> 16) : 1);
+        if (!n) n = 0x10000;
+        for (i = 0; i < n; i++, addr = (addr + 4) & 0x1FFFFC) {
+            if (chcr & 1) gpu_gp0(rd32(ram + addr)); else { uint32_t v = gpu_read(); memcpy(ram + addr, &v, 4); }
+        }
+        n_gp0 += n;
     } else if (ch == 6) {                             /* OTC: reverse ordering table */
         n = r[1] & 0xFFFF; if (!n) n = 0x10000;
         for (i = 0; i < n; i++) {
@@ -123,8 +132,8 @@ static uint32_t io_read(uint32_t p, int w) {
     switch (off) {
     case 0x040: return 0xFF;                          /* SIO RX: no controller */
     case 0x044: return 0x7;                           /* TX ready, RX not empty */
-    case 0x810: return 0;                             /* GPUREAD */
-    case 0x814: return 0x1C000000u | ((uint32_t)(n_vblank & 1) << 31); /* GPUSTAT: ready */
+    case 0x810: return gpu_read();
+    case 0x814: return gpu_stat((int)(n_vblank & 1));
     case 0xDAE: return *(uint16_t *)(io + 0xDAA) & 0x3F; /* SPUSTAT mirrors SPUCNT mode */
     }
     if (!((off >= 0x070 && off < 0x078) || (off >= 0x080 && off < 0x130) || off >= 0xC00 || off < 0x024))
@@ -137,8 +146,8 @@ static void io_write(uint32_t p, uint32_t v, int w) {
     uint32_t off = p - 0x1F801000;
     if (off >= 0x800 && off < 0x804) { host_cd_write(off - 0x800, (uint8_t)v, &I_STAT); return; }
     if (off == 0x070) { I_STAT &= v; return; }
-    if (off == 0x810) { n_gp0++; return; }
-    if (off == 0x814) { n_gp1++; return; }
+    if (off == 0x810) { n_gp0++; gpu_gp0(v); return; }
+    if (off == 0x814) { n_gp1++; gpu_gp1(v); return; }
     if (off == 0x0F4) {
         uint32_t *d = (uint32_t *)(io + 0x0F4);
         *d = (v & 0x00FFFFFF) | (*d & 0x7F000000 & ~(v & 0x7F000000));
@@ -189,10 +198,13 @@ static uint8_t read_byte(uint32_t a) {
 uint8_t psx_cyc_load_byte(CPUState *c, uint32_t a, uint32_t rt, uint32_t mask) { (void)c; (void)rt; (void)mask; return read_byte(a); }
 
 static uint32_t interp_pc; static int n_vec_writes;
+static uint32_t watch_addr; static int watch_left = 60; /* --watch: print stores to this word (physical) */
 static void write_n(uint32_t a, uint32_t v, uint32_t w) {
     uint8_t *m;
     if (exe_loaded && (a & 0x1FFFFFFF) >= 0x80 && (a & 0x1FFFFFFF) < 0x90 && !(SR & 0x10000) && n_vec_writes++ < 8)
         printf("[rt] exception-vector write %08X=%08X by interp pc %08X / compiled store pc %08X\n", a, v, interp_pc, g_debug_last_store_pc);
+    if (watch_addr && (a & 0x1FFFFFFC) == watch_addr && watch_left > 0 && !(SR & 0x10000)) { watch_left--;
+        printf("[watch] %08X=%08X (w%u) by interp pc %08X / compiled store pc %08X ra %08X vbl %llu\n", a, v, w, interp_pc, g_debug_last_store_pc, C->gpr[31], (unsigned long long)n_vblank); }
     if (SR & 0x10000) return;                          /* cache isolated: stores hit the cache only */
     if (a >= 0xFFFE0000u) { cachectl = v; return; }
     m = mem_ptr(a, w);
@@ -225,6 +237,7 @@ static void tick(uint32_t n) {
     if (cycles >= next_vblank) {
         next_vblank += 564480; n_vblank++; I_STAT |= 1;
         host_frame(n_vblank);
+        if (dump_dir && frame_every && n_vblank % frame_every == 0) { char p[512]; snprintf(p, sizeof p, "%s/frames/f%05llu.ppm", dump_dir, (unsigned long long)n_vblank); gpu_dump_display(p); }
         if (n_vblank >= max_vblanks) summary("vblank limit");
         if ((n_vblank & 15) == 0 && (double)(clock() - t0) / CLOCKS_PER_SEC > max_seconds) summary("time limit");
     }
@@ -362,6 +375,8 @@ static void interp_block(void) {
         n_interp++; tick(2);
         if ((pc & 0x1FFFFFFF) < 0x200000) page_hits[(pc & 0x1FFFFF) >> 10]++;
         else if ((pc & 0x1FFFFFFF) >= 0x1FC00000) page_hits[0x7FF]++;
+        if (n_trace_pc && trace_left > 0) { int k; for (k = 0; k < n_trace_pc; k++) if (trace_pc[k] == pc) { trace_left--;
+            printf("[trace] pc %08X v0 %08X a0 %08X a1 %08X a2 %08X a3 %08X s0 %08X s1 %08X s2 %08X ra %08X vbl %llu\n", pc, R(2), R(4), R(5), R(6), R(7), R(16), R(17), R(18), R(31), (unsigned long long)n_vblank); } }
         r = exec(in, pc, &tgt);
         if (r == NEXT) { C->pc = pc + 4; continue; }
         if (r == EXC) return;
@@ -408,7 +423,7 @@ static void summary(const char *why) {
            (unsigned long long)n_dispatch, (unsigned long long)n_interp, (unsigned long long)n_syscall_hle);
     printf("[rt] exceptions:"); for (i = 0; i < 32; i++) if (n_exc[i]) printf(" code%d=%llu", i, (unsigned long long)n_exc[i]);
     printf(" timer-irqs %llu/%llu/%llu", (unsigned long long)n_timer_irq[0], (unsigned long long)n_timer_irq[1], (unsigned long long)n_timer_irq[2]);
-    printf("\n[rt] gp0 words %llu gp1 %llu dma:", (unsigned long long)n_gp0, (unsigned long long)n_gp1);
+    printf("\n[rt] gp0 words %llu gp1 %llu gpu cmds %llu dma:", (unsigned long long)n_gp0, (unsigned long long)n_gp1, (unsigned long long)g_gpu_prims);
     for (i = 0; i < 7; i++) printf(" ch%d=%llu", i, (unsigned long long)n_dma[i]);
     printf("\n[rt] bios calls after exe load (table.fn=count):");
     for (i = 0; i < 3; i++) for (j = 0; j < 256; j++) if (bios_calls[i][j]) printf(" %s.%02X=%u", bname[i], j, bios_calls[i][j]);
@@ -419,6 +434,10 @@ static void summary(const char *why) {
     printf("\n[rt] unmodelled I/O (r=0 w=1 timer-irq=2):"); for (i = 0; i < n_unk_io; i++) printf(" %08X/%u", unk_io[i][0], unk_io[i][1]);
     printf("\n");
     host_cd_summary();
+    if (dump_dir) { char p[512]; FILE *f; snprintf(p, sizeof p, "%s/ram.bin", dump_dir);
+        if ((f = fopen(p, "wb"))) { fwrite(ram, 1, sizeof ram, f); fclose(f); }
+        snprintf(p, sizeof p, "%s/vram.ppm", dump_dir); gpu_dump_vram(p);
+        snprintf(p, sizeof p, "%s/display.ppm", dump_dir); gpu_dump_display(p); }
     fflush(stdout);
     exit(0);
 }
@@ -433,6 +452,10 @@ int main(int argc, char **argv) {
         else if (!strcmp(argv[i], "--vblanks")) max_vblanks = strtoull(argv[i + 1], 0, 10);
         else if (!strcmp(argv[i], "--seconds")) max_seconds = atof(argv[i + 1]);
         else if (!strcmp(argv[i], "--verbose")) verbose = atoi(argv[i + 1]);
+        else if (!strcmp(argv[i], "--dump")) dump_dir = argv[i + 1];
+        else if (!strcmp(argv[i], "--frames")) frame_every = strtoull(argv[i + 1], 0, 10);
+        else if (!strcmp(argv[i], "--watch")) watch_addr = strtoul(argv[i + 1], 0, 16) & 0x1FFFFFFC;
+        else if (!strcmp(argv[i], "--trace-pc") && n_trace_pc < 8) trace_pc[n_trace_pc++] = strtoul(argv[i + 1], 0, 16);
     }
     if (!bios_path || !exe_path) {
         fprintf(stderr, "usage: rt --bios <scph.bin> --exe <PS-X EXE> [--cue-bin <disc.bin>] [--vblanks N] [--seconds S]\n");
