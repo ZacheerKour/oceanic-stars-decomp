@@ -5,7 +5,7 @@ Headers: the 10 audited files in the pinned clone's runtime\include (read only).
 Output: recomp\rt\_out\rt_boot.exe (gitignored). No network, no downloads.
 #>
 param(
-  [string]$Clone = "<home>\star-cean-second\tools\ref\psxrecomp",
+  [string]$Clone = (Join-Path $PSScriptRoot "..\..\tools\ref\psxrecomp"),
   [string]$Objs  = "$PSScriptRoot\..\host\_out\obj_boot"
 )
 $ErrorActionPreference = 'Stop'

@@ -4,7 +4,7 @@ Log: recomp\rt\_out\<Name>.log (gitignored).
 #>
 param(
   [string]$Name = 'run',
-  [string]$Roms = '<home>\star-cean-second\roms',
+  [string]$Roms = (Join-Path $PSScriptRoot '..\..\roms'),
   [string]$Exe  = "$PSScriptRoot\..\host\_out\proj\disc\SCUS_944.21",
   [int]$Vblanks = 3000, [int]$Seconds = 20, [int]$Verbose = 0
 )
