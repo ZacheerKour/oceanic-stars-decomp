@@ -17,7 +17,7 @@ not proof that the game plays; only the rows marked with evidence are known to w
 - Battles.
 - Saving to and loading from the memory card in game.
 - The disc 2 prompt and everything on disc 2.
-- Steam / Steam Deck (no Steam installation available).
+- Steam Deck and Steam Input off (a Steam Controller via Steam Input with PLAY.exe as a non-Steam game works, per the maintainer, 2026-10-27).
 - Anything past the first cave; only scripted input has been used.
 - The real keyboard and a real gamepad for the new hotkeys/pause menu (events were injected with SDL_PushEvent and script pad words; pad Back+Start menu open, F10 menu open, fullscreen toggle from the menu, Quit and the disc swap row were not exercised end to end).
 - Save states taken in the intro movie / mid-field with a real window; only the static title was hash-compared.

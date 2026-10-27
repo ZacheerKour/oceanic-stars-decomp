@@ -98,7 +98,7 @@ rebind `Turbo` in `config.ini [KeyMap]` if that bothers you. Do not load a state
 States live in `saves\states\<disc 1 serial>\<bios>\state_<exe entry>_disc<N>_slotNN.pst` (gitignored with `saves\`); memory cards stay in `saves\`.
 
 ### Steam Controller / Steam Deck
-**Untested** (no Steam installation was available for testing). What the code says: the game cannot tell a Steam Controller
+**Works** with a Steam Controller through Steam Input (reported by the maintainer on 2026-10-27 after adding `PLAY.exe` as a non-Steam game; Steam Deck and Steam Input off are still untested). What the code says: the game cannot tell a Steam Controller
 from other pads; it only sees SDL3 gamepads. What to do:
 1. Steam > *Add a Non-Steam Game* > *Browse* > pick **`PLAY.exe`** in this folder (Steam lists only `.exe` files; `PLAY.bat` does
    not show up). Set *Start In* to this folder. No launch options are needed. `PLAY.exe` starts the game as its own child
