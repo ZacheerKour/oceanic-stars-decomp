@@ -25,34 +25,34 @@ winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --
 call :findvs
 if defined VS goto :build
 echo The Build Tools install did not finish. Restart Windows if it asked you to, then run INSTALL.bat again.
-set "RC=1" & goto :end
+set "SO2RC=1" & goto :end
 :nowinget
 echo winget is not available. Install "Visual Studio 2022 Build Tools" with the "Desktop development with C++" workload
 echo yourself (https://aka.ms/vs/17/release/vs_BuildTools.exe), then run INSTALL.bat again.
-set "RC=1" & goto :end
+set "SO2RC=1" & goto :end
 :declined
 echo Install the Visual Studio 2022 Build Tools with the "Desktop development with C++" workload (see README), then run INSTALL.bat again.
-set "RC=1" & goto :end
+set "SO2RC=1" & goto :end
 
 :build
 call :compile
-if not "%RC%"=="0" goto :end
+if not "%SO2RC%"=="0" goto :end
 ".install\setup.exe" --root "%ROOT%" %*
-set "RC=%ERRORLEVEL%"
+set "SO2RC=%ERRORLEVEL%"
 goto :end
 
 :compile
 setlocal
 set "PATH=%PF86%\Microsoft Visual Studio\Installer;%PATH%"
-call "%VS%\VC\Auxiliary\Build\vcvars64.bat" >nul 2>nul || (echo Could not start the compiler environment in "%VS%". & endlocal & set "RC=1" & exit /b 1)
+call "%VS%\VC\Auxiliary\Build\vcvars64.bat" >nul 2>nul || (echo Could not start the compiler environment in "%VS%". & endlocal & set "SO2RC=1" & exit /b 1)
 if not exist ".install\obj" mkdir ".install\obj"
 pushd "recomp\installer"
 rc /nologo "/fo%ROOT%\.install\obj\install.res" install.rc >"%ROOT%\.install\setup_build.log" 2>&1 && cl /nologo /O2 /MT /GS- /utf-8 /wd4996 "/Fo%ROOT%\.install\obj\\" "/Fe%ROOT%\.install\setup.exe" install.c "%ROOT%\.install\obj\install.res" /link /MANIFEST:NO /SUBSYSTEM:CONSOLE user32.lib shell32.lib ole32.lib uuid.lib comdlg32.lib winhttp.lib bcrypt.lib >>"%ROOT%\.install\setup_build.log" 2>&1
-set "RC=%ERRORLEVEL%"
+set "SO2RC=%ERRORLEVEL%"
 popd
-if not "%RC%"=="0" (type ".install\setup_build.log" & echo. & echo Could not build the installer program ^(see above^). & endlocal & set "RC=%RC%" & exit /b 1)
+if not "%SO2RC%"=="0" (type ".install\setup_build.log" & echo. & echo Could not build the installer program ^(see above^). & endlocal & set "SO2RC=%SO2RC%" & exit /b 1)
 endlocal
-set "RC=0"
+set "SO2RC=0"
 exit /b 0
 
 :findvs
@@ -63,4 +63,4 @@ exit /b 0
 
 :end
 if defined DBLCLICK (echo. & pause)
-exit /b %RC%
+exit /b %SO2RC%
