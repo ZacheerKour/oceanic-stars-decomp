@@ -58,6 +58,22 @@ add_custom_target(codegen_hash DEPENDS "${GEN_INC}/overlay_codegen_hash.h")
 file(GLOB GAME_SOURCES "${GAME_GEN_DIR}/SCUS_944.21_full_*.c")
 list(APPEND GAME_SOURCES "${GAME_GEN_DIR}/SCUS_944.21_dispatch.c")
 
+# AOT overlay C (aot_overlay_pipeline.py `static`, recomp/aot/run_static_all.py): one dispatcher overlays_static.c plus
+# its overlays_static_NNNN.c units. The runtime needs no registration: PSX_HAS_OVERLAY_DISPATCH makes the dirty-RAM
+# interpreter ask psx_overlay_dispatch() first, which picks a variant by the CRC of the bytes now in RAM.
+set(OVERLAY_STATIC_DIR "" CACHE PATH "dir with overlays_static.c + overlays_static_NNNN.c (empty: overlays interpreted)")
+set(OVERLAY_SOURCES "")
+if(OVERLAY_STATIC_DIR)
+    if(NOT EXISTS "${OVERLAY_STATIC_DIR}/overlays_static.c")
+        message(FATAL_ERROR "no overlays_static.c in OVERLAY_STATIC_DIR=${OVERLAY_STATIC_DIR}")
+    endif()
+    file(GLOB OVERLAY_SOURCES "${OVERLAY_STATIC_DIR}/overlays_static*.c")
+    list(LENGTH OVERLAY_SOURCES _ov_n)
+    message(STATUS "AOT overlay sources: ${_ov_n} from ${OVERLAY_STATIC_DIR}")
+    add_compile_definitions(PSX_HAS_OVERLAY_DISPATCH=1)
+endif()
+set(OVERLAY_OPT "/Od" CACHE STRING "cl optimization flag for the overlay C")
+
 # Copy-with-patch: a few TUs need a minimal edit for MSVC or for the sandbox. The edited copy goes to the build dir
 # (the clone is never touched), replaces the original in the source list, and each edit must match exactly once.
 set(PATCHED "${CMAKE_BINARY_DIR}/patched")
@@ -105,9 +121,12 @@ list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/texture_image_decode.cpp")
 
 # generated C is tens of MB: /Od keeps the compile time sane (same flag as recomp/host/compile_generated.ps1)
 set_property(SOURCE ${GAME_SOURCES} "${R}/generated/OpenBIOS_full.c" APPEND PROPERTY COMPILE_OPTIONS /Od)
+if(OVERLAY_SOURCES)
+    set_property(SOURCE ${OVERLAY_SOURCES} APPEND PROPERTY COMPILE_OPTIONS ${OVERLAY_OPT})
+endif()
 
 add_executable(psxrecomp-game
-    ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES}
+    ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES} ${OVERLAY_SOURCES} stubs/psxrt_ovstats.c
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
     stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c)
 add_dependencies(psxrecomp-game codegen_hash)

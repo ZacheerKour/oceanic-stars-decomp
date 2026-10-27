@@ -1,7 +1,7 @@
 """Run psxrecomp's `aot_overlay_pipeline.py static` once per SLZ chunk (one-chunk profiles cut from recomp/aot/overlays.json)
 and tabulate the generator counts.  Runs against a COPY of the audited psxrecomp clone (never tools/ref/psxrecomp).
     python -E -s recomp/aot/run_static_all.py --mode heur|ours --copy <psxrecomp copy> --recompiler <psxrecomp-game.exe>
-        --cue <disc 1 cue> --cmake <cmake.exe> [--only E1C0,E2129C0]
+        --cue <disc 1 cue> --cmake <cmake.exe> [--only E1C0,E2129C0] [--combined NAME]
 heur: the pipeline's own entry guesses (prologues, leaves, supplemental seeds, jal roots, root enrichment).
 ours: only config/seeds_overlays.txt + config/indirect_targets.tsv call targets + the 3 A BIOS-stub call roots, A data block
       dropped; needs the copy's `x_entries_only` spec key (2 lines in make_fixed_record) and PSX_OVERLAY_ROOT_ENRICHMENT=0.
@@ -38,13 +38,17 @@ def our_seeds():
     return out
 
 
-def profile_for(full, name, mode, entries):
-    img = next(i for i in full['images'] if 'SLZ/' + name in i['files'])
-    image = {**img, 'files': ['SLZ/' + name]}
-    if mode == 'ours':
-        image.update(entries=[f'0x{a:08x}' for a in entries], x_entries_only=True, supplemental_entries=False)
+def profile_for(full, names, mode, ours):
+    images = []
+    for name in names:
+        img = next(i for i in full['images'] if 'SLZ/' + name in i['files'])
+        image = {**img, 'files': ['SLZ/' + name]}
+        if mode == 'ours':
+            image.update(entries=[f'0x{a:08x}' for a in ours.get(name, [])], x_entries_only=True, supplemental_entries=False)
+        images.append(image)
+    files = {'SLZ/' + n for n in names}
     p = {k: v for k, v in full.items() if k not in ('prepared_files', 'images')}
-    p.update(prepared_files=[f for f in full['prepared_files'] if f['name'] == 'SLZ/' + name], images=[image], expected_records=1)
+    p.update(prepared_files=[f for f in full['prepared_files'] if f['name'] in files], images=images, expected_records=len(names))
     return p
 
 
@@ -54,6 +58,7 @@ def main():
         ap.add_argument(a, required=True)
     ap.add_argument('--mode', choices=('heur', 'ours'), required=True)
     ap.add_argument('--only', default='')
+    ap.add_argument('--combined', default='', help='run all selected chunks as ONE profile, output under this name')
     ap.add_argument('--timeout', type=int, default=3600)
     ap.add_argument('--drop', default='', help='ours: CHUNK:hexaddr,... seeds to leave out (e.g. ones the audit rejects as data)')
     args = ap.parse_args()
@@ -70,11 +75,14 @@ def main():
     os.makedirs(work, exist_ok=True)
     env = dict(os.environ, PSX_OVERLAY_ROOT_ENRICHMENT='0' if args.mode == 'ours' else '1')
     rows = []
-    for name in names:
+    # --combined: one profile with every selected chunk -> one dispatcher (overlays_static.c) the runtime can link;
+    # per-chunk runs each emit their own psx_overlay_dispatch and cannot be linked together.
+    groups = [(args.combined, names)] if args.combined else [(n, [n]) for n in names]
+    for name, members in groups:
         d = os.path.join(work, name)
         os.makedirs(d, exist_ok=True)
         prof = os.path.join(d, 'profile.json')
-        json.dump(profile_for(full, name, args.mode, ours.get(name, [])), open(prof, 'w'), indent=1)
+        json.dump(profile_for(full, members, args.mode, ours), open(prof, 'w'), indent=1)
         cmd = [sys.executable, '-E', '-s', os.path.join(args.copy, 'tools', 'aot_overlay_pipeline.py'), 'static',
                '--profile', prof, '--game-toml', os.path.join(args.copy, '_work', 'proj', 'game.toml'), '--disc', args.cue,
                '--recompiler', args.recompiler, '--work-dir', d, '--out-dir',
@@ -85,7 +93,8 @@ def main():
                 rc = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, env=env, timeout=args.timeout).returncode
             except subprocess.TimeoutExpired:
                 rc = 'timeout'
-        row = {'chunk': name, 'rc': rc, 'secs': round(time.time() - t0), 'our_seeds': len(ours.get(name, [])) or ''}
+        row = {'chunk': name, 'rc': rc, 'secs': round(time.time() - t0),
+               'our_seeds': sum(len(ours.get(m, [])) for m in members) or ''}
         logs = sorted((os.path.join(d, x, 'static-compile.log') for x in os.listdir(d) if x.startswith('disc-aot-')),
                       key=lambda p: os.path.getmtime(p) if os.path.exists(p) else 0)
         text = open(logs[-1], errors='replace').read() if logs and os.path.exists(logs[-1]) else ''
