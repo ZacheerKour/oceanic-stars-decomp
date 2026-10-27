@@ -29,3 +29,8 @@ __pycache__/
 /saves/
 /play/
 /PLAY.exe
+
+# ---- Dev scratch / superseded (kept locally, not published) ----
+/analysis/cc/
+/recomp/rt/
+/RECOMP_NOTES_ps1recomp.md
