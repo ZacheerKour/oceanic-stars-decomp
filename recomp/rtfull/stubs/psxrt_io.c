@@ -64,10 +64,13 @@ static void load_script(void) {
     fprintf(stderr, "[psxrt-input] %d steps from %s\n", s_nsteps, path);
 }
 
+void psxrt_diag_frame(unsigned frame);   /* stubs/psxrt_diag.c */
+
 void psxrt_input_script_apply(void) {
+    uint32_t fr = s_frame++;
+    psxrt_diag_frame(fr);
     if (s_nsteps < 0) load_script();
     if (!s_nsteps) return;
-    uint32_t fr = s_frame++;
     int i = s_cur;
     while (i + 1 < s_nsteps && s_steps[i + 1].frame <= fr) i++;
     if (i != s_cur) {
@@ -110,4 +113,5 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
 }
 uint16_t sio_get_pad_buttons_slot(int s) { (void)s; return 0xFFFF; }
 void sio_set_pad_state_slot(int s, uint16_t b) { (void)s; (void)b; }
+void psxrt_diag_frame(unsigned f) { (void)f; }
 #endif
