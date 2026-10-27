@@ -14,8 +14,16 @@
 void sio_set_pad_state_slot(int slot, uint16_t buttons);
 uint16_t sio_get_pad_buttons_slot(int slot);
 
-#define MAX_STEPS 4096
-static struct { uint32_t frame; uint16_t word; } s_steps[MAX_STEPS];
+int savestate_request_save(int slot);
+int savestate_request_load(int slot);
+void psxrt_diag_dump_now(const char *tag, unsigned frame);   /* stubs/psxrt_diag.c */
+void psxrt_prof_start(void);                                  /* stubs/psxrt_prof.c */
+
+/* one-shot actions: "<frame> DUMP <tag>" (vram_<tag>.ppm), "<frame> SAVESTATE <slot>", "<frame> LOADSTATE <slot>";
+ * they keep the pad word of the line before. LOADSTATE restores the guest only: the script frame counter runs on. */
+enum { ACT_PAD, ACT_DUMP, ACT_SAVE, ACT_LOAD };
+#define MAX_STEPS 8192
+static struct { uint32_t frame; uint16_t word; uint8_t act; char arg[24]; } s_steps[MAX_STEPS];
 static int s_nsteps = -1, s_cur = -1;
 static uint32_t s_frame;
 
@@ -51,13 +59,22 @@ static void load_script(void) {
         char *end;
         unsigned long fr = strtoul(line, &end, 10);
         if (end == line) continue;   /* blank or comment-only line */
-        uint16_t w;
-        if (!parse_word(end, &w) || (s_nsteps && fr < s_steps[s_nsteps - 1].frame)) {
+        uint16_t w = s_nsteps ? s_steps[s_nsteps - 1].word : 0xFFFFu;
+        char verb[16] = "", arg[24] = "";
+        int act = ACT_PAD;
+        if (sscanf(end, " %15s %23s", verb, arg) >= 1) {
+            if (!_stricmp(verb, "DUMP")) act = ACT_DUMP;
+            else if (!_stricmp(verb, "SAVESTATE")) act = ACT_SAVE;
+            else if (!_stricmp(verb, "LOADSTATE")) act = ACT_LOAD;
+        }
+        if ((act == ACT_PAD && !parse_word(end, &w)) || (s_nsteps && fr < s_steps[s_nsteps - 1].frame)) {
             fprintf(stderr, "[psxrt-input] %s:%d: bad line, ignored\n", path, ln);
             continue;
         }
         s_steps[s_nsteps].frame = (uint32_t)fr;
         s_steps[s_nsteps].word = w;
+        s_steps[s_nsteps].act = (uint8_t)act;
+        memcpy(s_steps[s_nsteps].arg, arg, sizeof arg);
         s_nsteps++;
     }
     fclose(f);
@@ -69,13 +86,21 @@ void psxrt_diag_frame(unsigned frame);   /* stubs/psxrt_diag.c */
 void psxrt_input_script_apply(void) {
     uint32_t fr = s_frame++;
     psxrt_diag_frame(fr);
-    if (s_nsteps < 0) load_script();
+    if (s_nsteps < 0) { psxrt_prof_start(); load_script(); }
     if (!s_nsteps) return;
     int i = s_cur;
-    while (i + 1 < s_nsteps && s_steps[i + 1].frame <= fr) i++;
+    while (i + 1 < s_nsteps && s_steps[i + 1].frame <= fr) {
+        i++;
+        const char *a = s_steps[i].arg;
+        switch (s_steps[i].act) {
+        case ACT_DUMP: psxrt_diag_dump_now(a, fr); break;
+        case ACT_SAVE: fprintf(stderr, "[psxrt-input] frame %u savestate %s -> %d\n", fr, a, savestate_request_save(atoi(a))); break;
+        case ACT_LOAD: fprintf(stderr, "[psxrt-input] frame %u loadstate %s -> %d\n", fr, a, savestate_request_load(atoi(a))); break;
+        }
+    }
     if (i != s_cur) {
         s_cur = i;
-        fprintf(stderr, "[psxrt-input] frame %u pad 0x%04X\n", fr, s_steps[i].word);
+        if (s_steps[i].act == ACT_PAD) fprintf(stderr, "[psxrt-input] frame %u pad 0x%04X\n", fr, s_steps[i].word);
     }
     if (i >= 0) sio_set_pad_state_slot(0, sio_get_pad_buttons_slot(0) & s_steps[i].word);
 }
@@ -114,4 +139,8 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
 uint16_t sio_get_pad_buttons_slot(int s) { (void)s; return 0xFFFF; }
 void sio_set_pad_state_slot(int s, uint16_t b) { (void)s; (void)b; }
 void psxrt_diag_frame(unsigned f) { (void)f; }
+void psxrt_diag_dump_now(const char *t, unsigned f) { (void)t; (void)f; }
+void psxrt_prof_start(void) {}
+int savestate_request_save(int s) { return s; }
+int savestate_request_load(int s) { return s; }
 #endif

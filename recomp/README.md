@@ -1,5 +1,28 @@
-# recomp/ - psxrecomp scaffold (not yet run)
+# recomp/ - psxrecomp port
 
+## Build and run (2026-10-27, one script)
+Prerequisites: VS 2022 Build Tools (MSVC, bundled CMake/Ninja), Python 3.11 on PATH, and a main checkout (`$env:SO2_DATA`,
+defaults to this checkout) holding `tools\ref\psxrecomp` (psxrecomp clone at f42d2c0, clean, read only),
+`tools\dl\SDL3-3.4.10.tar.gz` + `zlib-1.3.1.tar.gz` (sha256-pinned in `rtfull\build_deps.ps1`), your own
+`roms\scph5501.bin` (sha256 pinned in `bios\gen_scph5501.ps1`) and `roms\disc1\*.cue` / `roms\disc2\*.cue`.
+```
+$env:SO2_DATA = '<main checkout>'
+powershell -NoProfile -ExecutionPolicy Bypass -File recomp\rtfull\build_all.ps1          # ~2 min after the deps
+powershell -NoProfile -ExecutionPolicy Bypass -File recomp\rtfull\run.ps1 -BuildDir _build_final -Window -Seconds 600 `
+    -Bios $env:SO2_DATA\roms\scph5501.bin
+```
+`build_all.ps1` runs, in order: SDL3/zlib (`rtfull\build_deps.ps1`, skipped when built), boot exe C
+(`host\build_generate.ps1 -Program boot`), SCPH-5501 BIOS C (`bios\gen_scph5501.ps1`), overlay C for all 89 SLZ chunks with
+`config\seeds_final` as one combined profile (`aot\run_static_all.py --mode final --combined ALL`, in the work copy
+`aot\_psxrecomp` = git clone of the pinned clone + `aot\psxrecomp_overlay.patch` + `analysis\slz.py`), then the MSVC build and
+import audit (`rtfull\build.ps1`, output `rtfull\_build_final\`). Everything it writes is gitignored; never commit
+`roms\`, `bios\_gen\` (code generated from a Sony BIOS) or the memory card files under `rtfull\_run\memcard\`.
+Run options (environment): `PSXRT_INPUT_SCRIPT=<file>` scripted pad (format in `rtfull\stubs\psxrt_io.c`; scripts in
+`rtfull\input\`), `PSXRT_AUDIO_RMS=1`, `PSXRT_VRAM_DUMP_SEC=n`, `PSXRT_OVSTATS_SEC=n`, `PSX_FPS_TELEMETRY=1`,
+`PSX_FRAME_REPORT_MS=n`, `PSX_HIDDEN_WINDOW=1`. Keyboard: arrows, X = Cross, S = Circle, Z = Square, A = Triangle, Enter = Start.
+The sections below are the history of how this was reached.
+
+## Scaffold (2026-10-26)
 Static recompilation of the game with psxrecomp (reference clone at `tools\ref\psxrecomp`, gitignored, read-only; nothing of it is
 vendored here, and its licence is PolyForm Noncommercial, see RECOMP_NOTES.md). This folder only holds *our inputs*:
 

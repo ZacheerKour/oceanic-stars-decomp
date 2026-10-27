@@ -160,7 +160,7 @@ endif()
 add_executable(psxrecomp-game
     ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES} ${OVERLAY_SOURCES} stubs/psxrt_ovstats.c
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
-    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c)
+    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c stubs/psxrt_prof.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
@@ -196,5 +196,5 @@ set_property(TARGET psxrecomp-game PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded"
 target_link_directories(psxrecomp-game PRIVATE "${DEPS_PREFIX}/lib")
 target_link_libraries(psxrecomp-game PRIVATE SDL3.lib zlibstatic.lib dbghelp comdlg32 opengl32 shell32 bcrypt)
 # console subsystem (headless logs); 64 MB stack as runtime.cmake; never take ws2_32/iphlpapi from a #pragma comment(lib)
-target_link_options(psxrecomp-game PRIVATE /STACK:67108864,67108864 /GUARD:NO
+target_link_options(psxrecomp-game PRIVATE /STACK:67108864,67108864 /GUARD:NO /MAP   # map: prof_report.py
     /NODEFAULTLIB:ws2_32.lib /NODEFAULTLIB:iphlpapi.lib /NODEFAULTLIB:wsock32.lib /NODEFAULTLIB:wininet.lib /NODEFAULTLIB:winhttp.lib)

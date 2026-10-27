@@ -9,10 +9,8 @@
 uint16_t gpu_vram_peek(int x, int y);
 __declspec(dllimport) unsigned long long __stdcall GetTickCount64(void);
 
-static void dump(unsigned k, unsigned frame) {
+static void dump_to(const char *name, unsigned frame) {
     static uint8_t row[1024 * 3];
-    char name[32];
-    snprintf(name, sizeof name, "vram_%02u.ppm", k);
     FILE *f = fopen(name, "wb");
     if (!f) return;
     fprintf(f, "P6\n1024 512\n255\n");
@@ -29,6 +27,14 @@ static void dump(unsigned k, unsigned frame) {
     fprintf(stderr, "[psxrt-diag] wrote %s at frame %u\n", name, frame);
 }
 
+void psxrt_diag_dump_now(const char *tag, unsigned frame) {   /* script DUMP action: vram_<tag>.ppm */
+    static unsigned n;
+    char name[64];
+    snprintf(name, sizeof name, "vram_%s.ppm", tag && *tag ? tag : "x");
+    dump_to(name, frame);
+    (void)n;
+}
+
 void psxrt_diag_frame(unsigned frame) {
     static int sec = -1;
     static unsigned long long next;
@@ -40,5 +46,7 @@ void psxrt_diag_frame(unsigned frame) {
     }
     if (sec <= 0 || GetTickCount64() < next) return;
     next += (unsigned long long)sec * 1000u;
-    dump(k++, frame);
+    char name[32];
+    snprintf(name, sizeof name, "vram_%02u.ppm", k++);
+    dump_to(name, frame);
 }
