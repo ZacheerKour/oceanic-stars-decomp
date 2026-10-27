@@ -101,3 +101,7 @@ The full engineering log, split by dated section. Each heading below links to th
 ## 2026-10-27 integration
 
 [docs/notes/2026-10-27-integration.md](docs/notes/2026-10-27-integration.md) - One script builds the whole port and it boots on SCPH-5501 into the first field scene, windowed, 60 fps, with audio; a fresh clone + the ...
+
+## 2026-10-27 Audio
+
+[docs/notes/2026-10-27-audio.md](docs/notes/2026-10-27-audio.md) - Logo silence is game-side (no SPU key-ons), STR movies carry no audio (SPU music); fixed crackle after stalls, sound loss while dragging the window, device-change handling.
