@@ -15,6 +15,8 @@
 #include "cdrom.h"
 #include "spu.h"
 #include "dirty_ram_interp.h"
+#include "host_span_ring.h"
+#include "audio_trace.h"
 
 extern uint64_t g_dirty_ram_insns_run;
 extern uint64_t s_frame_count;
@@ -79,6 +81,20 @@ static void dump(const char *tag) {
     fprintf(f, "# C cmd params irq resp | R first_lba..last_lba n | K on/off voice@spu_addr pitch | F interp/static_hits/vmiss/amiss "
                "| O addr crc valid | B frame went back | P pc insns hits entry_hits occ_crc occ_ok last_ext_ra\n");
     for (uint64_t i = s_n > EVLOG_LINES ? s_n - EVLOG_LINES : 0; i < s_n; i++) fprintf(f, "%s\n", s_ring[i & (EVLOG_LINES - 1u)]);
+    /* Audio pipeline gaps in the newest 32768 audio events: A = audio-trace totals (pump underruns = host queue empty, lowest queue
+     * bytes), U/X/Y = host underrun / zero-run in decoded XA PCM / pump backpressure skip (frame, lba or queued bytes, run info). */
+    static AudioTraceEvent aev[32768];
+    AudioTraceStats as;
+    audio_trace_get_stats(&as);
+    fprintf(f, "A pump_calls=%llu underruns=%llu skips=%llu queue_lo=%u queue_hi=%u events=%llu\n", (unsigned long long)as.pump_calls,
+            (unsigned long long)as.underruns, (unsigned long long)as.pump_skips, as.queue_lowater, as.queue_hiwater,
+            (unsigned long long)as.events_total);
+    const uint32_t na = audio_trace_events_get(aev, 32768);
+    unsigned printed = 0;
+    for (uint32_t i = 0; i < na && printed < 300; i++) {
+        const char c = aev[i].kind == AUDIO_EV_UNDERRUN ? 'U' : aev[i].kind == AUDIO_EV_XA_ZERO ? 'X' : aev[i].kind == AUDIO_EV_PUMP_SKIP ? 'Y' : 0;
+        if (c) { fprintf(f, "%c %u a=%u b=%08X\n", c, aev[i].frame, aev[i].a, aev[i].b); printed++; }
+    }
     static DirtyRamPcEntry *top[DIRTY_RAM_PC_TABLE_SIZE];
     unsigned n = 0;
     for (unsigned i = 0; i < DIRTY_RAM_PC_TABLE_SIZE; i++)
@@ -93,6 +109,14 @@ static void dump(const char *tag) {
 }
 
 int psxrt_evlog_enabled(void) { return s_on > 0; }
+uint32_t psx_overlay_resident_crc_at(uint32_t phys, int *valid);
+uint32_t psxrt_occ_crc(uint32_t phys, int *valid) {   /* the runtime scans 16384 cache entries per call, see CMakeLists.txt */
+    static int occ = -1;
+    if (occ < 0) { const char *e = getenv("PSXRT_OCC"); occ = e && *e && *e != '0'; }   /* debug-server per_pc occ_crc/occ_ok */
+    if (occ) return psx_overlay_resident_crc_at(phys, valid);
+    *valid = 0;
+    return 0;
+}
 void psxrt_evlog_request_dump(void) { s_dump_req = 1; }   /* F12 (any thread); written on the next guest frame */
 static void at_exit(void) { dump("exit"); }
 
@@ -171,6 +195,29 @@ void psxrt_evlog_frame(unsigned script_frame) {
         if (c != ov_crc[i] || v != ov_valid[i]) L("O %u %08X %08X %d", fc, 0x80000000u | k_ov[i], c, v);
         ov_crc[i] = c;
         ov_valid[i] = v;
+    }
+    /* Wall time per guest frame (host_span_ring.h stamps): T = wall ms of each 30-frame block (16.7 ms/frame = 500 per 30), W = one
+     * frame that took > 25 ms (wall us, interp insns, page faults, disk KiB), S = emu-thread spans >= 1 ms (disc read, loader...). */
+    static uint64_t last_st, last_sp, blk_t;
+    static uint32_t blk_f;
+    const uint64_t stt = host_frame_stamp_total();
+    if (stt - last_st > HOST_FRAME_STAMP_CAP) last_st = stt - HOST_FRAME_STAMP_CAP;
+    for (; last_st < stt; last_st++) {
+        uint32_t f, ii, sc, pf, io;
+        uint64_t t;
+        if (!host_frame_stamp_get(last_st, &f, &t, &ii, &sc, &pf, &io)) continue;
+        static uint64_t pt; static uint32_t ppf, pio;
+        if (pt && t - pt > 25000u) L("W %u %llu interp=%u pf=%u io_kb=%u", f, (unsigned long long)(t - pt), ii, pf - ppf, io - pio);
+        pt = t; ppf = pf; pio = io;
+        if (!blk_t) { blk_t = t; blk_f = f; }
+        if (f - blk_f >= 30u) { L("T %u %llu", f, (unsigned long long)((t - blk_t) / 1000u)); blk_t = t; blk_f = f; }
+    }
+    const uint64_t spt = host_span_total();
+    if (spt - last_sp > HOST_SPAN_RING_CAP) last_sp = spt - HOST_SPAN_RING_CAP;
+    for (; last_sp < spt; last_sp++) {
+        HostSpan sp;
+        if (host_span_get(last_sp, &sp) && sp.dur_us >= 1000u)
+            L("S %u %s %u us arg=%u emu=%u", sp.frame, host_span_kind_name(sp.kind), sp.dur_us, sp.arg, sp.emu);
     }
     if (s_dump_req) { s_dump_req = 0; dump("f12"); }
 }

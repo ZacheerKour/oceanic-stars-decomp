@@ -15,6 +15,8 @@ static DWORD WINAPI prof_thread(void *arg) {
     if (!f) return 0;
     uintptr_t base = (uintptr_t)GetModuleHandleW(NULL);
     uint32_t buf[1024];
+    HMODULE mods[15];
+    unsigned nmods = 0;
     unsigned n = 0;
     for (;;) {
         Sleep(1);
@@ -25,7 +27,22 @@ static DWORD WINAPI prof_thread(void *arg) {
         ResumeThread(s_target);
         if (!ok) continue;
         uintptr_t rip = (uintptr_t)c.Rip;
-        buf[n++] = rip >= base && rip - base < 0xFFFFFFFFu ? (uint32_t)(rip - base) : 0xFFFFFFFFu;  /* outside: DLL/kernel */
+        uint32_t v = rip >= base && rip - base < 0xFFFFFFF0u ? (uint32_t)(rip - base) : 0xFFFFFFFFu;  /* outside: DLL/kernel */
+        if (v == 0xFFFFFFFFu) {   /* 0xFFFFFFF0+i = i-th module the thread was seen in (names on stderr), 0xFFFFFFFF = unknown */
+            HMODULE m = NULL;
+            if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)rip, &m)) {
+                unsigned i = 0;
+                while (i < nmods && mods[i] != m) i++;
+                if (i == nmods && nmods < 15) {
+                    char nm[MAX_PATH];
+                    mods[nmods++] = m;
+                    GetModuleFileNameA(m, nm, sizeof nm);
+                    fprintf(stderr, "[psxrt-prof] module %u = %s%c", i, strrchr(nm, 92) ? strrchr(nm, 92) + 1 : nm, 10);
+                }
+                if (i < nmods) v = 0xFFFFFFF0u + i;
+            }
+        }
+        buf[n++] = v;
         if (n == 1024) { fwrite(buf, 4, n, f); fflush(f); n = 0; }
     }
     fclose(f);

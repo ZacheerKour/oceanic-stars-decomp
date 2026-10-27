@@ -175,6 +175,13 @@ psxrt_patch(runtime/src/recomp_audio_drc.h
     "                b->stats.underrun_events++, b->primed = 0 /* psxrt: re-prime after a stall */"
     "if (!b->primed && fill_ms >= c->target_ms)"
     "if (!b->primed && fill_ms >= c->target_ms * (b->stats.underrun_events ? 0.34 : 1.0)) /* psxrt */")
+# Boot-logo stall: the interpreter's per-PC "occupant fingerprint" (debug-server-only data) scans the 16384-entry static-match
+# cache on EVERY external interp entry: ~9000 entries/frame while the BIOS logo runs = ~200 ms/frame (guest at ~8%, jingle cut).
+# psxrt_occ_crc (stubs/psxrt_evlog.c) only does the scan when PSXRT_OCC=1.
+psxrt_patch(runtime/src/dirty_ram_interp.c
+    "psx_overlay_resident_crc_at(phys, &occ_ok)"
+    "psxrt_occ_crc(phys, &occ_ok)")
+set_property(SOURCE "${PATCHED}/dirty_ram_interp.c" APPEND PROPERTY COMPILE_OPTIONS "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_io.h")
 set_property(SOURCE "${PATCHED}/main.cpp" "${PATCHED}/psx_sdl_audio.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_io.h" "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_audio.h")
 # GCC __atomic builtins, unguarded only here (every other use has an _WIN32/_MSC_VER branch); int-sized, so the
