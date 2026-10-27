@@ -98,6 +98,10 @@ The full engineering log, split by dated section. Each heading below links to th
 
 [docs/notes/2026-10-27-disc-2.md](docs/notes/2026-10-27-disc-2.md) - Result: the game's disc swap works in recomp/rtfull through the runtime's own lid path, and disc 2 is fully reachable: booted from disc 2 ...
 
+## 2026-10-27 video
+
+[docs/notes/2026-10-27-video.md](docs/notes/2026-10-27-video.md) - Title menu artwork restored (GL renderer dropped a 640x480 upload made while GP1 was still 24-bit), no black strip at the right of FMV frames, display options in settings.ini ...
+
 ## 2026-10-27 integration
 
 [docs/notes/2026-10-27-integration.md](docs/notes/2026-10-27-integration.md) - One script builds the whole port and it boots on SCPH-5501 into the first field scene, windowed, 60 fps, with audio; a fresh clone + the ...

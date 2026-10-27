@@ -39,6 +39,13 @@ $dz = if ($set['pad.deadzone']) { [int]$set['pad.deadzone'] } else { 9000 }
 $t += "`n[controller]`np1_device = `"auto`"`np1_mode = `"digital`"`ndeadzone = $dz`n"
 $abuf = if ($set['audio.buffer_ms']) { [int]$set['audio.buffer_ms'] } else { 180 }   # the runtime rejects values outside 30..500
 $t += "`n[audio]`nbuffer_ms = $abuf`n"
+# Display (settings.ini, see settings.default.ini): game.toml [video] keys, plus the scale mode for stubs/psxrt_video.h.
+function Pick($k, $def, $ok) { $v = "$($set[$k])"; if (-not $v) { $v = $def }; if ($v -notmatch $ok) { Fail "settings.ini $k = $v is not valid" }; $v }
+$ww = Pick 'window_width' '960' '^(?:3[2-9]\d|[4-9]\d\d|[1-7]\d\d\d)$'   # 320..7999
+$rs = Pick 'render_scale' '1' '^[1-8]$'
+$flt = Pick 'filter' 'linear' '^(linear|nearest)$'
+$set['env.PSXRT_SCALE_MODE'] = Pick 'scale_mode' 'fit' '^(fit|integer|stretch)$'   # env.* lines reach the game on both paths below
+$t = $t -replace '(?m)^\[video\].*$', "`$0`nwindow_width = $ww`nsupersampling = $rs`nantialiasing = $(($flt -eq 'linear').ToString().ToLower())"
 [IO.File]::WriteAllText((Join-Path $P 'game.toml'), $t)
 
 # Keyboard: key.<button> = <key>[, <alt key>] in settings.ini (SDL key names); defaults below. Rewritten into keybinds.ini each start.

@@ -117,6 +117,9 @@ from other pads; it only sees SDL3 gamepads. What to do:
 - Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAY.bat`. Back that folder up.
 - `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`, `audio.buffer_ms` (sound buffer, default 180),
   `extra_args = ...` for the runtime, and `env.NAME = value` lines for runtime environment options.
+- Display, also in `settings.ini`: `window_width` (starting width, height follows 4:3), `render_scale` (1 = native .. 8, sharper 3D,
+  needs a faster GPU), `scale_mode = fit | integer | stretch` (fit keeps 4:3 with equal bars on both sides) and
+  `filter = linear | nearest`. The window can be resized or maximised; Alt+Enter or Ctrl+F toggles fullscreen.
 - The run directory `play\` holds the generated `game.toml` and the logs of the last start (`last.log`, `last.err`).
 
 ## Known issues
@@ -141,6 +144,8 @@ this repository is MIT licensed ([LICENSE](LICENSE)). Licences of everything the
 - tri-Ace and Enix for the game.
 
 ## For developers
+- Video checks: the input-script action `DUMP <tag>` writes `vram_<tag>.ppm` and the composed window `win_<tag>.png`;
+  `PSXRT_WINDOW_AT=<frame>:<w>x<h>` resizes the window during a run (`docs/notes/2026-10-27-video.md`).
 - Input checks: `env.PSXRT_INPUT_LOG = 1` in `settings.ini` logs the PS1 pad word per key/pad press to `play\last.err`; `env.PSXRT_VPAD_TEST = 1` attaches a virtual gamepad and prints PASS/FAIL per button.
 - Audio checks: `env.PSXRT_AUDIO_STATS = 1` logs SPU and device rates, buffer fill, underruns and device events once a second;
   `env.PSXRT_AUDIO_WAV = <file>` records exactly what goes to the sound device ([docs/notes/2026-10-27-audio.md](docs/notes/2026-10-27-audio.md)).

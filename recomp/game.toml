@@ -48,4 +48,8 @@ bios_hle = false                        # pure LLE. Must be explicit: the game.t
 # Audio/video: no XA and no CD-DA to configure. Sector census 2026-10-26: no sector on either disc has the XA audio (0x04) or
 # video (0x02) submode bit (disc 1: 236155 data, 216 Form 2, 160 other), and both cues are single-track (no CD-DA).
 # STR movies are plain data entries inside SO2.BIN (ANALYSIS.md), decoded by the game through MDEC.
-# TODO(verify): [video]/[widescreen] left at upstream defaults (a look decision, needs a run).
+# [widescreen] is left at upstream defaults (a look decision, needs a run).
+
+[video]                                 # play.ps1 adds the settings.ini display keys (window_width, supersampling, antialiasing) here
+depth24_trailing_margin = 0             # upstream blanks the right 8 columns of every 24-bit frame (a MotK MDEC workaround); SO2's
+                                        # intro and title FMV fill all 320, so the blank was a black strip at the right edge (2026-10-27)

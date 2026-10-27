@@ -139,7 +139,11 @@ psxrt_patch(runtime/src/main.cpp
     "g_hotkey_pad_save_state_menu = 2040" "g_hotkey_pad_save_state_menu = 0"
     "g_hotkey_pad_fast_forward = 1528" "g_hotkey_pad_fast_forward = 0"
     # states live in saves/states/<disc 1 serial>/<bios>/ , never next to the memory cards
-    "savestate_configure(memcard_dir.string().c_str()," "savestate_configure((memcard_dir / \"states\" / game_id).string().c_str(),")
+    "savestate_configure(memcard_dir.string().c_str()," "savestate_configure((memcard_dir / \"states\" / game_id).string().c_str(),"
+    "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames)"
+    "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames), psxrt_audio_pulled(&s_drc, stream, len) /* psxrt: stubs/psxrt_audio.c */"
+    "        if (psx_local_mouse_event(ev)) continue"   # stubs/psxrt_video.h: redraw a static frame after a window event
+    "        PSXRT_ON_HOST_EVENT(ev)\n        if (psx_local_mouse_event(ev)) continue")
 # Pause menu: psx_runtime_menu.c (launcher-only, stubs here) is replaced by stubs/psxrt_menu_ui.inc, compiled inside a copy of
 # psx_savestate_menu.c for its font; the visual OSD (toasts: slot, saved, loaded) is switched on without the launcher.
 list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/psx_runtime_menu.c")
@@ -155,8 +159,6 @@ psxrt_patch(runtime/src/host_osd.c
     "#if defined(RECOMP_LAUNCHER)
 #define HOST_OSD_VISUAL 1" "#if 1
 #define HOST_OSD_VISUAL 1")
-    "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames)"
-    "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames), psxrt_audio_pulled(&s_drc, stream, len) /* psxrt: stubs/psxrt_audio.c */")
 # Audio evidence tap (stubs/psxrt_io.c, off unless PSXRT_AUDIO_RMS=1): sees the exact bytes handed to the SDL3 stream.
 psxrt_patch(runtime/src/psx_sdl_audio.cpp
     "        s_audio_callback(s_audio_userdata, buffer, chunk)"
@@ -185,7 +187,19 @@ psxrt_patch(runtime/src/gpu_gl_renderer.c
     "__ATOMIC_RELEASE)"
     "0)"
     "__atomic_load_n(&s_pgxp_render_wanted, __ATOMIC_ACQUIRE)"
-    "_InterlockedOr((volatile long *)&s_pgxp_render_wanted, 0)")
+    "_InterlockedOr((volatile long *)&s_pgxp_render_wanted, 0)"
+    # Title menu black (docs/notes/2026-10-27-video.md): SO2 uploads its 640x480 15-bit title picture while GP1 is still in
+    # 24-bit mode from the intro FMV (display 320x240 at 0,240). The area test took it for an MDEC frame, kept it CPU-only and
+    # wiped the band from the FBO on the switch to 15-bit. A movie frame never overruns the band height (rule 1 allows +16).
+    "    if ((int64_t)w * (int64_t)h >= ((int64_t)fb_w * fb_h) / 2) return 1"
+    "    if (h <= fb_h + 16 && (int64_t)w * (int64_t)h >= ((int64_t)fb_w * fb_h) / 2) return 1"
+    # settings.ini scale_mode (stubs/psxrt_video.h): stretch / integer variants of the one letterbox every GL present uses.
+    "    int dw = ww, dh = (ww * den) / num"
+    "    PSXRT_LETTERBOX_ADJUST(ww, wh, num, den)\n    int dw = ww, dh = (ww * den) / num"
+    "    *x = (ww - dw) / 2"
+    "    PSXRT_LETTERBOX_INTEGER(num, den, dw, dh)\n    *x = (ww - dw) / 2")
+set_property(SOURCE "${PATCHED}/main.cpp" "${PATCHED}/gpu_gl_renderer.c" APPEND PROPERTY COMPILE_OPTIONS
+    "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_video.h")
 
 # libwebp is not built: replace the decoder TU with a stub (HD texture packs off)
 list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/texture_image_decode.cpp")
