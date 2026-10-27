@@ -1,0 +1,8 @@
+#include <winver.h>
+1 24 "app.manifest"
+VS_VERSION_INFO VERSIONINFO FILEVERSION 1,0,0,0 PRODUCTVERSION 1,0,0,0
+BEGIN BLOCK "StringFileInfo" BEGIN BLOCK "040904B0" BEGIN
+ VALUE "FileDescription", "Star Ocean 2 PC installer"
+ VALUE "ProductName", "Oceanic Stars"
+ VALUE "OriginalFilename", "INSTALL.exe"
+END END BLOCK "VarFileInfo" BEGIN VALUE "Translation", 0x409, 1200 END END

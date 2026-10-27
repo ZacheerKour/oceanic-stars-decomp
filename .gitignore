@@ -48,3 +48,7 @@ __pycache__/
 /.claude/
 /.codex/
 /.agents/
+
+# ---- Built by INSTALL.exe ----
+/StarOcean2.exe
+/recomp/launcher/_build/

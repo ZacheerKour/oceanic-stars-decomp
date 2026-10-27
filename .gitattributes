@@ -4,3 +4,4 @@
 # append-only shared ledgers: concurrent lane appends merge as a union (rules.py then catches duplicate declarations)
 config/matches.tsv merge=union
 src/so2.h merge=union
+INSTALL.exe binary

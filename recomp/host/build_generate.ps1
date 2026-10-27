@@ -18,7 +18,7 @@ $repo = (Resolve-Path (Join-Path $here '..\..')).Path
 $data = if ($env:SO2_DATA) { (Resolve-Path $env:SO2_DATA).Path } else { $repo }
 $src = Join-Path $data 'tools\ref\psxrecomp'
 $O = Join-Path $here $OutName; $B = Join-Path $O 'build'; $P = Join-Path $O 'proj'
-$vs = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools'
+$vs = if ($env:SO2_VS) { $env:SO2_VS } else { 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' }   # INSTALL.exe sets SO2_VS (vswhere)
 function Sha($p) { (Get-FileHash -Algorithm SHA256 -LiteralPath $p).Hash.ToLower() }
 
 # the clone must be exactly the audited commit with no local changes

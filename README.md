@@ -28,21 +28,26 @@ Only scripted input has been used so far, so expect bugs once people actually pl
 ## Install
 1. Get the code: `git clone <this repository's URL> oceanic-stars` (or download the ZIP and unpack it somewhere simple, e.g.
    `C:\Games\StarOcean`; avoid OneDrive and Program Files).
-2. **Drag your two disc files onto `INSTALL.bat`**: both discs of *Star Ocean - The Second Story (USA)*, as `.7z`/`.zip`
-   archives or `.bin`/`.cue` sets (`.chd` works if `chdman.exe` is installed). Any order; it works out which is disc 1 and
-   disc 2 from their fingerprints and tells you if a file is the wrong game or region. You can also run
-   `INSTALL.bat "disc1" "disc2"`, or double-click it and pick the two files in the window that opens.
-3. Wait. It shows a short progress list (the full details go to `install.log`) and finishes with `Done. Double-click PLAY.exe`.
+2. **Drag your two disc files onto `INSTALL.exe`** (it is in the repository root): both discs of *Star Ocean - The Second
+   Story (USA)*, as `.7z`/`.zip` archives or `.bin`/`.cue` sets (`.chd` works if `chdman.exe` is installed). Any order; it works
+   out which is disc 1 and disc 2 from their fingerprints and tells you if a file is the wrong game or region. Or just
+   double-click it and pick the two files in the window that opens. (`INSTALL.bat` does the same and is the fallback if
+   Windows or an antivirus blocks the exe; the exe is a small program of ours that contains no game code, built from
+   `recomp/installer/install.c`, with its SHA-256 in `recomp/installer/INSTALL.exe.sha256`.)
+3. Wait. It shows a short progress list (the full details go to `install.log`) and finishes with `Done. Double-click StarOcean2.exe`.
    It offers to put a shortcut on your Desktop.
-4. Play with `PLAY.exe` (or `PLAY.bat`, same thing).
+4. Play with `StarOcean2.exe` (in the repository root).
+5. Steam (optional): Games > Add a Non-Steam Game to My Library > Browse > pick `StarOcean2.exe` > Add. It uses its own
+   folder, waits until the game exits and has an icon, so Steam tracks it like any other game.
 
-What the installer needs: Windows 10/11 64-bit, a GPU with OpenGL 3.3, about 15 GB free, an internet connection, and two
-programs it will **ask you (Y/N) before installing with winget** if they are missing: **Visual Studio 2022 Build Tools** with
-the C++ workload (about 8 GB, Windows asks for your approval) and **Git**. Python and 7-Zip are fetched as private copies inside
-this folder (official downloads, SHA-256 checked); nothing else is installed. The first install takes roughly 10 to 20 minutes.
+What the installer needs: Windows 10/11 64-bit, a GPU with OpenGL 3.3, about 15 GB free, an internet connection, and one
+program it will **ask you (Y/N) before installing with winget** if it is missing: **Visual Studio C++ build tools** (an
+existing Visual Studio with the C++ and CMake components is found automatically; otherwise the 2022 Build Tools, about 8 GB,
+Windows asks for your approval). Python, Git and 7-Zip are fetched as private copies inside this folder (official downloads,
+SHA-256 checked); nothing else is installed. The first install takes roughly 10 to 20 minutes.
 The game is built on your PC from your discs; nothing of it is downloaded or shared.
 
-Re-running `INSTALL.bat` is safe: finished steps are skipped, and after `git pull` only what changed is rebuilt.
+Re-running `INSTALL.exe` is safe: finished steps are skipped, and after `git pull` only what changed is rebuilt.
 If something fails it prints a short reason and the last lines of `install.log`.
 
 BIOS: none needed (the open-source OpenBIOS is used). To use your own SCPH-5501 dump, put it at `roms\scph5501.bin` before installing.
@@ -100,8 +105,8 @@ States live in `saves\states\<disc 1 serial>\<bios>\state_<exe entry>_disc<N>_sl
 ### Steam Controller / Steam Deck
 **Works** with a Steam Controller through Steam Input (reported by the maintainer on 2026-10-27 after adding `PLAY.exe` as a non-Steam game; Steam Deck and Steam Input off are still untested). What the code says: the game cannot tell a Steam Controller
 from other pads; it only sees SDL3 gamepads. What to do:
-1. Steam > *Add a Non-Steam Game* > *Browse* > pick **`PLAY.exe`** in this folder (Steam lists only `.exe` files; `PLAY.bat` does
-   not show up). Set *Start In* to this folder. No launch options are needed. `PLAY.exe` starts the game as its own child
+1. Steam > *Add a Non-Steam Game* > *Browse* > pick **`StarOcean2.exe`** in this folder (Steam lists only `.exe` files; `PLAY.bat` does
+   not show up). Set *Start In* to this folder. No launch options are needed. `StarOcean2.exe` starts the game as its own child
    process and waits for it, so Steam tracks the game and Steam Input and the overlay attach to it.
 2. Controller settings for the game: the **Gamepad** template (recommended), or the **Keyboard (WASD) and Mouse** template, which
    matches the WASD map above. With the Gamepad template Steam presents a virtual Xbox-style pad, which is the normal case
@@ -151,7 +156,7 @@ this repository is MIT licensed ([LICENSE](LICENSE)). Licences of everything the
   `env.PSXRT_AUDIO_WAV = <file>` records exactly what goes to the sound device ([docs/notes/2026-10-27-audio.md](docs/notes/2026-10-27-audio.md)).
 - Maintainer setup: `INSTALL.bat` also accepts a folder holding the disc files when `SO2_DEV=1` is set, and `SO2_VERBOSE=1`
   echoes the log to the console. `SO2_DATA` (build_all.ps1) points the build at another checkout's `tools\` and `roms\`.
-- `PLAY.exe` source: `recomp/launcher/play.c` (it runs `play.ps1 -Prepare` hidden, then starts the game exe directly).
+- `StarOcean2.exe` (formerly PLAY.exe) source: `recomp/launcher/play.c` (it runs `play.ps1 -Prepare` hidden, then starts the game exe directly).
 - Recomp build details: [recomp/README.md](recomp/README.md); research log: [RECOMP_NOTES.md](RECOMP_NOTES.md) (index into [docs/notes/](docs/notes/)).
 - Decomp tooling (Docker image with the PSX GCC builds, objdiff, maspsx, splat): `INSTALL_DEV.bat "<folder with the two Disc .7z files>"`, see
   [TOOLCHAIN.md](TOOLCHAIN.md) and [AGENTS.md](AGENTS.md).

@@ -13,7 +13,7 @@ $repo = (Resolve-Path (Join-Path $here '..\..')).Path
 $data = if ($env:SO2_DATA) { (Resolve-Path $env:SO2_DATA).Path } else { $repo }
 $inc = Join-Path $data 'tools\ref\psxrecomp\runtime\include'
 $O = if ([IO.Path]::IsPathRooted($OutName)) { $OutName } else { Join-Path $here $OutName }
-$vs = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools'
+$vs = if ($env:SO2_VS) { $env:SO2_VS } else { 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' }   # INSTALL.exe sets SO2_VS (vswhere)
 cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] } }
 
 $list = New-Object System.Collections.ArrayList

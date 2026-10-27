@@ -19,7 +19,7 @@ if ((& git -C $src rev-parse HEAD) -ne $Commit) { throw "psxrecomp clone is not 
 if (& git -C $src status --porcelain --ignored) { throw 'psxrecomp clone is not clean; refusing' }
 if ((Get-FileHash -Algorithm SHA256 -LiteralPath $dump).Hash.ToLower() -ne $Pin) { throw "$dump is not the pinned SCPH-5501 image" }
 
-$vs = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools'
+$vs = if ($env:SO2_VS) { $env:SO2_VS } else { 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' }   # INSTALL.exe sets SO2_VS (vswhere)
 cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul 2>nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] } }
 $env:Path = "$vs\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;$vs\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;$env:Path"
 New-Item -ItemType Directory -Force $B, "$P\bios", "$P\recompiler\seeds", $O | Out-Null
