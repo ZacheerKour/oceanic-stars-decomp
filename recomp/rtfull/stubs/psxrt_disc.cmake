@@ -1,0 +1,26 @@
+# Opt-in add-on for recomp/rtfull that leaves its CMakeLists.txt untouched: configure with
+#   -DCMAKE_PROJECT_INCLUDE=<this file>
+# At the end of configure it adds stubs/psxrt_disc.c and swaps in a patched copy of psx_disc_tray.c whose per-VBlank
+# psx_disc_tray_auto_poll() first calls psxrt_disc_vblank(). Without PSXRT_DISC_SCRIPT the hook does nothing.
+function(psxrt_disc_addon)
+    set(rel runtime/src/psx_disc_tray.c)
+    set(old "int psx_disc_tray_auto_poll(int requested, int ready)\n{")
+    file(READ "${R}/${rel}" txt)
+    string(FIND "${txt}" "${old}" p1)
+    string(FIND "${txt}" "${old}" p2 REVERSE)
+    if(p1 EQUAL -1 OR NOT p1 EQUAL p2)
+        message(FATAL_ERROR "psxrt_disc: patch for ${rel} does not match exactly once")
+    endif()
+    string(REPLACE "${old}" "void psxrt_disc_vblank(void); /* psxrt: stubs/psxrt_disc.c */\n${old}\n    psxrt_disc_vblank();" txt "${txt}")
+    file(WRITE "${CMAKE_BINARY_DIR}/patched/psx_disc_tray.c" "${txt}")
+    get_target_property(srcs psxrecomp-game SOURCES)
+    list(FIND srcs "${R}/${rel}" i)
+    if(i EQUAL -1)
+        message(FATAL_ERROR "psxrt_disc: ${R}/${rel} not in the target sources")
+    endif()
+    list(REMOVE_ITEM srcs "${R}/${rel}")
+    list(APPEND srcs "${CMAKE_BINARY_DIR}/patched/psx_disc_tray.c" "${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_disc.c")
+    set_property(TARGET psxrecomp-game PROPERTY SOURCES "${srcs}")
+    message(STATUS "psxrt_disc: hook added")
+endfunction()
+cmake_language(DEFER CALL psxrt_disc_addon)
