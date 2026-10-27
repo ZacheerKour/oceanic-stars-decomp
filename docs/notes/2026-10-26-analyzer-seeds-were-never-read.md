@@ -1,0 +1,33 @@
+## 2026-10-26 Analyzer seeds were never read
+**Runs 1 and 2 (and run 3, same harness) ignored almost all of our seeds.** `psxrecomp-analyze --seeds` parses each token with `std::stoul(tok, &idx, 0)` unless it starts with `0x` (`load_seed_file`/`parse_addr`, main_analyze.cpp in f42d2c0). Bare hex with a letter is rejected (`idx != size`), and all-digit bare hex is read as **decimal** (`80010000` -> 0x04C4B400, outside the image). Evidence: the run-3 logs print `with 136 / 157 / 231 / 167 seed(s)` for boot/A/B/C, exactly the number of all-digit lines in the staged lists (`grep -cE '^[0-9]+$'`: 136, 157, 231, 167). Function lists of run 3 (new seeds, bare hex) equal run 2 (old seeds) address for address and size for size. So every earlier "seeded" count is really the analyzer's own scan (`jr ra` scan + `jal` targets), and "486 of 545 seeds found" meant "the analyzer finds these by itself".
+Fix (harness only; `config/seeds*.txt` stay bare hex, which `main_psx.cpp` reads with `strtoul(...,16)`): `make_wsb.ps1` writes the staged `seeds.txt` with a `0x` prefix, and `stage_overlays.py` writes `A/B/C.seeds.txt` the same way. `make_wsb.ps1` also takes `-OutName` and reads the gitignored inputs from `$env:SO2_DATA` (main checkout), so it runs from a worktree.
+
+**Bad seeds, once read, did damage (run 4, 0x prefix, seeds before the fix below).** Logs: `with 567 / 818 / 965 / 799 seed(s)`; every seed became a function. Boot: 630 functions, but `reachable` fell from 261 to 214 because seeds split real functions.
+The 60 boot seeds that the no-seed analyzer does not have as starts (earlier "59 not found" + one of the 22 indirect seeds): 59 lie inside an analyzer function, 1 in uncovered bytes. 56 of them have no reference (no `jal` in the exe or any decompressed module, no pointer word, not in `indirect_targets.tsv`) and are `addiu sp,sp,-N` prologue seeds after gcc's pre-prologue code: `lui;lw` (36), `lui;lbu` (10), `lui;lw;lui;lw` (4), `lui;lw;lui;lhu` (1), or an early-out test with a branch (5). Same pattern as the 13 A seeds dropped earlier. The other 4 are real: 0x800100C4, 0x8001FD80, 0x80026A94 (`jal` targets), 0x80014648 (indirect target).
+
+**Seed fix (`analysis/make_seeds.py` `pre_prologue`):** an `addiu sp` seed that is not a `jal` target moves back to the instruction after the previous `jr ra` + delay slot (skipping alignment nops) when that is at most 12 instructions up and nothing between is a `j`/`jal`/`jr`/`jalr`/`syscall`/`break`. Result: boot 567 -> 527 seeds, A 818 -> 799, B 965 -> 925, C 799 -> 750; overlays 5015 seeds in total. Against the no-seed analyzer starts, the seeds that are not starts fall from 60/20/53/53 to 8/0/12/5. The new non-start seeds were checked by hand: 0x80013508, 0x80014474, 0x800274CC, 0x8001FA80 (boot) and 0x8007A634 (B) begin right after a `jr ra; nop` (+ pad) in bytes no analyzer function covers.
+
+**Run 5 (fixed seeds, `0x` prefix; `recomp/sandbox/_out_run5`, status OK).** Logs: `with 527 / 799 / 925 / 750 seed(s)`; every seed is an analyzer function start.
+
+| image | run 2/3 (seeds unread) | run 4 (bad seeds read) | **run 5** | run 5 vs run 3 |
+|---|---|---|---|---|
+| boot | 570 fn, 261 reachable | 630, 214 | **578, 262** | +8 starts, 0 lost, 3 resized |
+| A | 830 | 850 | **830** | identical |
+| B | 1001, 265 reachable | 1054, 233 | **1013, 265** | +12, 0 lost, 11 resized |
+| C | 873 | 926 | **878** | +5, 0 lost, 5 resized |
+
+Jump tables (15/26/28/67) and unresolved indirect sites (119/84/435/136) are unchanged from run 2 except B 436 -> 435. Analyzer-only starts (no seed): boot 51, A 31, B 88, C 128.
+
+**Matched functions vs run 5 (`python -I analysis/check_matches.py recomp/sandbox/_out_run5/A/seeded/functions.tsv`):** 353/359 are analyzer functions of equal size.
+- 0x800344D0, 0x800378CC, 0x8003B284: the analyzer's own `find_preprologue_setup_start` split (start at the `addiu sp` + 4/8 bytes). None of 0x800344D4/0x800378D0/0x8003B2A8 is a seed any more. Our boundaries are right (byte match); the recomp must override these three analyzer starts.
+- 0x80047690, 0x800489DC, 0x80048CEC: matched 60 B, analyzer 64 B. **The analyzer is right**: each ends `addiu sp,sp,0x18; jr ra; nop` at +52/+56/+60, and the next function's prologue is at +64. The `jr ra` delay-slot nop at +60 belongs to the function. The gate still passes because `scripts/match.sh` accepts zero bytes past `size` as padding. Fix: set these three rows of `config/matches.tsv` to 64 (outside this task's paths; then rerun `make_seeds.py`).
+
+**Remaining A/C unresolved indirect sites (all 4 are `static_slot_unassigned`; now classified, still no code target):**
+- A 0x8003C498 / C 0x8003D3F4, `static_slot_dead`: slots 0x8004E170 / 0x80074368 are set only by the setters 0x8003C56C (`func_8003C56C`, `D_8004E170 = a`) / 0x8003D4C8. Neither setter has a `jal`, a pointer word or a `lui 0x8004` + `addiu` pair in the boot exe or any of the 359 decompressed modules. `func_8003BA74` clears the slot at init, and `func_8003C434` guards the call with `if (D_8004E170)`. So the call is dead in the shipped code.
+- A 0x8004B344 / C 0x800715C4, `bios_dcb_hook`: the slot 0x8004EFE4 / 0x80078880 receives `lw v0,0x34(s0)` while `s0` walks the BIOS device table (`lw s0,0x150($zero)`, count = `lw 0x154 / 0x50`, 0x50-byte records, name compared by `jal 0x8004B374` with a runtime-filled bss string). The game saves a device's handler at DCB+0x34, installs its own (`sw s3,0x34(s0)`), and calls the saved BIOS handler through this `jalr`. The target is BIOS kernel code, not game code. The psxrecomp runtime must handle it through its BIOS path.
+- Written to `config/indirect_targets.tsv` (4 rows; kind, confidence `high`, note) and into `analysis/indirect.py` as a `VERIFIED` override, so a rerun keeps them. Program A now has 0 unexplained sites (84 = 81 vtable + 1 BIOS dispatch + 2 dead/DCB).
+
+**`analysis/check_matches.py`** now also fails when a matched function's `src/<name>.c` is missing or does not define it, or when any symbol sits inside a matched body, and its stale-symbol message names the fix (`SO2_DATA=<main checkout> python -I analysis/make_seeds.py`). Tested: a fake `matches.tsv` row prints 3 PROBLEM lines (symbols, src, seed); the real file passes. `config/symbols.toml` was regenerated: 480 symbols = 359 confirmed (with `size`) + 120 splat labels + BootEntry; e1c0 seeds 818 -> 799.
+
+Open: the 3 sizes above; the 3 analyzer split starts need an override in the title repo's config; the 8/12/5 seeds that remain non-starts in a no-seed scan are referenced or gap code, and only a runtime trace can confirm them. The other unresolved sites of B (11) and C (11) were not re-examined here. Nothing was generated or run beyond `psxrecomp-analyze`.
+

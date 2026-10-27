@@ -1,0 +1,18 @@
+## 2026-10-27 overlay link
+**Programs A, B, C and all 89 SLZ chunks now run as compiled C in `recomp/rtfull`; the interpreter count over a 200 s headless boot drops from 3.56e9 to 1.36e6 instructions (about 2,600x) and the title menu still appears.** fps does not change (headless mean 106.8 -> 108.6), so guest CPU was not the limit.
+
+**How the runtime takes AOT overlay C** (psxrecomp f42d2c0, read only): nothing is registered. With `PSX_HAS_OVERLAY_DISPATCH=1` on the runtime TUs, `dirty_ram_interp.c:3180` calls `psx_overlay_dispatch(cpu, addr)` before the DLL cache and the interpreter. The generated dispatcher `overlays_static.c` hashes the KSEG0 PC into an open-addressed table (`psx_ov_hash_addr/idx`), and each variant at that address is gated by `psx_overlay_static_code_matches()` (overlay_loader.c:649): the CRC of its `{phys_lo, len}` code ranges as they are in RAM now, cached per page generation. So the game's own loader (CD read + SLZ decode into RAM) is what arms a variant; the SLZ decoding only matters at generation time (`so2_slz` prepared file). There is no codegen-hash check in the dispatcher. The catch: every `static` run emits its own `psx_overlay_dispatch`, so the 89 per-chunk outputs of the earlier run cannot be linked together. `run_static_all.py --combined ALL` puts all chosen chunks into one profile -> one dispatcher + per-image units (heur, 71 s: `Verified 89 images / 89 recipes`, 84,961 published variants in 96 files, 228 MB, audit `all_pairs_valid`, `all_guards_match_known_input_bytes`).
+
+**Build** (`recomp/rtfull`): `build.ps1 -OverlayDir <static dir> -BuildDir <dir> [-OverlayOpt /Od|/O1]` -> CMake `OVERLAY_STATIC_DIR` globs `overlays_static*.c`, compiles them at `OVERLAY_OPT` (default `/Od`) and defines `PSX_HAS_OVERLAY_DISPATCH=1`. Build dirs: `_build` (none), `_build_A` (A alone, `static_heur/E1C0`, 3 TUs), `_build_all` (`static_heur/ALL`, 96 TUs, exe 86 MB). /Od was enough: each full build took about 30 s on 16 cores, 0 errors, import audit OK (7 DLLs). No sharding needed.
+**Evidence:** `stubs/psxrt_ovstats.c` (`PSXRT_OVSTATS_SEC=n`) prints `g_dirty_ram_insns_run` and the dispatcher's counters. Logs `recomp/rtfull/_run/boot_{base,A_func,all}.log` (gitignored), OpenBIOS, `--headless`, 200 s each, run one after another:
+| build | interp_insns at t=190 s | static_hits | variant_miss | fps mean (198 samples) |
+|---|---|---|---|---|
+| base | 3,556,957,011 | 0 | 0 | 106.8 |
+| A only | 1,340,960 | 182,953,369 | 4,632 | (ran beside a build) |
+| all | 1,361,092 | 189,376,333 | 6,299 | 108.6 |
+VRAM dump at ~180 s for A-only and all: "New Game / Continue / Voice Collection" + FMV list textures beside the 24-bit background, the same as the base run. No fatal in any run.
+
+**run.ps1:** `recomp/game.toml` now says `openbios = false` (retail SCPH-5501, BIOS usage section). This exe links only OpenBIOS, so `run.ps1 -Bios openbios` flips that line in its run copy; without it the runtime exits "PlayStation BIOS needed". New `-BuildDir`, `-LogTag` (not `-Tag`: PowerShell names ignore case and the script already has `$tag`).
+
+Open / next: (1) fps is flat, so the headless limit is elsewhere (software GPU, CD timing or frame pacing): profile it before any `/O1`/`/O2` work on the overlay C. (2) The ~1.4M instructions still interpreted (addr_miss ~317K entries in 190 s) are not attributed yet; candidates: the 3 B0 stubs (`jr t2`, not classified as functions) and heur-missed entries. (3) The link used `heur` entries; switch to `ours` once work/seeds4 fixes the per-overlay seed lists (`--mode ours --combined ALL`). (4) Retail SCPH-5501 backend not linked in this exe (bios worker). Output stays in `<home>\star-cean-wt\psxrecomp-overlay\_work\{heur,static_heur}\ALL` (outside git).
+
