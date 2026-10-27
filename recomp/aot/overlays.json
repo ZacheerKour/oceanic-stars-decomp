@@ -4,7 +4,7 @@
  "x_notes": [
   "needs the so2_slz prepared_files method registered in tools/prepared_files.py METHODS: 'so2_slz': (slz.prepared, ()) with analysis/slz.py importable (RECOMP_NOTES.md 2026-10-26)",
   "disc 1 only: disc 2 has no SO2.BIN directory entry; its code chunks are byte-identical, so the shards serve both",
-  "TODO(verify) expected_records: 1 boot exe + one per unique chunk assumes the generic extractor finds the exe as one recipe and no overlay; first extract run prints the real count"
+  "expected_records = one per unique chunk: the generic extractor finds nothing on disc 1 (boot exe skipped, SO2.BIN > 2 MB, SYSTEM.CNF not code), so every recipe is a fixed_address_files record (extract run 2026-10-26)"
  ],
  "disc_hashes": {
   "sha256": "ca9afe72699acd1994260fd00bedb0b017ac30678bfdc2b2b1022112fa872f33"
@@ -1416,12 +1416,6 @@
  ],
  "images": [
   {
-   "method": "psx_exe",
-   "files": [
-    "SCUS_944.21"
-   ]
-  },
-  {
    "method": "fixed_address_files",
    "load_addr": "0x8002f810",
    "files": [
@@ -1609,5 +1603,5 @@
    "allow_missing": true
   }
  ],
- "expected_records": 90
+ "expected_records": 89
 }
