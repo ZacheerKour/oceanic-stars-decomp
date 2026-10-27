@@ -127,7 +127,34 @@ psxrt_patch(runtime/src/main.cpp
     "static_assert(!frame_interpolation_offered && !skip_fmv_offered,"
     "static_assert(true, /* psxrt: MSVC C2131 */"
     "static void env_pad_hold_apply(void) {"
-    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */")
+    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */"
+    # quick-save hotkeys F5/F9/F6/F7 (stubs/psxrt_io.c): before the stock key chain, PSXRT_CONTINUE = "continue;"
+    "if (!key_repeat && host_keymap_match_event(HOST_KEYMAP_OPEN_LAUNCHER, key, scancode, mod) &&"
+    "if (psxrt_hotkey_key((int)key, (int)mod, key_repeat)) PSXRT_CONTINUE
+            if (!key_repeat && host_keymap_match_event(HOST_KEYMAP_OPEN_LAUNCHER, key, scancode, mod) &&"
+    # pause menu pad chord: Back+Start as well as Back+L3
+    "p1_host_button_down(nullptr, SDL_CONTROLLER_BUTTON_LEFTSTICK)"
+    "(p1_host_button_down(nullptr, SDL_CONTROLLER_BUTTON_LEFTSTICK) || p1_host_button_down(nullptr, SDL_CONTROLLER_BUTTON_START))"
+    # free Select+R1 / Select+L1 for the save/load chords (the runtime's state browser stays on F8, fast-forward on the keyboard)
+    "g_hotkey_pad_save_state_menu = 2040" "g_hotkey_pad_save_state_menu = 0"
+    "g_hotkey_pad_fast_forward = 1528" "g_hotkey_pad_fast_forward = 0"
+    # states live in saves/states/<disc 1 serial>/<bios>/ , never next to the memory cards
+    "savestate_configure(memcard_dir.string().c_str()," "savestate_configure((memcard_dir / \"states\" / game_id).string().c_str(),")
+# Pause menu: psx_runtime_menu.c (launcher-only, stubs here) is replaced by stubs/psxrt_menu_ui.inc, compiled inside a copy of
+# psx_savestate_menu.c for its font; the visual OSD (toasts: slot, saved, loaded) is switched on without the launcher.
+list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/psx_runtime_menu.c")
+psxrt_patch(runtime/src/psx_savestate_menu.c
+    "int psx_savestate_menu_needs_present(void)
+{
+    return s_open"
+    "#include \"psxrt_menu_ui.inc\"
+int psx_savestate_menu_needs_present(void)
+{
+    return psxrt_pm_open() || s_open")
+psxrt_patch(runtime/src/host_osd.c
+    "#if defined(RECOMP_LAUNCHER)
+#define HOST_OSD_VISUAL 1" "#if 1
+#define HOST_OSD_VISUAL 1")
 # Audio evidence tap (stubs/psxrt_io.c, off unless PSXRT_AUDIO_RMS=1): sees the exact bytes handed to the SDL3 stream.
 psxrt_patch(runtime/src/psx_sdl_audio.cpp
     "        s_audio_callback(s_audio_userdata, buffer, chunk)"

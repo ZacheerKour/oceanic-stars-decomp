@@ -1,0 +1,43 @@
+# Pause menu driven in-frame (open and close inside one frame: an open menu is modal) + the pad chords, at the static title.
+12500 DUMP saved
+12500 MENU open
+12500 MENU shot_open
+12500 MENU down
+12500 MENU right
+12500 MENU shot_save_slot2
+12500 MENU accept
+# menu closed, slot 2 saved. Change the screen, then load slot 2 through the menu.
+12600 DOWN
+12610 -
+12700 DUMP changed
+12800 MENU open
+12800 MENU down
+12800 MENU down
+12800 MENU shot_load_slot2
+12800 MENU accept
+12803 DUMP menu_loaded
+# Swap / Fullscreen rows and the two-step Quit (not executed: shots only, then back out and close)
+13000 MENU open
+13000 MENU down
+13000 MENU down
+13000 MENU down
+13000 MENU shot_swap_row
+13000 MENU down
+13000 MENU down
+13000 MENU accept
+13000 MENU shot_quit_armed
+13000 MENU back
+13000 MENU shot_quit_disarmed
+13000 MENU close
+# pad chords on the script word: Select+R1 saves the current slot (2), then screen changes, Select+L1 loads it
+13100 DOWN
+13110 -
+13200 DUMP changed2
+13300 SELECT R1
+13310 -
+13400 DOWN
+13410 -
+13500 SELECT L1
+13510 -
+13520 DUMP chord_loaded
+13600 -
