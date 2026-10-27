@@ -45,6 +45,7 @@ Disc 1 / disc 2 (details in ANALYSIS.md section 2):
 * Entries are contiguous with no gaps or overlaps; LBAs span 312..222881 on disc 1.
 * LBAs are absolute, so slots differ between discs even for identical content; 4136 entries have the same index and bytes on both discs.
 * An entry starting with `SLZ` is compressed (see SLZ.md); otherwise it is raw (data containers, STR video).
+* Disc marker: slot 6 is non-empty only on disc 1, slot 7 only on disc 2 (both LBA 380, one Shift-JIS line naming the disc); the exe tests `size(slot n+5) != 0` (0x80011d38) to know which disc is inserted (RECOMP_NOTES '2026-10-27 disc 2').
 
 ## 5. Pseudocode
 ```

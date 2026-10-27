@@ -34,11 +34,11 @@ Paths below are relative to `tools/ref/psxrecomp` unless starting with our dirs.
 - Missing/unknown: nobody has verified static targets at runtime; the over-approximated vtable targets only help if each seed is a true function start in whichever module is resident. Interpreter fallback covers misses but slowly.
 - Next job: once boot runs, trace `psx_unknown_dispatch` misses for one session and diff against the TSV.
 
-### 5. CD-ROM reading, SO2.BIN archive, 2 discs (HIGH, runtime-unverified)
-- Provides: register-level CD controller with timing (`runtime/src/cdrom.c`, 3820 lines: SetLoc/ReadN/ReadS/Seek/GetID/ReadTOC...), reads by absolute MSF/LBA, DMA3, disc swap via lid cycle (`psx_disc_tray.c`, `docs/RUNTIME_DISC_MENU.md`), `[runtime] disc_speed`. No libcd HLE: Psy-Q libcd inside the exe is lifted and drives the controller (correct choice here). `game.toml` lists both cues.
-- Game: boot exe loads SO2.BIN entries by sector via libcd (ANALYSIS.md: libcd bios.c 1.81); archive has an encrypted TOC and SLZ chunks (`docs/SO2BIN_TOC.md`, `analysis/toc.py`). Disc 2's ISO directory has no SO2.BIN (ANALYSIS.md section 1) yet carries the same 359 SLZ entries; the game's own TOC supplies LBAs.
-- Missing/unknown: (a) how the game reaches SO2.BIN content on disc 2 (it reads raw sectors from a TOC; whether those LBAs are relative to the disc 2 file placement or to a fixed offset is not established in our notes); (b) disc swap handoff and the in-game "insert disc 2" prompt path through the lid-cycle emulation (psxrecomp row 6: untested); (c) `disc_serials` and some digests marked TODO(verify) in game.toml; (d) `disc_speed = "1x"` vs "instant" hangs (Xenogears comment) not tested here; (e) disc 1 only in the AOT profile (disc_hashes), fine for code, but runtime needs both cues.
-- Next job: script that decodes the SO2.BIN LBA computation in the boot exe loader (function reading the TOC, `analysis/toc.py` is the model) and states how disc 2 sectors map; no runtime needed.
+### 5. CD-ROM reading, SO2.BIN archive, 2 discs (MEDIUM, swap verified 2026-10-27)
+- Provides: register-level CD controller with timing (`runtime/src/cdrom.c`), reads by absolute MSF/LBA, disc swap via lid cycle (`psx_disc_tray.c`, F10 / Ctrl+L / Select+L3 menu), `[runtime] disc_speed`. No libcd HLE needed.
+- Game (RECOMP_NOTES '2026-10-27 disc 2', `analysis/disc_map.py`): each disc has its own TOC at LBA 300 with absolute LBAs; disc identity = non-empty TOC slot 6 (disc 1) or 7 (disc 2); the swap prompt waits for ShellOpen set/clear, then re-reads the new disc's TOC. No serial/GetID check.
+- Verified: boot from disc 2 to the title; New Game prompts for disc 1; a scripted `psx_disc_tray_cycle` to disc 1 is accepted (TOC re-read, game continues to the field); a wrong disc gets the wrong-disc message. `disc_speed` "1x"/"2x" fine, "instant" hangs at boot.
+- Missing: the in-game request for disc 2 (end of disc 1) not reached in a run; no automatic swap (needs a mod plugin plan); "instant" hang not diagnosed.
 
 ### 6. GPU rendering (MEDIUM, probably fine)
 - Provides: full GPU command/DMA (`gpu.c` 8568 lines, `dma_gpu_ll.c`), software renderer (`gpu_sw_renderer.c`), GL and Vulkan renderers, VRAM, linked-list DMA, PGXP, HD options.
@@ -86,4 +86,4 @@ Paths below are relative to `tools/ref/psxrecomp` unless starting with our dirs.
 2. BIOS device/kernel fidelity: game calls DCB+0x34 and B0 file calls directly; OpenBIOS compatibility unchecked.
 3. Overlay AOT: SLZ decoder not registered, extract/static never run, 89 modules (only A even generated); data block exclusion needs `reachable` everywhere.
 4. Indirect dispatch: 777 sites, mostly low-confidence vtable over-approximations; misses fall to slow interpreter.
-5. CD/disc 2 path: SO2.BIN LBA mapping on disc 2 and disc-swap prompt untested.
+5. CD/disc 2 path: swap verified (disc 2 -> disc 1); the in-game disc-2 request at the end of disc 1 is not yet exercised.

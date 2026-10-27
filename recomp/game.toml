@@ -38,7 +38,8 @@ known_sha1  = ["ccd092233b353d2aa7bb80ecdb2b76f456430b41", "68178c55a430eab3e97e
 
 [runtime]
 overlay_cache = true                    # psxrecomp scaffold default (probe_disc.py) and required by the packager (GAME_PROJECT_SETUP.md); records the SLZ overlays it interprets
-disc_speed = "1x"                       # = runtime default ("default: authentic 1x timing", runtime/src/main.cpp f42d2c0); faster ("2x"/"4x"/"instant") is a later tuning step that needs a boot test
+disc_speed = "1x"                       # tested 2026-10-27 (RECOMP_NOTES '2026-10-27 disc 2'): "1x" and "2x" boot and pass the disc-swap prompt;
+                                        # "instant" HANGS at boot on both discs (PS logo, after the TOC read at LBA 300). Keep 1x.
 openbios = false                        # retail required: OpenBIOS stores the device-table END (0x6238) at 0x154 where the game
                                         # (A 0x8004B2B0, C 0x80071530) reads a byte size, and SO2's 8 Psy-Q kernel patchers are laid out
                                         # for the retail kernel (B0[0x5B]+0x594/0x62C/0x884/0x894/0x9C8). RECOMP_NOTES '2026-10-27 BIOS usage'
