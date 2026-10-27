@@ -103,7 +103,7 @@ open(r'extracted\SCUS_944.21', 'wb').write(d.read(l, s))
     if ($LASTEXITCODE) { Fail 'build failed (logs under recomp\rtfull\_build_final\ and recomp\host\_out\)' }
     if (-not (Test-Path recomp\rtfull\_build_final\psxrecomp-game.exe)) { Fail 'no exe after the build' }
     Step 'PLAY.exe (Steam-friendly launcher)'
-    & powershell -NoProfile -ExecutionPolicy Bypass -File recomp\launcheruild.ps1
+    & powershell -NoProfile -ExecutionPolicy Bypass -File recomp\launcher\build.ps1
     if ($LASTEXITCODE) { Write-Host 'PLAY.exe build failed; PLAY.bat still works' -ForegroundColor Yellow }
     Write-Host 'INSTALL OK - double-click PLAY.exe (or PLAY.bat)' -ForegroundColor Green
 } catch { Fail "$_" }
