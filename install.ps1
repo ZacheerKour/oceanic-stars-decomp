@@ -235,6 +235,8 @@ if (-not (Test-Path "$py\python.exe")) {
     Download $PyZip[0] $PyZip[1] $zip
     Expand-Archive -LiteralPath $zip -DestinationPath $py -Force
 }
+# the embeddable build ships a ._pth that stops scripts importing their sibling modules; without it Python behaves normally
+if (Test-Path "$pypython311._pth") { Rename-Item "$pypython311._pth" python311._pth.off }
 $env:Path = "$py;$env:Path"
 $env:SO2_DATA = $root
 $env:PYTHONUTF8 = '1'
