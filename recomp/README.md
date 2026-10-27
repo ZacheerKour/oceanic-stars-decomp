@@ -48,7 +48,7 @@ vendored here, and its licence is PolyForm Noncommercial, see RECOMP_NOTES.md). 
    or MSYS2 MinGW-w64 / MSVC. SDL3 is fetched automatically. Expect a multi-GB install.
    **BIOS (decided 2026-10-27, RECOMP_NOTES '2026-10-27 BIOS usage'):** the game runs on your own retail SCPH-5501 dump, not OpenBIOS (`game.toml` sets
    `openbios = false`). In the title project: copy the dump to `psxrecomp\bios\SCPH5501.BIN` (gitignored; sha256 must equal the profile pin),
-   `git -C psxrecomp apply ..\<this repo>ecomp\bios\SCPH5501_install_slots.patch`, `bash psxrecomp/tools/regen_bios.sh --config bios/SCPH5501.toml`,
+   `git -C psxrecomp apply ..\<this repo>\recomp\bios\SCPH5501_install_slots.patch`, `bash psxrecomp/tools/regen_bios.sh --config bios/SCPH5501.toml`,
    configure with `-DPSXRECOMP_BIOS_STEMS=OpenBIOS;SCPH5501 -DPSX_SHELLWIN_INTERP=ON`, and at run time pass `--bios <path>\SCPH5501.BIN` once
    (remembered in `bios.cfg`) or leave `SCPH5501.BIN` in `bios\` next to the exe for first-run discovery.
 2. **Private title repo** (do not put game-derived output in this public repo): make a sibling folder, add psxrecomp as a submodule pinned to a SHA

@@ -40,3 +40,5 @@ __pycache__/
 *.db
 .beads-credential-key
 .beads/proxieddb/
+/install.log
+/.install/

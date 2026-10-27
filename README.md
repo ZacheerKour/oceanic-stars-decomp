@@ -25,34 +25,28 @@ generated code never leaves your machine.
 **Not verified yet:** battles, saving to and loading from the memory card in game, anything past the first cave, disc 2.
 Only scripted input has been used so far, so expect bugs once people actually play. Reports are welcome.
 
-## Requirements
-- Windows 10 or 11, 64-bit; a GPU with OpenGL 3.3; about 15 GB of free disk space (Build Tools ~8 GB, the build ~3 GB,
-  your discs).
-- [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the
-  *Desktop development with C++* workload (free):
-  `winget install Microsoft.VisualStudio.2022.BuildTools --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"`
-- Python 3.11 or newer (`winget install Python.Python.3.11`) and Git (`winget install Git.Git`).
-- [7-Zip](https://www.7-zip.org/) if your discs are `.7z` files (`winget install 7zip.7zip`).
-
-The installer only checks for these and prints the command for anything missing; it never installs system software.
-
-## You need your own copy of the game
-Both discs of **Star Ocean - The Second Story (USA)** (SCUS-94421 / SCUS-94422) as `.bin`/`.cue` images, or the `.7z`
-files that contain them. The installer recognises them by SHA-1 (the values are in `recomp\game.toml`), whatever the file
-names. This repository contains no game data, no BIOS and no code generated from the game.
-
-BIOS: optional. By default the game runs on OpenBIOS, the open-source BIOS that psxrecomp ships. If you put your own
-**SCPH-5501** dump at `roms\scph5501.bin` before installing, it is recompiled locally and used instead (it is checked
-against a fixed SHA-256).
-
 ## Install
-1. `git clone <this repository's URL> oceanic-stars` (or download the ZIP and unpack it).
-2. Put your two disc files anywhere and run `INSTALL.bat "<folder with the discs>"`, or drag the disc files onto
-   `INSTALL.bat`. The first install downloads psxrecomp (pinned commit `f42d2c0`) and the SDL3/zlib sources (SHA-256
-   checked), then builds; on a 16-core PC the whole install took about 4 minutes.
-3. Double-click `PLAY.exe` (built by the installer; `PLAY.bat` does the same through PowerShell and is the fallback).
+1. Get the code: `git clone <this repository's URL> oceanic-stars` (or download the ZIP and unpack it somewhere simple, e.g.
+   `C:\Games\StarOcean`; avoid OneDrive and Program Files).
+2. **Drag your two disc files onto `INSTALL.bat`**: both discs of *Star Ocean - The Second Story (USA)*, as `.7z`/`.zip`
+   archives or `.bin`/`.cue` sets (`.chd` works if `chdman.exe` is installed). Any order; it works out which is disc 1 and
+   disc 2 from their fingerprints and tells you if a file is the wrong game or region. You can also run
+   `INSTALL.bat "disc1" "disc2"`, or double-click it and pick the two files in the window that opens.
+3. Wait. It shows a short progress list (the full details go to `install.log`) and finishes with `Done. Double-click PLAY.exe`.
+   It offers to put a shortcut on your Desktop.
+4. Play with `PLAY.exe` (or `PLAY.bat`, same thing).
 
-Re-running `INSTALL.bat` is safe: finished steps are skipped. After `git pull`, run it again to rebuild.
+What the installer needs: Windows 10/11 64-bit, a GPU with OpenGL 3.3, about 15 GB free, an internet connection, and two
+programs it will **ask you (Y/N) before installing with winget** if they are missing: **Visual Studio 2022 Build Tools** with
+the C++ workload (about 8 GB, Windows asks for your approval) and **Git**. Python and 7-Zip are fetched as private copies inside
+this folder (official downloads, SHA-256 checked); nothing else is installed. The first install takes roughly 10 to 20 minutes.
+The game is built on your PC from your discs; nothing of it is downloaded or shared.
+
+Re-running `INSTALL.bat` is safe: finished steps are skipped, and after `git pull` only what changed is rebuilt.
+If something fails it prints a short reason and the last lines of `install.log`.
+
+BIOS: none needed (the open-source OpenBIOS is used). To use your own SCPH-5501 dump, put it at `roms\scph5501.bin` before installing.
+This repository contains no game data, no BIOS and no code generated from the game.
 
 ## Controls
 Keyboard and gamepad both work from the first start (they can be used at the same time). Keyboard keys are rebindable in
@@ -122,9 +116,11 @@ this repository is MIT licensed ([LICENSE](LICENSE)).
 
 ## For developers
 - Input checks: `env.PSXRT_INPUT_LOG = 1` in `settings.ini` logs the PS1 pad word per key/pad press to `play\last.err`; `env.PSXRT_VPAD_TEST = 1` attaches a virtual gamepad and prints PASS/FAIL per button.
+- Maintainer setup: `INSTALL.bat` also accepts a folder holding the disc files when `SO2_DEV=1` is set, and `SO2_VERBOSE=1`
+  echoes the log to the console. `SO2_DATA` (build_all.ps1) points the build at another checkout's `tools\` and `roms\`.
 - `PLAY.exe` source: `recomp/launcher/play.c` (it runs `play.ps1 -Prepare` hidden, then starts the game exe directly).
 - Recomp build details: [recomp/README.md](recomp/README.md); research log: [RECOMP_NOTES.md](RECOMP_NOTES.md).
-- Decomp tooling (Docker image with the PSX GCC builds, objdiff, maspsx, splat): `INSTALL_DEV.bat "<disc folder>"`, see
+- Decomp tooling (Docker image with the PSX GCC builds, objdiff, maspsx, splat): `INSTALL_DEV.bat "<folder with the two Disc .7z files>"`, see
   [TOOLCHAIN.md](TOOLCHAIN.md) and [AGENTS.md](AGENTS.md).
 
 **Decomp status**
