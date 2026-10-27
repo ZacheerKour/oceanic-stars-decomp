@@ -87,7 +87,15 @@ endfunction()
 # Both flags are constexpr false a few thousand lines above, so the assert is a no-op either way.
 psxrt_patch(runtime/src/main.cpp
     "static_assert(!frame_interpolation_offered && !skip_fmv_offered,"
-    "static_assert(true, /* psxrt: MSVC C2131 */")
+    "static_assert(true, /* psxrt: MSVC C2131 */"
+    "static void env_pad_hold_apply(void) {"
+    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */")
+# Audio evidence tap (stubs/psxrt_io.c, off unless PSXRT_AUDIO_RMS=1): sees the exact bytes handed to the SDL3 stream.
+psxrt_patch(runtime/src/psx_sdl_audio.cpp
+    "        s_audio_callback(s_audio_userdata, buffer, chunk)"
+    "        s_audio_callback(s_audio_userdata, buffer, chunk), psxrt_audio_tap(buffer, chunk)")
+set_property(SOURCE "${PATCHED}/main.cpp" "${PATCHED}/psx_sdl_audio.cpp" APPEND PROPERTY COMPILE_OPTIONS
+    "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_io.h")
 # GCC __atomic builtins, unguarded only here (every other use has an _WIN32/_MSC_VER branch); int-sized, so the
 # MSVC Interlocked intrinsics give the same (stronger, seq-cst) ordering.
 psxrt_patch(runtime/src/gpu_gl_renderer.c
@@ -109,7 +117,7 @@ set_property(SOURCE ${GAME_SOURCES} "${R}/generated/OpenBIOS_full.c" APPEND PROP
 add_executable(psxrecomp-game
     ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES}
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
-    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c)
+    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_io.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
