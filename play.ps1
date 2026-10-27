@@ -37,6 +37,8 @@ if ($bios -eq 'openbios') {
 # Controllers: P1 = first SDL gamepad (hot-plug), digital pad so the left stick folds onto the d-pad. The keyboard stays live.
 $dz = if ($set['pad.deadzone']) { [int]$set['pad.deadzone'] } else { 9000 }
 $t += "`n[controller]`np1_device = `"auto`"`np1_mode = `"digital`"`ndeadzone = $dz`n"
+$abuf = if ($set['audio.buffer_ms']) { [int]$set['audio.buffer_ms'] } else { 180 }   # the runtime rejects values outside 30..500
+$t += "`n[audio]`nbuffer_ms = $abuf`n"
 [IO.File]::WriteAllText((Join-Path $P 'game.toml'), $t)
 
 # Keyboard: key.<button> = <key>[, <alt key>] in settings.ini (SDL key names); defaults below. Rewritten into keybinds.ini each start.
