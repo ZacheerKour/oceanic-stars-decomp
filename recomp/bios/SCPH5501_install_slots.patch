@@ -1,0 +1,16 @@
+diff --git a/bios/SCPH5501.toml b/bios/SCPH5501.toml
+index ded9be4..e4d02af 100644
+--- a/bios/SCPH5501.toml
++++ b/bios/SCPH5501.toml
+@@ -111,6 +111,11 @@ ram_addr = "0x00004964"         # pad driver clear routine, 11 words NOP'd
+ len      = "0x2C"               # (RemovePatchPad / ChgclrPAD family)
+ resume    = "fallthrough"
+ 
++[[recompiler.install_slots]]
++ram_addr = "0x000049FC"         # pad driver routine, 9 words zeroed by Star Ocean 2 (boot exe 0x80025120:
++len      = "0x24"               # GetB0Table()[0x5B] + 0x62C); 7 of the 9 ROM words are instructions
++resume    = "fallthrough"
++
+ [[recompiler.install_slots]]
+ ram_addr = "0x00004D98"         # _patch_card2 payload: jalr into boot EXE
+ len      = "0x14"               # 0x8017EB6C; the ra landing word is NOP'd too,
