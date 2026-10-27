@@ -1,0 +1,38 @@
+name: Install problem
+description: INSTALL.bat or PLAY.bat failed
+labels: [install]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do NOT attach game files, disc images or BIOS. Replace your home folder in any path with `<home>`. See REPORTING.md.
+  - type: input
+    id: step
+    attributes:
+      label: Step or message where it stopped
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Last ~60 lines of install.log (scrubbed)
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Windows version, GPU, Visual Studio Build Tools version
+    validations:
+      required: true
+  - type: input
+    id: discs
+    attributes:
+      label: Disc file formats you gave (.7z / .bin+.cue / .chd), not the files
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I attached no game files, BIOS or saves, and replaced my home folder with <home>.
+          required: true

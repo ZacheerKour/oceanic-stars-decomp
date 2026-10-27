@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Reporting guide (read first)
+    url: https://github.com/ZacheerKour/oceanic-stars-decomp/blob/main/REPORTING.md
+    about: Never attach game files, BIOS or saves. Replace your home folder in logs with <home>.

@@ -106,7 +106,7 @@ BIOS or generated code are distributed: the build runs on your PC from discs you
 share the built program or anything under `roms\`, `extracted\`, `analysis\out\`, `recomp\**\_*` or `tools\`.
 psxrecomp is licensed under PolyForm Noncommercial; it is fetched by the installer at the pinned commit `f42d2c0` and is
 never redistributed here. SDL3 (zlib licence) and zlib are fetched from their official releases. Original material in
-this repository is MIT licensed ([LICENSE](LICENSE)).
+this repository is MIT licensed ([LICENSE](LICENSE)). Licences of everything the build fetches: [NOTICE](NOTICE), [THIRD_PARTY.md](THIRD_PARTY.md). A game you build links psxrecomp, so it is for noncommercial use and must not be redistributed. Status with dates: [docs/STATUS.md](docs/STATUS.md). Problems: [REPORTING.md](REPORTING.md); contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits and links
 - [psxrecomp](https://github.com/RetroPortingToolKit/psxrecomp) (RetroPortingToolKit): the recompiler and runtime.
@@ -119,7 +119,7 @@ this repository is MIT licensed ([LICENSE](LICENSE)).
 - Maintainer setup: `INSTALL.bat` also accepts a folder holding the disc files when `SO2_DEV=1` is set, and `SO2_VERBOSE=1`
   echoes the log to the console. `SO2_DATA` (build_all.ps1) points the build at another checkout's `tools\` and `roms\`.
 - `PLAY.exe` source: `recomp/launcher/play.c` (it runs `play.ps1 -Prepare` hidden, then starts the game exe directly).
-- Recomp build details: [recomp/README.md](recomp/README.md); research log: [RECOMP_NOTES.md](RECOMP_NOTES.md).
+- Recomp build details: [recomp/README.md](recomp/README.md); research log: [RECOMP_NOTES.md](RECOMP_NOTES.md) (index into [docs/notes/](docs/notes/)).
 - Decomp tooling (Docker image with the PSX GCC builds, objdiff, maspsx, splat): `INSTALL_DEV.bat "<folder with the two Disc .7z files>"`, see
   [TOOLCHAIN.md](TOOLCHAIN.md) and [AGENTS.md](AGENTS.md).
 
