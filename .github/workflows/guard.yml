@@ -1,0 +1,23 @@
+name: guard
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Repo guard (no game data, no privacy leaks)
+        run: python -I scripts/repo_guard.py
+      - name: SLZ decoder tests
+        run: python -I tests/slz/run_tests.py
+      - name: Decomp rules (known baseline - 1 FAIL, WARNs tolerated)
+        run: |
+          python -I scripts/rules.py > rules.out || true
+          tail -1 rules.out
+          n=$(grep -c '^FAIL' rules.out || true)
+          echo "FAIL count: $n (baseline 1: src/func_8003B5DC.c R4)"
+          [ "$n" -le 1 ]

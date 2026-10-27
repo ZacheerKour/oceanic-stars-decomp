@@ -1,0 +1,57 @@
+NOTICE - oceanic-stars-decomp
+
+What this repository is
+  An unofficial fan project for a native PC build of Star Ocean: The Second
+  Story (USA, PlayStation) by static recompilation with psxrecomp, plus a
+  byte-matching decompilation of the main program.
+
+What this repository contains
+  Original tools, scripts, configuration, notes and reconstructed C source,
+  licensed under the MIT licence in LICENSE. That licence covers only this
+  original material. It grants no rights to Star Ocean: The Second Story or
+  to any code, art, music, text or other asset of the game, which belong to
+  their owners.
+
+What this repository does not contain
+  - No game data: no disc images, no SO2.BIN contents, no extracted files.
+  - No BIOS: no Sony BIOS image of any kind.
+  - No generated code: the C produced by the recompiler, and any compiled
+    game executable, are created on your own PC from your own discs and are
+    never published or distributed here.
+  You must own the game and supply your own discs. Nothing here helps you
+  obtain them.
+
+Third-party software (full ledger: THIRD_PARTY.md)
+  The installer fetches these from their official sources; none is
+  redistributed in this repository.
+
+  - psxrecomp (RetroPortingToolKit), pinned commit f42d2c0, licensed under
+    PolyForm Noncommercial 1.0.0. Fetched at install time. Its licence text
+    is in the clone the installer makes (tools\psxrecomp\LICENSE).
+  - SDL3 3.4.10 (libsdl-org), zlib licence.
+  - zlib 1.3.1 (Jean-loup Gailly and Mark Adler), zlib licence.
+  - OpenBIOS (PCSX-Redux authors), MIT licence, Copyright (c) 2019 PCSX-Redux
+    authors; the binary also links permissively licensed uC-sdk code. It
+    arrives with psxrecomp together with its notice file
+    (bios/OpenBIOS.LICENSE in the psxrecomp clone).
+  - Python 3.11.9 embeddable package (python.org), Python Software
+    Foundation licence. Downloaded to a private folder by the installer.
+  - 7-Zip 7zr.exe (Igor Pavlov), GNU LGPL, with the unRAR restriction where
+    applicable. Downloaded only if 7-Zip is not already installed.
+
+Noncommercial use of a built game
+  The game you build links psxrecomp and its runtime, which are licensed for
+  noncommercial use only. A built game is therefore for your own
+  noncommercial use. Do not sell it, and do not redistribute it or any part
+  of it: it also contains code compiled from the game's copyrighted program.
+
+Trademarks and ownership
+  Star Ocean, PlayStation and all other names are trademarks or registered
+  trademarks of their owners (tri-Ace, Enix / Square Enix, Sony Interactive
+  Entertainment, and others). This project is not affiliated with or
+  endorsed by any of them.
+
+Additional note (moved from LICENSE)
+  This license covers only the original material in this repository (tools,
+  scripts, notes). It grants no rights to Star Ocean: The Second Story or any
+  of its code or assets, which belong to their owners.
