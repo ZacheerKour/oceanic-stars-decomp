@@ -46,6 +46,12 @@ Copy-Item $exe "$P\disc\SCUS_944.21"
 Copy-Item (Join-Path $repo 'config\seeds.txt') "$P\seeds\seeds.txt"
 Copy-Item (Join-Path $repo 'recomp\game.toml') "$P\game.toml"
 Copy-Item "$src\bios\SCPH1001.toml" "$P\bios\SCPH1001.toml"
+# game.toml [recompiler] bios_config = psxrecomp/bios/SCPH5501.toml (+ the SO2 install-slot patch), relative to the project root
+New-Item -ItemType Directory -Force "$P\psxrecomp\bios", "$P\psxrecomp\recompiler\seeds" | Out-Null
+Copy-Item "$src\bios\SCPH5501.toml" "$P\psxrecomp\bios\SCPH5501.toml" -Force
+Copy-Item "$src\recompiler\seeds\phase2_ghidra_seeds_SCPH5501.json" "$P\psxrecomp\recompiler\seeds\" -Force
+& git -C $repo apply "--directory=recomp/host/$OutName/proj/psxrecomp" (Join-Path $repo 'recomp\bios\SCPH5501_install_slots.patch')
+if ($LASTEXITCODE) { throw 'SCPH5501_install_slots.patch did not apply' }
 Set-Content "$P\.gitignore" 'generated/'   # find_project_root stops here
 & python -I (Join-Path $repo 'recomp\sandbox\stage_overlays.py') $repo "$O\stage"   # A.exe + A.seeds.txt (and B, C)
 if ($LASTEXITCODE) { throw 'stage_overlays.py failed' }

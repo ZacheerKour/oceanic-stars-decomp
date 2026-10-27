@@ -1,0 +1,34 @@
+diff --git a/tools/aot_overlay_pipeline.py b/tools/aot_overlay_pipeline.py
+index ee76afe..1afb07a 100644
+--- a/tools/aot_overlay_pipeline.py
++++ b/tools/aot_overlay_pipeline.py
+@@ -626,6 +626,8 @@ def make_fixed_record(source, disc, sources=(), cross_image=False):
+     entries = declared_entries(source, disc)
+     seeds = {entry for entry in seeds if extractor.optional_entry_delay_valid(body, base, entry)}
+     seeds |= entries
++    if spec.get('x_entries_only'):  # star-cean local: declared entries replace the heuristic guesses
++        seeds, direct = set(entries), set()
+     require(seeds, f"No static entries: {source['name']}")
+     page, data = extractor.page_aligned_region(base, body)
+     return extractor.rec(page, data, sorted(seeds), dispatch_extra=sorted(required_entries(source, disc)),
+diff --git a/tools/prepared_files.py b/tools/prepared_files.py
+index 33ef941..f7219e6 100644
+--- a/tools/prepared_files.py
++++ b/tools/prepared_files.py
+@@ -32,6 +32,7 @@ profile's other sections.
+ import hashlib
+ 
+ import bpe_container
++import slz  # Star Ocean 2 SO2.BIN chunks (star-cean-second analysis/slz.py)
+ 
+ 
+ class PreparedError(ValueError):
+@@ -48,7 +49,7 @@ def _bpe_container(data, spec):
+ 
+ # method -> (decoder(data_from_source_offset, spec) -> (output, consumed),
+ #            keys the spec must declare beyond the common ones)
+-METHODS = {'bpe_container': (_bpe_container, ('magic',))}
++METHODS = {'bpe_container': (_bpe_container, ('magic',)), 'so2_slz': (slz.prepared, ())}
+ COMMON_KEYS = ('name', 'method', 'source', 'consumed', 'source_sha256', 'size', 'sha256')
+ 
+ 
