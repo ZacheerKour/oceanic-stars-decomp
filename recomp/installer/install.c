@@ -413,6 +413,7 @@ int wmain(int argc, wchar_t **argv) {
         else push(&given, U(argv[i]));
     }
     if (!r) { wchar_t d[MAX_PATH]; GetModuleFileNameW(NULL, d, MAX_PATH); *wcsrchr(d, L'\\') = 0; r = U(d); }
+    path_prepend(fmt("%s\System32", getenv("SystemRoot") ? getenv("SystemRoot") : "C:\Windows"));   /* build_all.ps1 calls bare `tar`: use bsdtar, not a GNU tar from Git Bash/MSYS */
     root = r; SetCurrentDirectoryW(W(root)); logp = fmt("%s\\install.log", root); mkdirs(fmt("%s\\.install", root));
     char *hdr = fmt("Star Ocean 2 install log (INSTALL.exe)\r\n"); write_file(logp, hdr, strlen(hdr));
     const char *commit = "f42d2c004b3dd6ef6ccb83101b40ede55f24bf59";   /* audited psxrecomp pin (RECOMP_NOTES '2026-10-26 psxrecomp safety audit') */

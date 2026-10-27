@@ -1,6 +1,6 @@
 # Plan: native INSTALL.exe and a single game exe (not implemented)
 
-Date 2026-10-27. Status: plan only. Implemented so far: PLAY.exe no longer needs PowerShell (recomp/launcher/play.c,
+Date 2026-10-27. Status: phase 1 implemented (below); the rest is still a plan. Implemented so far: PLAY.exe no longer needs PowerShell (recomp/launcher/play.c,
 `--prepare`, `--selftest`; recomp/launcher/equiv.ps1 diffs it against play.ps1). play.ps1 is kept only as the PLAY.bat
 fallback when PLAY.exe is absent and as the equivalence reference.
 
@@ -73,3 +73,17 @@ the exe path and Start In to its folder. What the exe must do:
 4. Toolchain: vswhere detect, then manifest-based MSVC fetch, then winget fallback.
 5. Drive build_all hidden with progress; install the final exe plus icon at the root.
 6. Steam steps on the final screen; manual Steam test.
+
+## Phase 1 as implemented (2026-10-27)
+- `recomp/installer/install.c` is INSTALL.exe (console app, bcrypt SHA-1/SHA-256, WinHTTP downloads, hidden `cmd /c` runner with
+  everything logged to install.log, stamps in `.install\exe_*.stamp`). `INSTALL.exe` is **tracked** (the one allowed binary): it
+  holds no game code or data, and `scripts/repo_guard.py` fails if its SHA-256 differs from `recomp/installer/INSTALL.exe.sha256`
+  (rebuild with `recomp/installer/build.ps1`, commit both). Unsigned, so SmartScreen may warn; `INSTALL.bat` stays as the fallback
+  (runs the exe, or install.ps1 when the exe is absent). install.ps1 is kept until the exe has been used by a few people.
+- Compiler: vswhere (needs the C++ and CMake components), else the fixed BuildTools path, else winget Build Tools behind Y/N.
+  Child scripts honour `SO2_VS`. Option 2 (own manifest-based MSVC download) is NOT implemented: see follow-up below.
+- Private Python 3.11.9 and MinGit 2.47.1 (both SHA-256 pinned) replace the winget Git; 7zr.exe is fetched only for .7z.
+- StarOcean2.exe is compiled by INSTALL.exe from play.c (+ play.rc with a generated icon, version info, asInvoker manifest), so
+  the launcher is not a prebuilt asset. build_all.ps1 is still run (hidden) as a script; porting it into the exe is a follow-up.
+- Follow-up: MSVC without the VS installer (msvc-wine style manifest fetch, per-package SHA-256, show the Microsoft license
+  URL/text and require an explicit Y/N, no admin, download only), test with a small fake package first; then port build_all.
