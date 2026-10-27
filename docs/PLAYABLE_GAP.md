@@ -19,6 +19,7 @@ Paths below are relative to `tools/ref/psxrecomp` unless starting with our dirs.
 - Game: 31 A0/B0/C0 dispatch sites in boot exe (first analyze run); 8 `bios_dispatch` rows. A has B0 stubs at 0x8004B074/84/94 (`jr` to B0 fn 0x33/0x34/0x36, i.e. open/lseek/read-style file calls; fn numbers from stub immediates, not otherwise decoded). Two `bios_dcb_hook` rows: A 0x8004B344 and C 0x800715C4 call `DCB+0x34` after walking the BIOS device table (`lw 0x150($zero)`, 0x50-byte records, name via strcmp 0x8004B374), i.e. the game calls the BIOS device driver's handler directly.
 - Missing/unknown: whether OpenBIOS's device table layout (0x150/0x154, 0x50-byte DCBs, +0x34 handler) matches the retail SCPH BIOS the game expects. If OpenBIOS lays it out differently, 0x8004B344 reads the wrong slot. Not checked. Also unchecked: which A0/B0/C0 function numbers the game actually uses vs what OpenBIOS implements (OpenBIOS is a clean-room reimplementation; memcard/pad kernel calls are the usual gaps).
 - Next job: static script listing every A0/B0/C0 function number the boot exe and A/B/C call (from `$t1` immediates at `addiu t2,0xA0/B0/C0` stubs plus the 8 dispatch rows) and diff against the OpenBIOS function table; separately dump OpenBIOS's DCB record layout at 0x150/0x154 and compare to the 0x8004B344 usage.
+- DONE 2026-10-27 (RECOMP_NOTES '2026-10-27 BIOS usage', `analysis/bios_usage.py`): 41 function numbers listed; OpenBIOS lacks only A0 0x3A and stores the device-table end, not its size, at 0x154; the 8 dispatch rows are Psy-Q kernel patchers laid out for retail. Decision: boot on the user's SCPH-5501 (`openbios = false`, `bios_config`), one missing install slot patched in `recomp/bios/`. Next: build the SCPH5501 backend and boot.
 - The 3 `call_root` seeds (0x8004B074/84/94) are not yet in `make_seeds.py`/AOT entries (RECOMP_NOTES 'Host compile' item 2).
 
 ### 3. Overlay loading + overlay AOT (HIGH, in progress)
@@ -61,6 +62,7 @@ Paths below are relative to `tools/ref/psxrecomp` unless starting with our dirs.
 - Provides: `sio.c` (3256 lines), `memcard.c` (556), `pad_external_input.c`, `psx_pad_apply.c`, `host_keymap.c`, SDL gamepad mapping; memcard images on disk.
 - Game: libpad / libcard / memcard through BIOS kernel (A0/B0 card calls 0x4A.. etc. unenumerated) or lifted libs: not determined. Uses `bu00:` device via the BIOS device table (see 2).
 - Missing/unknown: whether SO2 uses the BIOS card API (OpenBIOS coverage of format/read/write/Exec variants is the risk) or its own low-level SIO; save/load never tested; analog mode.
+- DONE 2026-10-27: BIOS card API (B0 0x4A-0x4C, 0x4E, 0x50; A0 0xAB/0xAC; `bu` files via B0 0x32-0x43) and BIOS pad (B0 0x12-0x15, 0x5B); plus Psy-Q low-level hooks: the code the exe copies to kernel RAM 0xDF80 polls SIO0 stat (0x1F801044) and I_STAT from inside the BIOS card/pad handlers.
 - Next job: part of the BIOS function-number script in job 2: flag card/pad function numbers (A0 0x40-0x4F, B0 0x4A-0x5B range) used.
 
 ### 10. MDEC / FMV (MEDIUM)
