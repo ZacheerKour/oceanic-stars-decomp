@@ -42,7 +42,8 @@ disc_speed = "1x"                       # = runtime default ("default: authentic
 openbios = false                        # retail required: OpenBIOS stores the device-table END (0x6238) at 0x154 where the game
                                         # (A 0x8004B2B0, C 0x80071530) reads a byte size, and SO2's 8 Psy-Q kernel patchers are laid out
                                         # for the retail kernel (B0[0x5B]+0x594/0x62C/0x884/0x894/0x9C8). RECOMP_NOTES '2026-10-27 BIOS usage'
-# bios_hle = false                      # off = pure LLE, the runtime default (opt-in, runtime/include/bios_hle.h); keep it: the game hooks BIOS device handlers (DCB+0x34, A 0x8004B344), so the real kernel must run
+bios_hle = false                        # pure LLE. Must be explicit: the game.toml loader defaults it to TRUE (config_loader.h f42d2c0), which skips the
+                                        # shell and HLEs B0 events. Both modes reached the title on SCPH-5501; LLE is the reference. RECOMP_NOTES '2026-10-27 SCPH5501 backend'
 # Audio/video: no XA and no CD-DA to configure. Sector census 2026-10-26: no sector on either disc has the XA audio (0x04) or
 # video (0x02) submode bit (disc 1: 236155 data, 216 Form 2, 160 other), and both cues are single-track (no CD-DA).
 # STR movies are plain data entries inside SO2.BIN (ANALYSIS.md), decoded by the game through MDEC.
