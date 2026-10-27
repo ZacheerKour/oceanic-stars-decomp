@@ -1,0 +1,17 @@
+/* Thin host interface. Headless today (host_headless.c); an SDL3 build would
+ * implement the same functions once SDL3 is supplied and audited. */
+#ifndef RT_HOST_H
+#define RT_HOST_H
+#include <stdint.h>
+
+void host_frame(uint64_t vblank);   /* once per emulated vblank (present/poll later) */
+void host_tty(uint32_t ch);         /* BIOS putchar output */
+
+/* CD-ROM controller (cdrom.c): register file 0x1F801800-03, DMA3, disc image read-only. */
+void     host_cd_open(const char *bin_path);
+uint32_t host_cd_read(uint32_t reg);
+void     host_cd_write(uint32_t reg, uint8_t v, uint32_t *i_stat);
+void     host_cd_dma(uint8_t *ram, uint32_t addr, uint32_t words);
+void     host_cd_tick(uint64_t cycles, uint32_t *i_stat);
+void     host_cd_summary(void);
+#endif
