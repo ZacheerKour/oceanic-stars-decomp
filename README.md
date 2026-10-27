@@ -92,6 +92,9 @@ from other pads; it only sees SDL3 gamepads. What to do:
 - Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAY.bat`. Back that folder up.
 - `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`,
   `extra_args = ...` for the runtime, and `env.NAME = value` lines for runtime environment options.
+- Display, also in `settings.ini`: `window_width` (starting width, height follows 4:3), `render_scale` (1 = native .. 8, sharper 3D,
+  needs a faster GPU), `scale_mode = fit | integer | stretch` (fit keeps 4:3 with equal bars on both sides) and
+  `filter = linear | nearest`. The window can be resized or maximised; Alt+Enter or Ctrl+F toggles fullscreen.
 - The run directory `play\` holds the generated `game.toml` and the logs of the last start (`last.log`, `last.err`).
 
 ## Known issues
@@ -115,6 +118,8 @@ this repository is MIT licensed ([LICENSE](LICENSE)). Licences of everything the
 - tri-Ace and Enix for the game.
 
 ## For developers
+- Video checks: the input-script action `DUMP <tag>` writes `vram_<tag>.ppm` and the composed window `win_<tag>.png`;
+  `PSXRT_WINDOW_AT=<frame>:<w>x<h>` resizes the window during a run (`docs/notes/2026-10-27-video.md`).
 - Input checks: `env.PSXRT_INPUT_LOG = 1` in `settings.ini` logs the PS1 pad word per key/pad press to `play\last.err`; `env.PSXRT_VPAD_TEST = 1` attaches a virtual gamepad and prints PASS/FAIL per button.
 - Maintainer setup: `INSTALL.bat` also accepts a folder holding the disc files when `SO2_DEV=1` is set, and `SO2_VERBOSE=1`
   echoes the log to the console. `SO2_DATA` (build_all.ps1) points the build at another checkout's `tools\` and `roms\`.
