@@ -109,7 +109,7 @@ set_property(SOURCE ${GAME_SOURCES} "${R}/generated/OpenBIOS_full.c" APPEND PROP
 add_executable(psxrecomp-game
     ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES}
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
-    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp)
+    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
@@ -131,7 +131,14 @@ target_compile_definitions(psxrecomp-game PRIVATE
     PSX_GAME_VERSION="dev"
     FMT_HEADER_ONLY=1 NOMINMAX PSX_SDL3=1 SDL_MAIN_HANDLED
     PSX_NO_DEBUG_TOOLS=1
-    PSX_HAS_GAME_DISPATCH=1)
+    PSX_HAS_GAME_DISPATCH=1
+    PSX_NATIVE_BUILD=1 PSX_ENABLE_BLOCK_CYCLES=1)   # runtime.cmake non-oracle build: without these no guest cycles are counted
+# execution identity header (profile.h + .execution.json), written into our build dir
+include("${R}/cmake/psx_execution_profile.cmake")
+psxrecomp_execution_profile(psxrecomp-game CONTRACT_FILES
+    "${R}/runtime/src/gte.cpp" "${R}/runtime/src/pgxp.cpp" "${R}/runtime/include/hle_gte.h"
+    "${R}/runtime/include/cpu_state.h" "${R}/runtime/include/gte.h" "${R}/runtime/include/pgxp.h"
+    "${R}/runtime/include/render_pass_projection.h")
 set_property(SOURCE "${R}/runtime/src/game_dispatch_compat.c" APPEND PROPERTY COMPILE_DEFINITIONS
     PSX_GAME_DISPATCH_HAS_NATIVE_OK=1 PSX_GAME_DISPATCH_HAS_NATIVE_OK_FULL=1)
 target_compile_options(psxrecomp-game PRIVATE $<$<COMPILE_LANGUAGE:C>:/experimental:c11atomics> /bigobj /utf-8 /GS- /guard:cf- /MP /wd4102 /wd4244 /wd4267 /wd4996 /wd4146)
