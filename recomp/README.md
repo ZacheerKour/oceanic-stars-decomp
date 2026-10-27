@@ -19,7 +19,7 @@ import audit (`rtfull\build.ps1`, output `rtfull\_build_final\`). Everything it 
 `roms\`, `bios\_gen\` (code generated from a Sony BIOS) or the memory card files under `rtfull\_run\memcard\`.
 Run options (environment): `PSXRT_INPUT_SCRIPT=<file>` scripted pad (format in `rtfull\stubs\psxrt_io.c`; scripts in
 `rtfull\input\`), `PSXRT_AUDIO_RMS=1`, `PSXRT_VRAM_DUMP_SEC=n`, `PSXRT_OVSTATS_SEC=n`, `PSX_FPS_TELEMETRY=1`,
-`PSX_FRAME_REPORT_MS=n`, `PSX_HIDDEN_WINDOW=1`. Keyboard: arrows, X = Cross, S = Circle, Z = Square, A = Triangle, Enter = Start.
+`PSX_FRAME_REPORT_MS=n`, `PSX_HIDDEN_WINDOW=1`. Quick-save tests: `rtfull\qrun.ps1` + `rtfull\input\qs_*.txt` (verbs KEY/SDLKEY/MENU in `stubs\psxrt_io.c`; sets SDL_AUDIODRIVER=dummy), logic self-test `cl /DPSXRT_IO_SELFTEST stubs\psxrt_io.c`. Keyboard: arrows, X = Cross, S = Circle, Z = Square, A = Triangle, Enter = Start.
 The sections below are the history of how this was reached.
 
 ## Scaffold (2026-10-26)

@@ -74,6 +74,29 @@ Nintendo-style pad gets Cross on its bottom button too. A pad SDL does not know:
 (community list: <https://github.com/mdqinc/SDL_GameControllerDB>) next to `PLAY.bat`/`PLAY.exe`, or set the
 `SDL_GAMECONTROLLERCONFIG` environment variable.
 
+### Save states, pause menu, fullscreen
+Save states are whole-machine snapshots (not the game's own memory-card save; both work). Nine slots, current slot shown in
+a toast. A new start begins on slot 1.
+
+| Action | Keyboard | Gamepad |
+|---|---|---|
+| Quick save to the current slot | F5 | Select(Back) + R1 (RB) |
+| Quick load from the current slot | F9 | Select(Back) + L1 (LB) |
+| Slot - / + | F6 / F7 | pause menu: Left/Right on the Save or Load row |
+| State browser with thumbnails (12 slots) | F8 | not bound |
+| Pause menu | F10 | Select(Back) + Start, or Back + L3 |
+| Fullscreen | F11, Alt+Enter, Ctrl+F | pause menu row |
+| Reinsert the same disc | Ctrl+C | not bound |
+
+The pad chords hide Select, L1 and R1 from the game while held, so they do not also switch characters; a plain Select press still
+reaches the game. The pause menu freezes the game and audio and lists Resume, Save state, Load state, Swap disc (disc 1/2),
+Toggle fullscreen and Quit; navigate with d-pad/arrows, confirm with Cross/Enter/Space, back with Circle/Esc. Quit asks for a
+second confirm. Esc is Start in the game and never quits; closing the window quits at once (no prompt).
+F3 toggles fast-forward and F4 scanlines (moved so that F6/F9 are free). The game's Tab key is also the runtime's hold-to-fast-forward key, so L2 on the keyboard speeds the game up;
+rebind `Turbo` in `config.ini [KeyMap]` if that bothers you. Do not load a state taken on the other disc: states are stored per disc.
+
+States live in `saves\states\<disc 1 serial>\<bios>\state_<exe entry>_disc<N>_slotNN.pst` (gitignored with `saves\`); memory cards stay in `saves\`.
+
 ### Steam Controller / Steam Deck
 **Untested** (no Steam installation was available for testing). What the code says: the game cannot tell a Steam Controller
 from other pads; it only sees SDL3 gamepads. What to do:
@@ -89,7 +112,7 @@ from other pads; it only sees SDL3 gamepads. What to do:
    hardware is untested.
 
 ## Saves and settings
-- Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAY.bat`. Back that folder up.
+- Memory cards (`card1.mcd`, `card2.mcd`) live in `saves\` and savestates in `saves\states\` next to `PLAY.bat`. Back that folder up.
 - `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`,
   `extra_args = ...` for the runtime, and `env.NAME = value` lines for runtime environment options.
 - The run directory `play\` holds the generated `game.toml` and the logs of the last start (`last.log`, `last.err`).

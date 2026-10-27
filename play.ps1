@@ -49,6 +49,10 @@ foreach ($k in $keys.Keys) { $v = $set["key.$k"]; if (-not $v) { $v = $keys[$k] 
 foreach ($k in 'ls_up', 'ls_down', 'ls_left', 'ls_right', 'rs_up', 'rs_down', 'rs_left', 'rs_right') { $kb += "$k = None`n" }
 [IO.File]::WriteAllText((Join-Path (Split-Path $exe) 'keybinds.ini'), $kb)
 
+# Host hotkeys (runtime config.ini [KeyMap], rewritten each start): F8 state browser (F5/F6/F7/F9 are the quick-save keys, built
+# into the runtime patch), F11 also toggles fullscreen, scanlines/fast-forward-latch moved off F6/F9. F10 = pause menu (built in).
+[IO.File]::WriteAllText((Join-Path (Split-Path $exe) 'config.ini'), "; written by play.ps1`n[KeyMap]`nSaveStateMenu = F8`nFullscreen = Alt+Return, Ctrl+F, F11`nScanlines = F4`nTurboToggle = F3`n")
+
 # Odd gamepads: gamecontrollerdb.txt next to PLAY.bat or the game exe (SDL mapping lines; env SDL_GAMECONTROLLERCONFIG also works).
 foreach ($d in @($root, (Split-Path $exe))) { $f = Join-Path $d 'gamecontrollerdb.txt'
     if ((Test-Path $f) -and -not $env:SDL_GAMECONTROLLERCONFIG_FILE) { $env:SDL_GAMECONTROLLERCONFIG_FILE = $f } }

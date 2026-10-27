@@ -1,0 +1,12 @@
+# Quick-save test at the title menu (OpenBIOS headless: title at ~frame 12000-14000, static).
+# F5 saves slot 1, DOWN moves the cursor to Continue (screen changes), F9 loads: vram_after* must equal vram_saved.
+12500 DUMP saved
+12500 KEY F5
+12600 DOWN
+12610 -
+12700 DUMP changed
+12800 KEY F9
+12803 DUMP after3
+12806 DUMP after6
+12830 DUMP after30
+13000 -

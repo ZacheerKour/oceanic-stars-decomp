@@ -1,0 +1,7 @@
+# Second process of the restart test: no save here; load slot 1 (written by the first process) mid-boot (frame 3000),
+# then dump the title. Compare vram_restored with the first run's vram_saved.
+3000 KEY F9
+3003 DUMP restored3
+3010 DUMP restored10
+3030 DUMP restored30
+3100 -

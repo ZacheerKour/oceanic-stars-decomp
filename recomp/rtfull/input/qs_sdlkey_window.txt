@@ -1,0 +1,11 @@
+# Real SDL key-down events through the runtime's event loop (hidden window run, not headless): F7 slot+, F5 save, F9 load.
+12500 DUMP saved
+12500 SDLKEY F7
+12520 SDLKEY F5
+12600 DOWN
+12610 -
+12700 DUMP changed
+12800 SDLKEY F9
+12806 DUMP after6
+12830 DUMP after30
+13000 -
