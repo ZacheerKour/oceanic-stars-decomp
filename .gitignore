@@ -34,3 +34,9 @@ __pycache__/
 /analysis/cc/
 /recomp/rt/
 /RECOMP_NOTES_ps1recomp.md
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
