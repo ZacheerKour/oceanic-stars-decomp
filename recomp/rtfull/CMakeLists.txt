@@ -37,14 +37,36 @@ message(STATUS "runtime sources from runtime.cmake: ${_n}")
 # non-oracle build: stub interpreter (runtime.cmake mode_source)
 list(APPEND RT_SOURCES "${R}/runtime/src/stub_interpreter.c")
 
-# BIOS backend: OpenBIOS only (generated C committed in the clone). Registry is generated like runtime.cmake does.
+# BIOS backends: OpenBIOS (generated C committed in the clone) plus SCPH5501 when recomp/bios/gen_scph5501.ps1 has
+# emitted it from the user's dump into RETAIL_BIOS_GEN_DIR (gitignored). Registry is generated like runtime.cmake does.
+set(RETAIL_BIOS_GEN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../bios/_gen/generated" CACHE PATH "SCPH5501_full.c + _dispatch.c")
+set(BIOS_STEMS OpenBIOS)
+set(BIOS_SOURCES "${R}/generated/OpenBIOS_full.c" "${R}/generated/OpenBIOS_dispatch.c")
+if(EXISTS "${RETAIL_BIOS_GEN_DIR}/SCPH5501_full.c" AND EXISTS "${RETAIL_BIOS_GEN_DIR}/SCPH5501_dispatch.c")
+    list(APPEND BIOS_STEMS SCPH5501)
+    list(APPEND BIOS_SOURCES "${RETAIL_BIOS_GEN_DIR}/SCPH5501_full.c" "${RETAIL_BIOS_GEN_DIR}/SCPH5501_dispatch.c")
+endif()
+message(STATUS "BIOS backends linked: ${BIOS_STEMS}")
 set(GEN_INC "${CMAKE_BINARY_DIR}/gen_include")
 file(MAKE_DIRECTORY "${GEN_INC}")
+set(_ext "")
+set(_ent "")
+foreach(s IN LISTS BIOS_STEMS)
+    string(APPEND _ext "extern const PsxBiosBackend ${s}_psx_bios_backend;\n")
+    string(APPEND _ent "    &${s}_psx_bios_backend,\n")
+endforeach()
+list(LENGTH BIOS_STEMS _nb)
 file(WRITE "${CMAKE_BINARY_DIR}/psx_bios_registry.c"
-"#include \"psx_bios_backend.h\"\nextern const PsxBiosBackend OpenBIOS_psx_bios_backend;\n"
-"const PsxBiosBackend *const psx_bios_builtin_registry[] = {\n    &OpenBIOS_psx_bios_backend,\n};\n"
-"const uint32_t psx_bios_builtin_registry_count = 1u;\n")
-set(BIOS_SOURCES "${R}/generated/OpenBIOS_full.c" "${R}/generated/OpenBIOS_dispatch.c" "${CMAKE_BINARY_DIR}/psx_bios_registry.c")
+"#include \"psx_bios_backend.h\"\n${_ext}"
+"const PsxBiosBackend *const psx_bios_builtin_registry[] = {\n${_ent}};\n"
+"const uint32_t psx_bios_builtin_registry_count = ${_nb}u;\n")
+list(APPEND BIOS_SOURCES "${CMAKE_BINARY_DIR}/psx_bios_registry.c")
+# runtime.cmake: first non-OpenBIOS stem is the expected retail image; the 5501 shell has no seeds (PSX_SHELLWIN_INTERP=ON)
+if("SCPH5501" IN_LIST BIOS_STEMS)
+    set(BIOS_DEFS PSX_EXPECTED_BIOS_STEM="SCPH5501" PSX_SETUP_BIOS_STEMS="OpenBIOS|SCPH5501" PSX_SHELLWIN_INTERP_DEFAULT=1)
+else()
+    set(BIOS_DEFS PSX_EXPECTED_BIOS_STEM="" PSX_SETUP_BIOS_STEMS="OpenBIOS")
+endif()
 
 # overlay_codegen_hash.h: runtime.cmake writes it into the clone; we write it into the build dir instead.
 set(PSXRECOMP_CODEGEN_HASH_ROOT "${R}")
@@ -104,12 +126,14 @@ psxrt_patch(runtime/src/gpu_gl_renderer.c
 list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/texture_image_decode.cpp")
 
 # generated C is tens of MB: /Od keeps the compile time sane (same flag as recomp/host/compile_generated.ps1)
-set_property(SOURCE ${GAME_SOURCES} "${R}/generated/OpenBIOS_full.c" APPEND PROPERTY COMPILE_OPTIONS /Od)
+set(_bios_full ${BIOS_SOURCES})
+list(FILTER _bios_full INCLUDE REGEX "_full\\.c$")
+set_property(SOURCE ${GAME_SOURCES} ${_bios_full} APPEND PROPERTY COMPILE_OPTIONS /Od)
 
 add_executable(psxrecomp-game
     ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES}
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
-    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c)
+    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
@@ -120,8 +144,7 @@ target_include_directories(psxrecomp-game PRIVATE
 target_compile_definitions(psxrecomp-game PRIVATE
     DEFAULT_DEBUG_PORT=0
     PSX_DEFAULT_BIOS_PATH="bios/OpenBIOS.BIN"
-    PSX_EXPECTED_BIOS_STEM=""
-    PSX_SETUP_BIOS_STEMS="OpenBIOS"
+    ${BIOS_DEFS}
     PSX_SETUP_FRAMEWORK_REL="psxrecomp"
     PSX_BUNDLED_BIOS_PATH="bios/openbios.bin"
     PSX_DEFAULT_GAME_CONFIG_PATH="game.toml"
