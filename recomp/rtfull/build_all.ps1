@@ -12,7 +12,8 @@ roms\disc1\*.cue, optionally roms\scph5501.bin (else OpenBIOS only); VS 2022 Bui
 Usage: powershell -NoProfile -ExecutionPolicy Bypass -File recomp\rtfull\build_all.ps1 [-BuildDir _build_final] [-OverlayOpt /Od]
 Then:  run.ps1 -BuildDir _build_final -Bios <SO2_DATA>\roms\scph5501.bin -Window
 #>
-param([string]$BuildDir = '_build_final', [string]$OverlayOpt = '/Od')
+param([string]$BuildDir = '_build_final', [string]$OverlayOpt = '/O1')
+# /O1 overlay C: inlines the psx_cyc.h helpers, +15% headless fps at the title vs /Od (RECOMP_NOTES 2026-10-27 integration)
 $ErrorActionPreference = 'Stop'
 $Commit = 'f42d2c004b3dd6ef6ccb83101b40ede55f24bf59'
 $here = $PSScriptRoot
