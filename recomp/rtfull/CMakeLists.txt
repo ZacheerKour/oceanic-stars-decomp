@@ -127,7 +127,9 @@ psxrt_patch(runtime/src/main.cpp
     "static_assert(!frame_interpolation_offered && !skip_fmv_offered,"
     "static_assert(true, /* psxrt: MSVC C2131 */"
     "static void env_pad_hold_apply(void) {"
-    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */")
+    "static void env_pad_hold_apply(void) {\n    if ((psxrt_input_script_apply(), false)) {} /* psxrt: scripted pad, stubs/psxrt_io.c */"
+    "        if (psx_local_mouse_event(ev)) continue"   # stubs/psxrt_video.h: redraw a static frame after a window event
+    "        PSXRT_ON_HOST_EVENT(ev)\n        if (psx_local_mouse_event(ev)) continue")
 # Audio evidence tap (stubs/psxrt_io.c, off unless PSXRT_AUDIO_RMS=1): sees the exact bytes handed to the SDL3 stream.
 psxrt_patch(runtime/src/psx_sdl_audio.cpp
     "        s_audio_callback(s_audio_userdata, buffer, chunk)"
@@ -144,7 +146,19 @@ psxrt_patch(runtime/src/gpu_gl_renderer.c
     "__ATOMIC_RELEASE)"
     "0)"
     "__atomic_load_n(&s_pgxp_render_wanted, __ATOMIC_ACQUIRE)"
-    "_InterlockedOr((volatile long *)&s_pgxp_render_wanted, 0)")
+    "_InterlockedOr((volatile long *)&s_pgxp_render_wanted, 0)"
+    # Title menu black (docs/notes/2026-10-27-video.md): SO2 uploads its 640x480 15-bit title picture while GP1 is still in
+    # 24-bit mode from the intro FMV (display 320x240 at 0,240). The area test took it for an MDEC frame, kept it CPU-only and
+    # wiped the band from the FBO on the switch to 15-bit. A movie frame never overruns the band height (rule 1 allows +16).
+    "    if ((int64_t)w * (int64_t)h >= ((int64_t)fb_w * fb_h) / 2) return 1"
+    "    if (h <= fb_h + 16 && (int64_t)w * (int64_t)h >= ((int64_t)fb_w * fb_h) / 2) return 1"
+    # settings.ini scale_mode (stubs/psxrt_video.h): stretch / integer variants of the one letterbox every GL present uses.
+    "    int dw = ww, dh = (ww * den) / num"
+    "    PSXRT_LETTERBOX_ADJUST(ww, wh, num, den)\n    int dw = ww, dh = (ww * den) / num"
+    "    *x = (ww - dw) / 2"
+    "    PSXRT_LETTERBOX_INTEGER(num, den, dw, dh)\n    *x = (ww - dw) / 2")
+set_property(SOURCE "${PATCHED}/main.cpp" "${PATCHED}/gpu_gl_renderer.c" APPEND PROPERTY COMPILE_OPTIONS
+    "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_video.h")
 
 # libwebp is not built: replace the decoder TU with a stub (HD texture packs off)
 list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/texture_image_decode.cpp")
