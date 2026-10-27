@@ -215,7 +215,7 @@ endif()
 add_executable(psxrecomp-game
     ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES} ${OVERLAY_SOURCES} stubs/psxrt_ovstats.c
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
-    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c stubs/psxrt_prof.c stubs/psxrt_audio.c)
+    stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c stubs/psxrt_prof.c stubs/psxrt_audio.c stubs/psxrt_evlog.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
