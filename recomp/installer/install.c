@@ -268,19 +268,19 @@ static char *seven_zip(void) {
 static char *tar_exe(void) { return fmt("%s\\System32\\tar.exe", getenv("SystemRoot") ? getenv("SystemRoot") : "C:\\Windows"); }
 
 static void scan_roms(List *out) {   /* disc files lying directly in roms\ (archives, .bin/.cue/.chd; not the BIOS) */
-    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW(W(fmt("%s\roms\*", root)), &fd); if (h == INVALID_HANDLE_VALUE) return;
+    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW(W(fmt("%s\\roms\\*", root)), &fd); if (h == INVALID_HANDLE_VALUE) return;
     do {
         if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
         char *n = U(fd.cFileName), *e = lower(ext_of(n)), *l = lower(n);
         if (!strncmp(l, "scph", 4)) continue;
-        if (!strcmp(e, ".7z") || !strcmp(e, ".zip") || !strcmp(e, ".cue") || !strcmp(e, ".bin") || !strcmp(e, ".chd") || !strcmp(e, ".iso")) push(out, fmt("%s\roms\%s", root, n));
+        if (!strcmp(e, ".7z") || !strcmp(e, ".zip") || !strcmp(e, ".cue") || !strcmp(e, ".bin") || !strcmp(e, ".chd") || !strcmp(e, ".iso")) push(out, fmt("%s\\roms\\%s", root, n));
     } while (FindNextFileW(h, &fd));
     FindClose(h);
 }
 static void disc_help(void) {
     say("  Put BOTH Star Ocean 2 (USA) disc images into this folder, then run INSTALL.bat again:");
-    say("    %s\roms", root);
-    say("  Accepted: .7z or .zip archives, or .bin (+ .cue) files, any names, any order (see roms\README.txt).");
+    say("    %s\\roms", root);
+    say("  Accepted: .7z or .zip archives, or .bin (+ .cue) files, any names, any order (see roms\\README.txt).");
     say("  Or drag the two disc files onto INSTALL.bat.");
 }
 static void step_discs(List *given) {
@@ -288,8 +288,8 @@ static void step_discs(List *given) {
     int interactive = given->n == 0;
     if (interactive) {
         scan_roms(given);
-        if (given->n) say("  Found %d file(s) in roms\.", given->n);
-        else { say("  No disc files found in roms\."); disc_help(); if (noask) fail("No disc files found. Put both disc images in %s\roms and run INSTALL.bat again.", root); say("  Opening a file picker as a fallback..."); }
+        if (given->n) say("  Found %d file(s) in roms\\.", given->n);
+        else { say("  No disc files found in roms\\."); disc_help(); if (noask) fail("No disc files found. Put both disc images in %s\\roms and run INSTALL.bat again.", root); say("  Opening a file picker as a fallback..."); }
     }
     char *tmp = fmt("%s\\roms\\_unpack", root); int attempt = 0, k = 0;
     while (!(disc_ok(1) && disc_ok(2))) {
