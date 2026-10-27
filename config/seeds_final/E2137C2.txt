@@ -1,0 +1,7 @@
+# E2137C2 load=0x801f6000 size=1008: 6 verified function entries (config/seeds_overlays.txt + verified psxrecomp-discovered extras)
+801f6000
+801f6028
+801f606c
+801f608c
+801f6114
+801f6250

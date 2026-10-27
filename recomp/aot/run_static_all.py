@@ -1,10 +1,11 @@
 """Run psxrecomp's `aot_overlay_pipeline.py static` once per SLZ chunk (one-chunk profiles cut from recomp/aot/overlays.json)
 and tabulate the generator counts.  Runs against a COPY of the audited psxrecomp clone (never tools/ref/psxrecomp).
-    python -E -s recomp/aot/run_static_all.py --mode heur|ours --copy <psxrecomp copy> --recompiler <psxrecomp-game.exe>
+    python -E -s recomp/aot/run_static_all.py --mode heur|ours|final --copy <psxrecomp copy> --recompiler <psxrecomp-game.exe>
         --cue <disc 1 cue> --cmake <cmake.exe> [--only E1C0,E2129C0]
 heur: the pipeline's own entry guesses (prologues, leaves, supplemental seeds, jal roots, root enrichment).
 ours: only config/seeds_overlays.txt + config/indirect_targets.tsv call targets + the 3 A BIOS-stub call roots, A data block
       dropped; needs the copy's `x_entries_only` spec key (2 lines in make_fixed_record) and PSX_OVERLAY_ROOT_ENRICHMENT=0.
+final: config/seeds_final/<CHUNK>.txt (analysis/classify_seeds.py output) + the A stubs, same pipeline switches as ours.
 Writes <copy>/_work/<mode>/<chunk>/ (work dir, log, profile) and <copy>/_work/static_<mode>/<chunk>/ (C), plus
 <copy>/_work/<mode>/summary.tsv.  Nothing is deleted; reruns make new disc-aot-* dirs and overwrite the published C."""
 import argparse, json, os, re, subprocess, sys, time
@@ -18,6 +19,16 @@ KEYS = {'seeds': r'^  seeds: (\d+)', 'fn_entry_pcs': r'^function_entry_pcs: (\d+
         'todo': r'^Unsupported instruction TODOs: (\d+)', 'bad': r'^Unknown/bad targets: (\d+)',
         'nosplit': r'^no_split_guard_demoted: (\d+)', 'identities': r'\((\d+) exact function identities total',
         'tus': r'identities total, (\d+) translation', 'failed': r'^PSX_SHARD_RESULT ok=\d+ failed=(\d+)'}
+
+
+def final_seeds():
+    """config/seeds_final/<CHUNK>.txt (analysis/classify_seeds.py): our seeds + verified psxrecomp-discovered extras; the 3 A stubs and the A data filter as in ours."""
+    out = {}
+    for f in os.listdir(os.path.join(ROOT, 'config', 'seeds_final')):
+        if f.endswith('.txt'):
+            out[f[:-4]] = {int(l, 16) for l in open(os.path.join(ROOT, 'config', 'seeds_final', f)) if l.strip() and l[0] != '#'}
+    out['E1C0'] |= set(A_STUBS)
+    return {k: sorted(a for a in v if not (k == 'E1C0' and A_DATA[0] <= a < A_DATA[1])) for k, v in out.items()}
 
 
 def our_seeds():
@@ -41,7 +52,7 @@ def our_seeds():
 def profile_for(full, name, mode, entries):
     img = next(i for i in full['images'] if 'SLZ/' + name in i['files'])
     image = {**img, 'files': ['SLZ/' + name]}
-    if mode == 'ours':
+    if mode in ('ours', 'final'):
         image.update(entries=[f'0x{a:08x}' for a in entries], x_entries_only=True, supplemental_entries=False)
     p = {k: v for k, v in full.items() if k not in ('prepared_files', 'images')}
     p.update(prepared_files=[f for f in full['prepared_files'] if f['name'] == 'SLZ/' + name], images=[image], expected_records=1)
@@ -52,7 +63,7 @@ def main():
     ap = argparse.ArgumentParser()
     for a in ('--copy', '--recompiler', '--cue', '--cmake'):
         ap.add_argument(a, required=True)
-    ap.add_argument('--mode', choices=('heur', 'ours'), required=True)
+    ap.add_argument('--mode', choices=('heur', 'ours', 'final'), required=True)
     ap.add_argument('--only', default='')
     ap.add_argument('--timeout', type=int, default=3600)
     ap.add_argument('--drop', default='', help='ours: CHUNK:hexaddr,... seeds to leave out (e.g. ones the audit rejects as data)')
@@ -61,14 +72,14 @@ def main():
     names = [f['name'][4:] for f in full['prepared_files']]
     if args.only:
         names = [n for n in names if n in args.only.split(',')]
-    ours = our_seeds() if args.mode == 'ours' else {}
+    ours = {'ours': our_seeds, 'final': final_seeds}.get(args.mode, dict)()
     for item in filter(None, args.drop.split(',')):
         chunk, addr = item.split(':')
         ours[chunk] = [a for a in ours[chunk] if a != int(addr, 16)]
     assert args.mode == 'heur' or set(names) <= set(ours), sorted(set(names) - set(ours))
     work = os.path.join(args.copy, '_work', args.mode)
     os.makedirs(work, exist_ok=True)
-    env = dict(os.environ, PSX_OVERLAY_ROOT_ENRICHMENT='0' if args.mode == 'ours' else '1')
+    env = dict(os.environ, PSX_OVERLAY_ROOT_ENRICHMENT='1' if args.mode == 'heur' else '0')
     rows = []
     for name in names:
         d = os.path.join(work, name)

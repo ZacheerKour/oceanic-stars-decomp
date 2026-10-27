@@ -84,9 +84,9 @@ def extra_seeds():
     return out
 
 
-def main():
+def load_mods():
+    """[(overlays.json entry, decompressed bytes)] for each distinct module (local discs only)."""
     import iso, toc
-    exe = open(PD('extracted', 'SCUS_944.21'), 'rb').read()[0x800:0x800 + 0x1f800]
     D = iso.Disc(PD('roms', 'disc1', 'Star Ocean - The Second Story (USA) (Disc 1).bin')); w, sz = toc.load(D)
     mods, seen, cache = [], set(), {}
     for o in json.load(open(P('config', 'overlays.json')))['overlays']:
@@ -97,6 +97,12 @@ def main():
         if e not in cache:
             l, n = toc.ent(w, sz, e); cache[e] = slz.dec_all(D.read(l, n * 2048))
         mods.append((o, cache[e][o['chunk']]))
+    return mods
+
+
+def main():
+    exe = open(PD('extracted', 'SCUS_944.21'), 'rb').read()[0x800:0x800 + 0x1f800]
+    mods = load_mods()
     matched = [l.rstrip('\n').split('\t') for l in open(P('config', 'matches.tsv')) if not l.startswith('#')]
     mset = {int(m[1], 16): (m[0], int(m[2])) for m in matched}
     # an `addiu sp` that gcc scheduled into a byte-matched body of program A is not an entry (RECOMP_NOTES 2026-10-26)
