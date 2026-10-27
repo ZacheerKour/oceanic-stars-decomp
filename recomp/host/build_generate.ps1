@@ -4,11 +4,13 @@ for the boot exe (recomp\game.toml) and main program A. Allowed only for the aud
 RECOMP_NOTES.md '2026-10-26 psxrecomp safety audit' (verdict SAFE WITH CAVEATS). Never run psxrecomp_cli.py, the codegen
 host, tools\*.py or any prebuilt exe of the clone (overlay_toolchain\, .cache\).
 Uses the installed VS 2022 Build Tools (MSVC + bundled CMake/Ninja), environment for this process only. Output: recomp\host\_out\ (gitignored).
+-Program picks the runs: boot, A (whole-image), A_reach, B, C (the last three in reachable mode; B_reachable.toml, C_reachable.toml).
 Usage: $env:SO2_DATA=<main checkout>; powershell -NoProfile -ExecutionPolicy Bypass -File recomp\host\build_generate.ps1 [-OutName _out] [-ASeeds <file>]
 Nothing is deleted: reruns overwrite (the generator drops its own stale shards). Use a new -OutName for a clean run.
 #>
-param([string]$OutName = '_out', [string]$ASeeds = '')
+param([string]$OutName = '_out', [string]$ASeeds = '', [string[]]$Program = @('boot', 'A', 'A_reach'))
 $ErrorActionPreference = 'Stop'
+$Program = @($Program -split ',')   # -File passes 'a,b' as one string
 $Commit = 'f42d2c004b3dd6ef6ccb83101b40ede55f24bf59'   # audited
 $ExeSha = 'b93e42462aceec120cfad1bfc3cf08f933196ab24a4e018b5f494c74e213abe7'   # SCUS_944.21
 $here = $PSScriptRoot
@@ -48,17 +50,23 @@ Set-Content "$P\.gitignore" 'generated/'   # find_project_root stops here
 & python -I (Join-Path $repo 'recomp\sandbox\stage_overlays.py') $repo "$O\stage"   # A.exe + A.seeds.txt (and B, C)
 if ($LASTEXITCODE) { throw 'stage_overlays.py failed' }
 if ($ASeeds) { Copy-Item $ASeeds "$O\stage\A.seeds.txt" }   # alternative A seed list (0x-prefixed)
-# program A again with [recompiler] discovery = "reachable" (exact-entry walk from the seeds; no data-as-code sweep)
-$R = Join-Path $O 'proj_reach'
-New-Item -ItemType Directory -Force "$R\bios" | Out-Null
-Copy-Item "$O\stage\A.exe", "$O\stage\A.seeds.txt" $R
-Copy-Item (Join-Path $here 'A_reachable.toml') "$R\game.toml"
-Copy-Item "$src\bios\SCPH1001.toml" "$R\bios\SCPH1001.toml"
-Set-Content "$R\.gitignore" 'generated/'
-
-$runs = @(@('boot', "$P\generated", @('--config', "$P\game.toml", '--project-root', $P)),
-          @('A', "$O\gen_A", @("$O\stage\A.exe", '--seeds', "$O\stage\A.seeds.txt", '--out-dir', "$O\gen_A", '--project-root', $P)),
-          @('A_reach', "$R\generated", @('--config', "$R\game.toml", '--project-root', $R)))
+# programs A, B, C again with [recompiler] discovery = "reachable" (exact-entry walk from the seeds; no data-as-code sweep)
+function ReachProj($pg) {
+  $d = Join-Path $O "proj_reach$(if ($pg -ne 'A') { "_$pg" })"
+  New-Item -ItemType Directory -Force "$d\bios" | Out-Null
+  Copy-Item "$O\stage\$pg.exe", "$O\stage\$pg.seeds.txt" $d
+  Copy-Item (Join-Path $here "${pg}_reachable.toml") "$d\game.toml"
+  Copy-Item "$src\bios\SCPH1001.toml" "$d\bios\SCPH1001.toml"
+  Set-Content "$d\.gitignore" 'generated/'
+  $d
+}
+$R = ReachProj 'A'
+$allRuns = [ordered]@{
+  boot = @('boot', "$P\generated", @('--config', "$P\game.toml", '--project-root', $P))
+  A = @('A', "$O\gen_A", @("$O\stage\A.exe", '--seeds', "$O\stage\A.seeds.txt", '--out-dir', "$O\gen_A", '--project-root', $P))
+  A_reach = @('A_reach', "$R\generated", @('--config', "$R\game.toml", '--project-root', $R)) }
+foreach ($pg in 'B', 'C') { if ($Program -contains $pg) { $d = ReachProj $pg; $allRuns[$pg] = @($pg, "$d\generated", @('--config', "$d\game.toml", '--project-root', $d)) } }
+$runs = @($Program | ForEach-Object { ,$allRuns[$_] })
 foreach ($r in $runs) {
   & $gen @($r[2]) *> "$O\generate_$($r[0]).log"
   $rc = $LASTEXITCODE

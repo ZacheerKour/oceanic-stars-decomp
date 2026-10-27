@@ -1,0 +1,23 @@
+# Hand-verified function entries that no jal/prologue/indirect row finds, merged by analysis/make_seeds.py (module id as in seeds_overlays.txt).
+# Source: RECOMP_NOTES.md '2026-10-26 Host generation B/C, A orphan starts'. Format: `# module <id>` then `<hex addr>  # evidence`.
+# module e1c0
+80042bb0  # after jr ra; move v0,a0 / vtable ptr store: constructor, no jal caller
+8004ffa0  # after jr ra; setter (sw a1,0x50(a0); jr ra; sw a1,0x64)
+8004ffac  # after jr ra; getter lbu v0,0x59(a0)
+8004ffec  # after jr ra+addiu sp delay; copies 15 words from table 0x80050adc
+80066e00  # after jr ra; sign-extend a1, *45 scale
+800692d4  # after jr ra; lhu/sh field copy
+8006a05c  # empty function: jr ra; nop
+8006aa04  # accessor cluster 0x8006aa04..0x8006aa64: each starts after jr ra (+delay slot), no prologue
+8006aa0c  # accessor
+8006aa18  # accessor
+8006aa24  # accessor
+8006aa34  # accessor
+8006aa40  # accessor
+8006aa4c  # accessor
+8006aa58  # accessor
+8006aa64  # accessor
+8006ae44  # empty function
+8006ae4c  # setter sw a1,0x58(a0)
+8006ae9c  # pointer word to it at 0x80067aa8 and 0x8007495c (table entry); after jr ra
+8006d5e0  # after jr ra; sign-extend a1, table lookup 0x80074bcc

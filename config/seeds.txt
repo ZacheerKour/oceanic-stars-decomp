@@ -1,4 +1,4 @@
-# Boot exe SCUS_944.21 (0x80010000..0x8002f800) function-entry seeds: 527 addresses.
+# Boot exe SCUS_944.21 (0x80010000..0x8002f800) function-entry seeds: 526 addresses.
 # Source: analysis/make_seeds.py = jal targets (exe + all overlays) + addiu-sp prologues + header entry pc. Heuristic.
 80010000
 80010008
@@ -178,7 +178,6 @@
 8001a3e8
 8001a480
 8001a4b8
-8001a530
 8001a5a0
 8001a5d8
 8001a650
