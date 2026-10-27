@@ -29,3 +29,5 @@ __pycache__/
 /saves/
 /play/
 /PLAY.exe
+/install.log
+/.install/
