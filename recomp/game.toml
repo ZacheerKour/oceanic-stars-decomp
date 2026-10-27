@@ -23,6 +23,9 @@ seeds = "seeds/seeds.txt"               # copy of config/seeds.txt (boot exe). F
 out_dir = "generated"
 strict = true                           # config_loader.cpp default is true; schema: "currently always true"
 discovery = "whole-image"               # "reachable" follows jal only and leaves jalr targets to the interpreter: --exact found 140 of 570 boot functions (RECOMP_NOTES 'First analyze run')
+bios_config = "psxrecomp/bios/SCPH5501.toml"  # retail SCPH-5501 (user's own dump, never committed) is the runtime BIOS; its address model
+                                        # folds RAM aliases for game codegen. Apply recomp/bios/SCPH5501_install_slots.patch to the
+                                        # submodule first (one SO2 kernel patch range); RECOMP_NOTES '2026-10-27 BIOS usage'
 
 [prepare_disc]                          # parallel lists, disc 1 then disc 2: our local single-track .bin dumps (not compared with Redump: no offline DB)
 out_dir = "disc"                        # prepare_disc.py default would be "prepared_disc"; "disc" makes [game] exe resolve
@@ -36,6 +39,9 @@ known_sha1  = ["ccd092233b353d2aa7bb80ecdb2b76f456430b41", "68178c55a430eab3e97e
 [runtime]
 overlay_cache = true                    # psxrecomp scaffold default (probe_disc.py) and required by the packager (GAME_PROJECT_SETUP.md); records the SLZ overlays it interprets
 disc_speed = "1x"                       # = runtime default ("default: authentic 1x timing", runtime/src/main.cpp f42d2c0); faster ("2x"/"4x"/"instant") is a later tuning step that needs a boot test
+openbios = false                        # retail required: OpenBIOS stores the device-table END (0x6238) at 0x154 where the game
+                                        # (A 0x8004B2B0, C 0x80071530) reads a byte size, and SO2's 8 Psy-Q kernel patchers are laid out
+                                        # for the retail kernel (B0[0x5B]+0x594/0x62C/0x884/0x894/0x9C8). RECOMP_NOTES '2026-10-27 BIOS usage'
 # bios_hle = false                      # off = pure LLE, the runtime default (opt-in, runtime/include/bios_hle.h); keep it: the game hooks BIOS device handlers (DCB+0x34, A 0x8004B344), so the real kernel must run
 # Audio/video: no XA and no CD-DA to configure. Sector census 2026-10-26: no sector on either disc has the XA audio (0x04) or
 # video (0x02) submode bit (disc 1: 236155 data, 216 Form 2, 160 other), and both cues are single-track (no CD-DA).

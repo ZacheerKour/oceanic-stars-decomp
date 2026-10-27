@@ -6,7 +6,10 @@ Programs: exe @0x80010000, A/B/C @0x8002F810 (as analysis/indirect.py); 'other' 
 Method: (1) BIOS calls = `addiu/ori t2,zero,0xA0/B0/C0` followed (<=2 words) by jr/jalr t2, with `addiu/ori t1,zero,N`
 within -3..+3 words (delay slot included); also `jal 0xA0/0xB0/0xC0`.  (2) hw registers: forward constant tracking of
 lui/addiu/ori/addu/move inside straight-line runs, every lw/sw/lh/sh/lb/sb whose effective address is 0x1F80xxxx.
-(3) GTE: cop2 command / mfc2,cfc2,mtc2,ctc2,lwc2,swc2 census.  Data inside images yields rare false positives."""
+(3) GTE: cop2 command / mfc2,cfc2,mtc2,ctc2,lwc2,swc2 census.  Data inside images yields rare false positives.
+(4) Psy-Q kernel patchers (GetB0Table/GetC0Table + writes at entry+offset), resolved against the retail dump
+roms/scph5501.bin (layout only, never printed as bytes) and OpenBIOS; OpenBIOS coverage of every function number used
+and the system-table words (0x150/0x154 device table) it writes.  --selftest checks the call/patch decoders."""
 import os, sys, struct, glob, json, collections
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -193,33 +196,89 @@ def device_sites(base, b):
            [base + 4 * i for i, x in enumerate(w) if (x >> 26) in (0x23, 0x2b) and (x & 0xffff) == 0x34 and ((x >> 21) & 31) not in (29, 0)]
 
 
-def lowram_refs(base, b):
-    """lw/sw/lh/sh/lb/sb with base $zero and offset < 0x10000: direct kernel-variable access (0x100.. tables, 0x80 vectors)"""
-    n = len(b) // 4
-    w = struct.unpack('<%dI' % n, b[:n * 4])
-    c = collections.defaultdict(list)
-    for i, x in enumerate(w):
-        if (x >> 26) in (0x20, 0x21, 0x23, 0x24, 0x25, 0x28, 0x29, 0x2b) and ((x >> 21) & 31) == 0 and 0 < (x & 0xffff) < 0x8000:
-            c[x & 0xffff].append(base + 4 * i)
-    return c
+def words(b):
+    return struct.unpack('<%dI' % (len(b) // 4), b[:len(b) // 4 * 4])
 
 
-def open_tables():
-    """OpenBIOS A0/B0/C0 tables (RAM 0x464c: A0 192 entries, C0 32, B0 97) -> {(table,fn): ('impl', sym)|'dummy'|'unimpl'}"""
-    f = PD('tools', 'ref', 'psxrecomp', 'bios', 'openbios.bin'); sf = PD('tools', 'ref', 'psxrecomp', 'recompiler', 'seeds', 'openbios_elf_seeds.json')
-    if not (os.path.exists(f) and os.path.exists(sf)): return None
-    d = open(f, 'rb').read()
-    lab = {int(x['address'], 16): x['label'] for x in json.load(open(sf))['seeds']}
-    w = [struct.unpack_from('<I', d, 0x1E4D4 + 0x464c - 0x500 + 4 * i)[0] for i in range(321)]
-    out = {}
-    for t, b0, n in ((0xA0, 0, 192), (0xC0, 192, 32), (0xB0, 224, 97)):
-        for fn in range(n):
-            v = w[b0 + fn]
-            out[(t, fn)] = 'unimpl' if v == 0x2afc else 'dummy' if lab.get(v) == 'psxdummy' else lab.get(v, 'kernelRAM@%X' % v)
+def table_patches(base, b, calls):
+    """Psy-Q libapi kernel patchers: after B0(0x56) GetC0Table / B0(0x57) GetB0Table the code loads one table entry
+    (lw v0,4*i(v0)) and writes at fixed offsets from that function's address.  -> [(site, table, entry, [(op, off)])]
+    shortcut: offsets are taken until $v0 is first rewritten (an addi v0,v0,imm is recorded as the last 'ptr');
+    a copy loop's own pointer bumps and later stores are then left out, so the word count is read by hand."""
+    w, out = words(b), []
+    for pc, t, fn, kind in calls:
+        if t != 0xB0 or fn not in (0x56, 0x57): continue
+        i = (pc - base) // 4 + 2
+        while i < len(w) and not ((w[i] >> 16) == 0x8C42): i += 1           # lw v0,imm(v0)
+        if i >= len(w) or i - (pc - base) // 4 > 6: continue
+        ent, ops = (w[i] & 0xffff) // 4, []
+        for x in w[i + 1:i + 40]:
+            op, rs, rt, im = x >> 26, (x >> 21) & 31, (x >> 16) & 31, S(x & 0xffff)
+            if op in (0x2b, 0x23) and rs == 2: ops.append(('sw' if op == 0x2b else 'lw', im))   # sw/lw rt,imm(v0)
+            if op in (8, 9) and rs == 2 and rt in (2, 3) and im != 4: ops.append(('ptr', im))   # addi v0/v1,v0,imm (not a loop bump)
+            if x == 0x03e00008 or (op in (8, 9, 0x0d, 0x0f, 0x23) and rt == 2) or (op == 0 and (x >> 11) & 31 == 2): break
+        out.append((pc, 'C0' if fn == 0x56 else 'B0', ent, ops))
     return out
 
 
+def retail_layout(path):
+    """Retail SCPH-5xxx kernel facts read from the user's own dump (addresses only, no bytes printed).
+    Kernel part 2 (ROM 0x10000..0x18000) is copied to RAM 0x500; B0/C0 tables sit at RAM 0x874/0x674."""
+    r = open(path, 'rb').read()
+    k = lambda a: struct.unpack_from('<I', r, 0x10000 + a - 0x500)[0]
+    w = words(r)
+    dcb = [hex(4 * i) for i, x in enumerate(w) if x >> 26 == 0x2b and (x & 0xffff) in (0x150, 0x154)
+           and any(w[j] >> 26 == 0x0f and (w[j] & 0xffff) == 0xa000 for j in range(max(0, i - 6), i))]
+    return {'B0': lambda i: k(0x874 + 4 * i), 'C0': lambda i: k(0x674 + 4 * i), 'dcb_stores': dcb, 'word': k}
+
+
+def openbios_layout(path, seeds):
+    """OpenBIOS: the A0/B0/C0 tables are one ROM array (A0 0xC0 + C0 0x20 + B0 0x60 entries), anchored on the
+    psxtodigit symbol (A0 0x0A) and checked against getFreeEvCBSlot (C0 4) and openEvent (B0 8)."""
+    r = open(path, 'rb').read()
+    w = words(r)
+    sym = {int(s['address'], 16): s['label'] for s in json.load(open(seeds))['seeds']}
+    inv = {v: k for k, v in sym.items()}
+    a0 = w.index(inv['psxtodigit']) - 0x0A
+    c0, b0 = a0 + 0xC0, a0 + 0xE0
+    assert sym.get(w[c0 + 4]) == 'getFreeEvCBSlot' and sym.get(w[b0 + 8]) == 'openEvent', 'OpenBIOS table anchor moved'
+    ent = lambda t, i: w[{'A0': a0, 'B0': b0, 'C0': c0}[t] + i]
+    # a RAM entry that is a 3-instruction trampoline into the ROM 'unimplemented' handler = not implemented
+    unimpl = inv.get('unimplemented')
+    def name(t, i):
+        x = ent(t, i)
+        if x in sym: return sym[x]
+        o = 0x1E4D4 + x - 0x500                         # kernel .data LMA (bios/OpenBIOS.toml): RAM 0x500 <- ROM 0x1E4D4
+        if 0 <= o < len(r) - 8 and unimpl is not None:
+            hi, lo = struct.unpack_from('<2I', r, o)
+            if hi >> 16 == 0x3C02 and lo >> 16 == 0x2442 and ((hi & 0xffff) << 16) + S(lo & 0xffff) == unimpl:
+                return 'UNIMPLEMENTED'
+        return 'ram_%04X' % x
+    sysw = {}                                            # sw rt,0x40..0x54(v1) after addiu v1,v1,0x100 (setupFileIO)
+    for i, x in enumerate(w):
+        if x >> 26 == 9 and (x & 0xffff) == 0x100 and ((x >> 16) & 31) == ((x >> 21) & 31) == 3:
+            regs = {}
+            for y in w[i + 1:i + 16]:
+                if y >> 26 == 0x0f: regs[(y >> 16) & 31] = (y & 0xffff) << 16
+                elif y >> 26 == 9: regs[(y >> 16) & 31] = (regs.get((y >> 21) & 31, 0) + S(y & 0xffff)) & 0xffffffff
+                elif y >> 26 == 0x2b and (y >> 21) & 31 == 3:
+                    sysw[0x100 + (y & 0xffff)] = regs.get((y >> 16) & 31)
+            break
+    return {'name': name, 'ent': ent, 'sys': sysw}
+
+
+def selftest():
+    # addiu t1,zero,0x57 ; addiu t2,zero,0xB0 ; jalr t2 ; nop ; lw v0,0x16c(v0) ; addi v1,v0,0x62c ; sw zero,0(v1) ; jr ra
+    b = struct.pack('<8I', 0x24090057, 0x240A00B0, 0x0140F809, 0, 0x8C42016C, 0x2043062C, 0xAC600000, 0x03E00008)
+    c = scan_calls(0x80000000, b)
+    assert c == [(0x80000004, 0xB0, 0x57, 'jalr')], c
+    assert table_patches(0x80000000, b, c) == [(0x80000004, 'B0', 0x5B, [('ptr', 0x62C)])]
+    print('selftest ok')
+    return 0
+
+
 def main():
+    if '--selftest' in sys.argv: return selftest()
     md = '--md' in sys.argv
     imgs, other = load()
     print('# programs: ' + ', '.join('%s %d B' % (k, len(v[1])) for k, v in imgs.items()) + '; other overlays %d' % len(other))
@@ -241,20 +300,35 @@ def main():
     for (t, fn), s in sorted(u.items(), key=lambda kv: (kv[0][0], -1 if kv[0][1] is None else kv[0][1])):
         tn, tab = TABLES[t]
         print('%s(%s) %-30s modules=%d' % (tn, '??' if fn is None else '0x%02X' % fn, tab.get(fn, '?'), len(s)))
-    ot = open_tables()
-    if ot:
-        print('\n## OpenBIOS status of every (table,fn) the game calls (unimpl = common error stub 0x2AFC, dummy = returns 0)')
-        used = collections.defaultdict(set)
-        for k, calls in allcalls.items():
-            for pc, t, fn, kind in calls: used[(t, fn)].add(k)
-        for (t, fn), who in sorted(used.items(), key=lambda kv: (kv[0][0], kv[0][1] if kv[0][1] is not None else -1)):
-            tn, tab = TABLES[t]
-            st = ot.get((t, fn), 'n/a') if fn is not None else 'n/a'
-            print('%s(%s) %-28s %-26s used by %s' % (tn, '??' if fn is None else '0x%02X' % fn, tab.get(fn, '?'), st, ','.join(sorted(who))))
-    print('\n## direct low-RAM kernel variable accesses (base $zero, offset<0x8000), offset: site count')
+    print('\n## kernel patchers (GetC0Table/GetB0Table, then writes at entry+offset)')
+    patches = []
     for k, (base, b) in imgs.items():
-        c = lowram_refs(base, b)
-        print(k, ' '.join('%X:%d' % (o, len(v)) for o, v in sorted(c.items())))
+        for pc, t, e, ops in table_patches(base, b, allcalls[k]):
+            patches.append((k, pc, t, e, ops))
+            print('%s %08X %s[0x%02X] %s' % (k, pc, t, e, ' '.join('%s+0x%X' % o for o in ops) or '(pointer moved: by hand)'))
+    used = sorted({(TABLES[t][0], fn) for c in allcalls.values() for _, t, fn, _ in c if fn is not None})
+    retail = PD('roms', 'scph5501.bin')
+    if os.path.exists(retail):
+        R = retail_layout(retail)
+        print('\n## retail SCPH-5501 layout (local dump; addresses only)')
+        print('device table: sw 0x150/0x154 via lui 0xA000 at ROM', ' '.join(R['dcb_stores']),
+              '(0x150 = table base, 0x154 = size in bytes = count*0x50)')
+        for k, pc, t, e, ops in patches:
+            f = R[t](e)
+            print('%s %08X %s[0x%02X]=%04X -> %s' % (k, pc, t, e, f, ' '.join('%s %04X' % (o, f + d) for o, d in ops)))
+    ob = PD('tools', 'ref', 'psxrecomp', 'bios', 'openbios.bin')
+    if os.path.exists(ob):
+        O = openbios_layout(ob, PD('tools', 'ref', 'psxrecomp', 'recompiler', 'seeds', 'openbios_elf_seeds.json'))
+        print('\n## OpenBIOS coverage of every function number used (exe/A/B/C)')
+        for t, fn in used:
+            n = O['name'](t, fn)
+            print('%s(0x%02X) %-28s OpenBIOS: %s%s' % (t, fn, TABLES[{'A0': 0xA0, 'B0': 0xB0, 'C0': 0xC0}[t]][1].get(fn, '?'), n,
+                                                   '   <-- GAP' if n == 'UNIMPLEMENTED' else ''))
+        print('system table words OpenBIOS writes at boot:', ' '.join('%X=%X' % kv for kv in sorted(O['sys'].items())),
+              '(game reads 0x154 as size; OpenBIOS stores an END address there)' if O['sys'].get(0x154, 0) > O['sys'].get(0x150, 0) else '')
+        for k, pc, t, e, ops in patches:
+            f = O['ent'](t, e) & 0x1fffffff
+            print('OpenBIOS %s %08X %s[0x%02X]=%04X -> %s' % (k, pc, t, e, f, ' '.join('%s %04X' % (o, f + d) for o, d in ops)))
     print('\n## device-table walks (lw 0x150/0x154($zero)) and DCB+0x34 accesses')
     for k, (base, b) in imgs.items():
         a, c = device_sites(base, b)
