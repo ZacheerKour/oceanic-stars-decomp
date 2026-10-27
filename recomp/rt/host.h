@@ -23,4 +23,11 @@ uint32_t gpu_stat(int odd_field);
 void     gpu_dump_vram(const char *path);
 void     gpu_dump_display(const char *path);
 extern uint64_t g_gpu_prims;
+
+/* MDEC (mdec.c): 0x1F801820 (MDEC0) / 0x1F801824 (MDEC1), DMA0 in, DMA1 out. */
+void     mdec_write0(uint32_t v);
+void     mdec_write1(uint32_t v);
+uint32_t mdec_read0(void);
+uint32_t mdec_status(void);
+uint32_t mdec_out_avail(void);
 #endif

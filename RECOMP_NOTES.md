@@ -570,3 +570,7 @@ The run now writes files, but only into the `--dump` directory (`_out`).
 2. **`VSync: timeout` x200 = cycle model too fast for compiled loops.** Vcount (0x8002D024) did advance (0x10B at stop). libetc `v_wait` (0x8001FFC8) counts `timeout << 15`
    iterations of a 2-block loop; rt charged 8 cycles per compiled block, so 32768 iterations took ~524k cycles < one frame (564,480). **Fix:** 15 cycles per block
    (`psx_check_interrupts_at`). Evidence: run `g2`, 1200 vblanks, 0 `VSync: timeout` (was 462 in 600), C0.0A ChangeClearRCnt calls 464 -> 2.
+3. **Stall in program A at 0x800504B4 (MDEC busy wait) = no MDEC.** After the logos the game resets the MDEC (libpress) and polls MDEC1 status bit 29 (busy); rt returned
+   the last written control word (0x60000000), so it waited forever (run `g2`, unmodelled I/O `1F801824/0`, ReadS at LBA 138051). **Fix:** `recomp/rt/mdec.c` (run-length +
+   float IDCT + YUV->RGB, 24/15-bit output, quant tables; DMA0 in, DMA1 out deferred until the decoder has the words) and 24-bit display dumps.
+   Evidence: run `m1`, 2400 vblanks, `dma: ch0=425 ch1=8420`, 4635 sectors read; frames show the LINKS logo and the opening movie (planets).

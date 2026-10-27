@@ -217,21 +217,23 @@ uint32_t gpu_stat(int odd_field) {
 }
 
 /* ---- dumps (into the run's gitignored _out dir) ---------------------------------------- */
-static void ppm(const char *path, int x0, int y0, int w, int h) {
+static void ppm(const char *path, int x0, int y0, int w, int h, int rgb24) {
     FILE *f = fopen(path, "wb"); int x, y;
     if (!f) return;
     fprintf(f, "P6\n%d %d\n255\n", w, h);
     for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
-        uint16_t c = VR(x0 + x, y0 + y); uint8_t p[3];
-        p[0] = (uint8_t)((c & 31) << 3); p[1] = (uint8_t)((c >> 5 & 31) << 3); p[2] = (uint8_t)((c >> 10 & 31) << 3);
+        uint8_t p[3];
+        if (rgb24) { int b = x * 3, k; for (k = 0; k < 3; k++) p[k] = (uint8_t)(VR(x0 + (b + k) / 2, y0 + y) >> ((b + k) & 1) * 8); }
+        else { uint16_t c = VR(x0 + x, y0 + y);
+            p[0] = (uint8_t)((c & 31) << 3); p[1] = (uint8_t)((c >> 5 & 31) << 3); p[2] = (uint8_t)((c >> 10 & 31) << 3); }
         fwrite(p, 1, 3, f);
     }
     fclose(f);
 }
-void gpu_dump_vram(const char *path) { ppm(path, 0, 0, 1024, 512); }
+void gpu_dump_vram(const char *path) { ppm(path, 0, 0, 1024, 512, 0); }
 void gpu_dump_display(const char *path) {
     static const int hw[8] = { 256, 320, 512, 640, 368, 368, 368, 368 };
     int w = (gp1_mode & 0x40) ? 368 : hw[gp1_mode & 3], h = ((gp1_mode & 0x24) == 0x24) ? 480 : 240;
     (void)hw[4];
-    ppm(path, (int)disp_x, (int)disp_y, w, h);
+    ppm(path, (int)disp_x, (int)disp_y, w, h, (gp1_mode & 0x10) != 0);
 }

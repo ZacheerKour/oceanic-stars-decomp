@@ -69,6 +69,13 @@ static void dma_run(int ch) {
     uint32_t *r = (uint32_t *)(io + 0x080 + ch * 16); /* MADR, BCR, CHCR */
     uint32_t addr = r[0] & 0x1FFFFC, chcr = r[2], i, n;
     uint32_t *dicr = (uint32_t *)(io + 0x0F4);
+    static int mdec_out_pending;
+    if (ch == 1) {                                    /* MDEC out: wait until the decoder has the words */
+        n = (r[1] & 0xFFFF) * (((chcr >> 9) & 3) ? (r[1] >> 16) : 1);
+        if (mdec_out_avail() < n) { mdec_out_pending = 1; return; }
+        mdec_out_pending = 0;
+        for (i = 0; i < n; i++, addr = (addr + 4) & 0x1FFFFC) { uint32_t v = mdec_read0(); memcpy(ram + addr, &v, 4); }
+    }
     n_dma[ch]++;
     if (ch == 2 && ((chcr >> 9) & 3) == 2) {          /* GPU linked list: feed each packet to GP0 */
         for (i = 0; i < 0x100000; i++) {
@@ -93,13 +100,17 @@ static void dma_run(int ch) {
         }
     } else if (ch == 3) {
         host_cd_dma(ram, addr, (r[1] & 0xFFFF) * ((r[1] >> 16) ? (r[1] >> 16) : 1));
-    } /* ch 0/1 MDEC, 4 SPU, 5 PIO: completed without data (headless) */
+    } else if (ch == 0) {                             /* MDEC in */
+        n = (r[1] & 0xFFFF) * (((chcr >> 9) & 3) ? (r[1] >> 16) : 1);
+        for (i = 0; i < n; i++, addr = (addr + 4) & 0x1FFFFC) mdec_write0(rd32(ram + addr));
+    } /* ch 4 SPU, 5 PIO: completed without data (headless) */
     r[2] &= ~((1u << 24) | (1u << 28));
     if (*dicr & (1u << (16 + ch))) *dicr |= 1u << (24 + ch);
     if ((*dicr & (1u << 23)) && ((*dicr >> 24) & (*dicr >> 16) & 0x7F)) {
         if (!(*dicr & 0x80000000u)) I_STAT |= 8;
         *dicr |= 0x80000000u;
     }
+    if (ch == 0 && mdec_out_pending && (*(uint32_t *)(io + 0x098) & (1u << 24))) dma_run(1);
 }
 
 /* ---- I/O ------------------------------------------------------------------------ */
@@ -133,6 +144,8 @@ static uint32_t io_read(uint32_t p, int w) {
     case 0x040: return 0xFF;                          /* SIO RX: no controller */
     case 0x044: return 0x7;                           /* TX ready, RX not empty */
     case 0x810: return gpu_read();
+    case 0x820: return mdec_read0();
+    case 0x824: return mdec_status();
     case 0x814: return gpu_stat((int)(n_vblank & 1));
     case 0xDAE: return *(uint16_t *)(io + 0xDAA) & 0x3F; /* SPUSTAT mirrors SPUCNT mode */
     }
@@ -148,6 +161,8 @@ static void io_write(uint32_t p, uint32_t v, int w) {
     if (off == 0x070) { I_STAT &= v; return; }
     if (off == 0x810) { n_gp0++; gpu_gp0(v); return; }
     if (off == 0x814) { n_gp1++; gpu_gp1(v); return; }
+    if (off == 0x820) { mdec_write0(v); return; }
+    if (off == 0x824) { mdec_write1(v); return; }
     if (off == 0x0F4) {
         uint32_t *d = (uint32_t *)(io + 0x0F4);
         *d = (v & 0x00FFFFFF) | (*d & 0x7F000000 & ~(v & 0x7F000000));
