@@ -33,7 +33,9 @@ static const char *SIDEFILL_FS =
     "  frag = vec4(c, 1.0); }\n";
 
 static GLuint s_sf_prog = 0, s_sf_pic = 0, s_sf_art = 0;
-static int    s_sf_pw = 0, s_sf_ph = 0, s_sf_art_tried = 0, s_sf_ctx_gen = 0;
+static int    s_sf_pw = 0, s_sf_ph = 0, s_sf_art_tried = 0;
+static void *s_sf_ctx = NULL;
+static const char *s_sf_names[8] = { "u_pic", "u_art", "u_prect", "u_win", "u_pcover", "u_acover", "u_mode", "u_feather" };
 static GLint  s_sf_u[9];
 
 /* uv window (offset.xy, scale.zw) that cover-scales an iw x ih image onto the ww x wh window, centred */
@@ -58,15 +60,13 @@ static void psxrt_sidefill(int ww, int wh) {
     int lx, ly, lw, lh;
     if (!mode || !s_present_vao) return;
     letterbox_rect(ww, wh, &lx, &ly, &lw, &lh);
-    if (lw < 16 || lh < 16 || (lw >= ww - 1 && lh >= wh - 1)) return;   /* picture fills the window: no fill */
-    if (!s_sf_prog) {
-        s_sf_prog = build_program(SIDEFILL_VS, SIDEFILL_FS);
-        if (!s_sf_prog) { s_sf_prog = (GLuint)-1; return; }
-        static const char *n[9] = { "u_pic", "u_art", "u_prect", "u_win", "u_pcover", "u_acover", "u_mode", "u_feather", 0 };
-        for (int i = 0; i < 8; i++) s_sf_u[i] = p_glGetUniformLocation(s_sf_prog, n[i]);
-    }
+    if (lw < 16 || lh < 16 || (ww - lw < 4 && wh - lh < 4)) return;   /* picture fills the window (bars under ~4px): no fill */
     if (s_sf_prog == (GLuint)-1) return;
-    if (s_sf_pic && !glIsTexture(s_sf_pic)) { s_sf_pic = s_sf_art = 0; s_sf_pw = s_sf_ph = 0; s_sf_art_tried = 0; }   /* new context */
+    { void *cx = SDL_GL_GetCurrentContext(); if (cx != s_sf_ctx) {   /* new GL context: every id from the old one is dead */
+        if (s_sf_ctx) { s_sf_prog = s_sf_pic = s_sf_art = 0; s_sf_pw = s_sf_ph = 0; s_sf_art_tried = 0; }
+        s_sf_ctx = cx; } }
+    if (!s_sf_prog) { s_sf_prog = build_program(SIDEFILL_VS, SIDEFILL_FS); if (!s_sf_prog) { s_sf_prog = (GLuint)-1; return; }
+        for (int i = 0; i < 8; i++) s_sf_u[i] = p_glGetUniformLocation(s_sf_prog, s_sf_names[i]); }
     if (mode == 2 && !s_sf_art_tried) {   /* one random PNG per boot; none usable -> blur */
         int w = 0, h = 0;
         unsigned char *px = psxrt_sidefill_pick(&w, &h);

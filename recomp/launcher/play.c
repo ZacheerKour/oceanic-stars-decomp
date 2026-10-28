@@ -238,7 +238,7 @@ static int prepare(const char *root, Prep *o) {
     while (*x) {   /* -split '\s+' */
         while (isws(*x)) x++; if (!*x) break;
         const char *e = x; while (*e && !isws(*e)) e++;
-        sb_f(&a, " \"%.*s\"", (int)(e - x), x); x = e;
+        sb_s(&a, " \""); for (const char *q = x; q < e; q++) { char c1[3] = { '\\', *q, 0 }; sb_s(&a, *q == '"' ? c1 : c1 + 1); } sb_s(&a, "\""); x = e;
     }
     o->exe = exe; o->args = a.p; o->run = P;
     for (int i = 0; i < sn; i++) if (!_strnicmp(sk[i], "env.", 4) && sk[i][4]) o->env[o->nenv++] = fmt("%s=%s", sk[i] + 4, sv[i]);
@@ -323,8 +323,13 @@ static int ini_write(const char *root, const char *key, const char *val) {
     if (!exists(path)) CopyFileW(W(fmt("%s\\settings.default.ini", root)), W(path), TRUE);
     HANDLE h = CreateFileW(W(path), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     DWORD n = 0, got = 0; char *b = NULL;
-    if (h != INVALID_HANDLE_VALUE) { n = GetFileSize(h, NULL); b = malloc(n + 1); if (!ReadFile(h, b, n, &got, NULL)) got = 0; CloseHandle(h); n = got; b[n] = 0; }
-    else b = _strdup("");
+    if (h != INVALID_HANDLE_VALUE) {
+        n = GetFileSize(h, NULL); b = n == INVALID_FILE_SIZE ? NULL : malloc(n + 1);
+        if (!b || !ReadFile(h, b, n, &got, NULL) || got != n) { CloseHandle(h); free(b); return 0; }   /* a short read must not rewrite the file from partial text */
+        CloseHandle(h); b[n] = 0;
+    } else if (GetLastError() == ERROR_FILE_NOT_FOUND) b = _strdup("");
+    else return 0;   /* locked or unreadable: never replace the file with one key */
+    if (!b) return 0;
     unsigned char *u = (unsigned char *)b;
     if (n >= 2 && ((u[0] == 0xFF && u[1] == 0xFE) || (u[0] == 0xFE && u[1] == 0xFF))) return -2;
     if (strlen(b) != n) return -2;   /* NUL bytes: UTF-16 without a BOM */
@@ -751,7 +756,8 @@ static void render(HDC dc) {
         text(hint, 280, 478, 680, 24, F_BODY, all_ready() ? C_GREEN : 0xFFF0A0AC, 0, 1);
     } else if (G.page == 1) {
         if (fs_mode()) text("Fullscreen uses your desktop resolution.", 280, 390, 340, 18, F_SM, C_GOLD, 0, 1);   /* in the gap under the disabled Window size box */
-        int dw = GetSystemMetrics(SM_CXSCREEN), dh = GetSystemMetrics(SM_CYSCREEN);
+        MONITORINFO mi = { sizeof mi }; int dw = GetSystemMetrics(SM_CXSCREEN), dh = GetSystemMetrics(SM_CYSCREEN);
+        if (GetMonitorInfoW(MonitorFromWindow(G.h, MONITOR_DEFAULTTONEAREST), &mi)) { dw = mi.rcWork.right - mi.rcWork.left; dh = mi.rcWork.bottom - mi.rcWork.top; }
         text("Higher render resolution looks sharper but needs a faster graphics card.", 280, 510, 680, 20, F_SM, C_MUT, 0, 1);
         text("The picture stays 4:3, centred. On a wider window the sides show the blurred game or your own art.", 280, 538, 680, 20, F_SM, C_MUT, 0, 1);
         text(fmt("Your desktop is %d x %d. Biggest window that fits: %s.", dw, dh, O_SIZE[best_size(dw, dh)].label), 280, 558, 680, 20, F_SM, C_MUT, 0, 1);
