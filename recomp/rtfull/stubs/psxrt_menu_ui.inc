@@ -96,6 +96,7 @@ static void gfx_apply(void)
         gfx_refresh();   /* real mode, not the requested one */
         break;
     case GR_WINSIZE:
+        _putenv("PSXRT_WINDOW_HEIGHT=0");   /* picking a size = 4:3 window; the resize below reads this */
         pm_win_w = g->width;
         if (!g->fs) psxrt_gfx_window_resize(g->width);
         break;
@@ -108,7 +109,7 @@ static void gfx_apply(void)
     case GR_SCAN: psx_video_set_scanlines(g->scan, -1.0f); break;
     }
     if (ok && psxrt_gfx_kv(row, g, k, v, sizeof k)) psxrt_ini_queue(k, v, psxrt_now_ms());
-    if (ok && row == GR_WINSIZE) psxrt_ini_queue("window_height", "0", psxrt_now_ms());   /* this row picks a 4:3 window */
+    if (ok && row == GR_WINSIZE) { psxrt_ini_queue("window_height", "0", psxrt_now_ms()); }   /* this row picks a 4:3 window */
     fprintf(stderr, "[psxrt-gfx] row %d %s = %s, queued %d, fullscreen %d, window %d, scale %d\n", row, k, v, ok && k[0],
             psxrt_gfx_fullscreen_get(), psxrt_gfx_window_width(), psxrt_gfx_scale_get());
     if (row != GR_WINMODE) gfx_refresh();
