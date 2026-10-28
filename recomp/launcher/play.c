@@ -496,17 +496,17 @@ static int launch_game(const char *root, int *rc) {
 
 /* ---------- the window ---------- */
 #define ID_PLAY 900
-#define ID_TAB 901
-#define ID_F0 1000
-static struct { HWND tab, play, msg, st[4], lbl[64], ctl[64]; const char *root; int rc; } G;
-
-static void ui_set(int i, const char *v) {   /* show v in field i's control */
-    const Field *f = &FIELDS[i];
-    if (!f->opts) { SetWindowTextW(G.ctl[i], W(v)); return; }
-    int idx = 0, n = 0; char *o = _strdup(f->opts);
-    for (char *t = strtok(o, "|"); t; t = strtok(NULL, "|"), n++) if (!_stricmp(t, v)) idx = n;
-    SendMessageW(G.ctl[i], CB_SETCURSEL, idx, 0);
-}
+#define ID_SIZE 910
+#define ID_QUAL 911
+#define ID_SKIP 912
+static struct { HWND play, msg, st[4], size, qual, skip; const char *root; int rc; } G;
+static const struct { const char *label; int w; } SIZES[] = {   /* w 0 = fullscreen; windows are 4:3 */
+    { "Small window (960 x 720)", 960 }, { "Medium window (1280 x 960)", 1280 }, { "Large window (1440 x 1080)", 1440 },
+    { "Huge window (1920 x 1440)", 1920 }, { "Fullscreen", 0 } };
+static const struct { const char *label; int scale; } QUAL[] = {
+    { "Normal", 1 }, { "Sharp (needs a decent graphics card)", 2 }, { "Sharper (needs a fast graphics card)", 4 } };
+#define NSIZES ((int)(sizeof SIZES / sizeof SIZES[0]))
+#define NQUAL ((int)(sizeof QUAL / sizeof QUAL[0]))
 static void ui_status(void) {
     int ok[4]; char *tx[4]; ini_load(G.root); status_rows(G.root, ok, tx);
     for (int i = 0; i < 4; i++) SetWindowTextW(G.st[i], W(fmt("%s  %s", ok[i] ? "\xE2\x9C\x94" : "\xE2\x9C\x96", tx[i])));
@@ -514,23 +514,26 @@ static void ui_status(void) {
 }
 static void ui_reload(void) {
     ui_status();
-    for (int i = 0; i < NFIELDS; i++) { const char *v = get(FIELDS[i].key); char *l = lower(v); ui_set(i, *l && FIELDS[i].ok(l) ? l : FIELDS[i].def); }
+    int s = 1, w = ok_width(get("window_width")) ? atoi(get("window_width")) : 960;
+    if (!strcmp(get("window_mode"), "borderless")) s = NSIZES - 1;
+    else { int best = 1 << 30; for (int i = 0; i < NSIZES - 1; i++) if (abs(SIZES[i].w - w) < best) { best = abs(SIZES[i].w - w); s = i; } }
+    SendMessageW(G.size, CB_SETCURSEL, s, 0);
+    int q = 0; for (int i = 0; i < NQUAL; i++) if (ok_scale(get("render_scale")) && atoi(get("render_scale")) >= QUAL[i].scale) q = i;
+    SendMessageW(G.qual, CB_SETCURSEL, q, 0);
+    SendMessageW(G.skip, BM_SETCHECK, !strcmp(get("skip_launcher"), "1") ? BST_CHECKED : BST_UNCHECKED, 0);
 }
-static void ui_page(void) {
-    int p = (int)SendMessageW(G.tab, TCM_GETCURSEL, 0, 0);
-    for (int i = 0; i < NFIELDS; i++) { int s = FIELDS[i].page == p ? SW_SHOW : SW_HIDE; ShowWindow(G.lbl[i], s); ShowWindow(G.ctl[i], s); }
-}
-static void ui_commit(int i) {   /* field i changed: validate and save; a bad edit snaps back to the saved value */
-    const Field *f = &FIELDS[i]; wchar_t w[128] = L""; char v[256];
-    if (f->opts) { int s = (int)SendMessageW(G.ctl[i], CB_GETCURSEL, 0, 0); if (s >= 0) SendMessageW(G.ctl[i], CB_GETLBTEXT, s, (LPARAM)w); }
-    else GetWindowTextW(G.ctl[i], w, 128);
-    snprintf(v, sizeof v, "%s", U(w)); { char *t = v; while (isws(*t)) t++; memmove(v, t, strlen(t) + 1); for (size_t n = strlen(v); n && isws(v[n - 1]); ) v[--n] = 0; }
-    ini_load(G.root);
-    if (!strcmp(v, get(f->key)) || (!*get(f->key) && !strcmp(v, f->def))) return;   /* unchanged: leave the file alone */
-    int r = ini_write(G.root, f->key, v);
-    SetWindowTextW(G.msg, W(r == 1 ? fmt("Saved %s = %s", f->key, v) : r == -2 ? "Not saved: settings.ini is UTF-16. Save it as UTF-8." :
-        r == -3 ? fmt("Not saved: %s is not a valid value for %s", v, f->key) : "Not saved: cannot write settings.ini"));
-    if (r != 1) { ini_load(G.root); const char *o = get(f->key); char *l = lower(o); ui_set(i, *l && f->ok(l) ? l : f->def); }
+static void ui_save(int id) {
+    int r = 1;
+    if (id == ID_SIZE) {
+        int s = (int)SendMessageW(G.size, CB_GETCURSEL, 0, 0); if (s < 0) return;
+        if (SIZES[s].w) { r = ini_write(G.root, "window_width", fmt("%d", SIZES[s].w)); if (r == 1) r = ini_write(G.root, "window_mode", "windowed"); }
+        else r = ini_write(G.root, "window_mode", "borderless");
+    } else if (id == ID_QUAL) {
+        int q = (int)SendMessageW(G.qual, CB_GETCURSEL, 0, 0); if (q < 0) return;
+        r = ini_write(G.root, "render_scale", fmt("%d", QUAL[q].scale));
+    } else r = ini_write(G.root, "skip_launcher", SendMessageW(G.skip, BM_GETCHECK, 0, 0) == BST_CHECKED ? "1" : "0");
+    SetWindowTextW(G.msg, W(r == 1 ? "Saved. It applies the next time you press Play." : r == -2 ? "Not saved: settings.ini is UTF-16. Save it as UTF-8." : "Not saved: cannot write settings.ini"));
+    if (r != 1) { ini_load(G.root); ui_reload(); }
 }
 static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
     switch (m) {
@@ -541,45 +544,35 @@ static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
         for (int i = 0; i < 4; i++) { G.st[i] = CreateWindowExW(0, L"STATIC", L"", WS_CHILD | WS_VISIBLE, 16, 10 + i * 22, 470, 20, h, NULL, hi, NULL); SendMessageW(G.st[i], WM_SETFONT, (WPARAM)font, 0); }
         G.play = CreateWindowExW(0, L"BUTTON", L"Play", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 16, 104, 470, 56, h, (HMENU)ID_PLAY, hi, NULL);
         SendMessageW(G.play, WM_SETFONT, (WPARAM)big, 0);
-        G.tab = CreateWindowExW(0, WC_TABCONTROLW, L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPSIBLINGS, 16, 172, 470, 290, h, (HMENU)ID_TAB, hi, NULL);
-        SendMessageW(G.tab, WM_SETFONT, (WPARAM)font, 0);
-        for (int p = 0; p < 3; p++) { TCITEMW it = { TCIF_TEXT }; it.pszText = W(PAGES[p]); SendMessageW(G.tab, TCM_INSERTITEMW, p, (LPARAM)&it); }
-        int cnt[3] = { 0 };
-        for (int i = 0; i < NFIELDS; i++) {
-            const Field *f = &FIELDS[i]; int n = cnt[f->page]++, two = f->page == 1 && n < 16;
-            int col = two ? n / 8 : 0, row = two ? n % 8 : (f->page == 1 ? 8 : n), lw = two ? 70 : 220, ew = two ? 150 : 150;
-            int x = 32 + col * 230, y = 208 + row * 28;
-            G.lbl[i] = CreateWindowExW(0, L"STATIC", W(f->label), WS_CHILD, x, y + 3, lw, 20, h, NULL, hi, NULL);
-            if (f->opts) {
-                G.ctl[i] = CreateWindowExW(0, L"COMBOBOX", L"", WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST | WS_VSCROLL, x + lw, y, ew, 200, h, (HMENU)(INT_PTR)(ID_F0 + i), hi, NULL);
-                char *o = _strdup(f->opts); for (char *t = strtok(o, "|"); t; t = strtok(NULL, "|")) SendMessageW(G.ctl[i], CB_ADDSTRING, 0, (LPARAM)W(t));
-            } else G.ctl[i] = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"", WS_CHILD | WS_TABSTOP | ES_AUTOHSCROLL, x + lw, y, ew, 22, h, (HMENU)(INT_PTR)(ID_F0 + i), hi, NULL);
-            SendMessageW(G.lbl[i], WM_SETFONT, (WPARAM)font, 0); SendMessageW(G.ctl[i], WM_SETFONT, (WPARAM)font, 0);
-        }
-        G.msg = CreateWindowExW(0, L"STATIC", L"Changes are saved to settings.ini as you make them.", WS_CHILD | WS_VISIBLE, 16, 470, 470, 20, h, NULL, hi, NULL);
-        SendMessageW(G.msg, WM_SETFONT, (WPARAM)font, 0);
-        ui_reload(); ui_page(); return 0; }
-    case WM_NOTIFY:
-        if (((NMHDR *)lp)->idFrom == ID_TAB && ((NMHDR *)lp)->code == TCN_SELCHANGE) ui_page();
-        return 0;
+        HWND l1 = CreateWindowExW(0, L"STATIC", L"Screen size", WS_CHILD | WS_VISIBLE, 16, 182, 130, 20, h, NULL, hi, NULL);
+        HWND l2 = CreateWindowExW(0, L"STATIC", L"Picture quality", WS_CHILD | WS_VISIBLE, 16, 216, 130, 20, h, NULL, hi, NULL);
+        G.size = CreateWindowExW(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | CBS_DROPDOWNLIST | WS_VSCROLL, 150, 178, 336, 200, h, (HMENU)ID_SIZE, hi, NULL);
+        G.qual = CreateWindowExW(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | CBS_DROPDOWNLIST | WS_VSCROLL, 150, 212, 336, 200, h, (HMENU)ID_QUAL, hi, NULL);
+        for (int i = 0; i < NSIZES; i++) SendMessageW(G.size, CB_ADDSTRING, 0, (LPARAM)W(SIZES[i].label));
+        for (int i = 0; i < NQUAL; i++) SendMessageW(G.qual, CB_ADDSTRING, 0, (LPARAM)W(QUAL[i].label));
+        G.skip = CreateWindowExW(0, L"BUTTON", L"Start the game right away next time (skip this window)", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX, 16, 252, 470, 22, h, (HMENU)ID_SKIP, hi, NULL);
+        G.msg = CreateWindowExW(0, L"STATIC", L"Controls and more: press F10 in the game.", WS_CHILD | WS_VISIBLE, 16, 286, 470, 20, h, NULL, hi, NULL);
+        HWND all[] = { l1, l2, G.size, G.qual, G.skip, G.msg }; for (int i = 0; i < 6; i++) SendMessageW(all[i], WM_SETFONT, (WPARAM)font, 0);
+        ui_reload(); return 0; }
     case WM_COMMAND: {
         int id = LOWORD(wp), nc = HIWORD(wp);
         if (id == ID_PLAY) {
             g_hide = h; int rc = 0;
             if (launch_game(G.root, &rc)) { G.rc = rc; DestroyWindow(h); }
             else { MessageBoxW(h, W(errmsg), L"Star Ocean: not ready", MB_OK | MB_ICONERROR); ui_status(); }
-        } else if (id >= ID_F0 && id < ID_F0 + NFIELDS && (nc == CBN_SELCHANGE || nc == EN_KILLFOCUS)) ui_commit(id - ID_F0);
+        } else if ((id == ID_SIZE || id == ID_QUAL) && nc == CBN_SELCHANGE) ui_save(id);
+        else if (id == ID_SKIP && nc == BN_CLICKED) ui_save(id);
         return 0; }
     case WM_DESTROY: PostQuitMessage(0); return 0;
     }
     return DefWindowProcW(h, m, wp, lp);
 }
 static int run_gui(const char *root) {
-    INITCOMMONCONTROLSEX ic = { sizeof ic, ICC_TAB_CLASSES }; InitCommonControlsEx(&ic);
+    INITCOMMONCONTROLSEX ic = { sizeof ic, ICC_STANDARD_CLASSES }; InitCommonControlsEx(&ic);
     HINSTANCE hi = GetModuleHandleW(NULL); G.root = root;
     WNDCLASSW wc = { 0 }; wc.lpfnWndProc = wndproc; wc.hInstance = hi; wc.hCursor = LoadCursorW(NULL, (LPCWSTR)IDC_ARROW); wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
     wc.lpszClassName = L"SO2Launcher"; wc.hIcon = LoadIconW(hi, MAKEINTRESOURCEW(1)); RegisterClassW(&wc);
-    RECT r = { 0, 0, 502, 500 }; AdjustWindowRect(&r, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
+    RECT r = { 0, 0, 502, 320 }; AdjustWindowRect(&r, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
     HWND h = CreateWindowW(L"SO2Launcher", L"Star Ocean: The Second Story", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, r.right - r.left, r.bottom - r.top, NULL, NULL, hi, NULL);
     if (!h) return 1;
