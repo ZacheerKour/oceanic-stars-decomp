@@ -2,7 +2,10 @@
  * tracks the process it starts, so this waits for the game as a direct child.
  * prepare() is a native port of play.ps1 (kept as the PLAY.bat fallback and as the equivalence reference): it reads settings.ini,
  * writes play\game.toml, play\settings.warn, play\launch.txt, keybinds.ini and config.ini, and fills Prep for the launch.
- * Flags: --prepare (write the files, do not start the game), --selftest (assert-based), --root <dir> (default: the exe's dir).
+ * Flags: --play (no window: start the game now; what Steam should use), --prepare (write the files, do not start the game), --selftest
+ * (assert-based), --root <dir> (default: the exe's dir). With no flag a small Win32 window shows disc/BIOS/exe status, a Play button and
+ * Graphics / Controls / Gameplay pages that edit settings.ini (the in-game F10 keys plus key.* and a few more); settings.ini
+ * skip_launcher = 1 makes a double-click behave like --play.
  * Intentional differences from play.ps1: env lines come in settings.ini order (PS hashtable order is unspecified); audio.buffer_ms
  * and pad.deadzone out of range or non-numeric now fall back with a settings.warn note (PS aborted or passed them through).
  * settings.ini may be UTF-8 (BOM or not), UTF-16 (either byte order) or ANSI; it is read as UTF-8 and a note goes to settings.warn when
@@ -12,10 +15,15 @@
  * installer compiles play.c with cl directly. */
 #include <windows.h>
 #include <shellapi.h>
+#include <commctrl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "shell32.lib")
+#pragma comment(lib, "gdi32.lib")
+#pragma comment(lib, "comctl32.lib")
 
 /* ---------- small helpers (short-lived process: nothing is freed) ---------- */
 static char *fmt(const char *f, ...) {
@@ -255,6 +263,94 @@ static void rotate_logs(const char *run) {
     for (int i = 0; i < 2; i++) MoveFileExW(W(fmt("%s\\%s", run, n[i][0])), W(fmt("%s\\%s", run, n[i][1])), MOVEFILE_REPLACE_EXISTING);
 }
 
+/* ---------- launcher settings: the editable keys, and the safe settings.ini writer ---------- */
+typedef struct { const char *key, *label, *opts, *def; int (*ok)(const char *); int page; } Field;   /* opts NULL = edit box, else "a|b|c" combo */
+static int ok_key(const char *v) { size_t n = strlen(v); if (!n || n > 60) return 0; for (; *v; v++) if ((unsigned char)*v < 32 || (unsigned char)*v > 126) return 0; return 1; }
+static const char *PAGES[3] = { "Graphics", "Controls", "Gameplay" };
+static const Field FIELDS[] = {
+    { "window_mode", "Window mode", "windowed|borderless", "windowed", ok_wmode, 0 },
+    { "window_width", "Window width (640-7680)", NULL, "960", ok_width, 0 },
+    { "render_scale", "Internal resolution (x)", "1|2|3|4|5|6|7|8", "1", ok_scale, 0 },
+    { "scale_mode", "Scale mode", "fit|integer|stretch", "fit", ok_mode, 0 },
+    { "filter", "Filter", "linear|nearest", "linear", ok_filter, 0 },
+    { "scanlines", "Scanlines", "off|on", "off", ok_onoff, 0 },
+    { "key.up", "Up", NULL, "W, Up", ok_key, 1 }, { "key.down", "Down", NULL, "S, Down", ok_key, 1 },
+    { "key.left", "Left", NULL, "A, Left", ok_key, 1 }, { "key.right", "Right", NULL, "D, Right", ok_key, 1 },
+    { "key.cross", "Cross", NULL, "Space, 1", ok_key, 1 }, { "key.circle", "Circle", NULL, "Q, 2", ok_key, 1 },
+    { "key.square", "Square", NULL, "E, 3", ok_key, 1 }, { "key.triangle", "Triangle", NULL, "R, 4", ok_key, 1 },
+    { "key.l1", "L1", NULL, "Left Shift, Z", ok_key, 1 }, { "key.r1", "R1", NULL, "F, X", ok_key, 1 },
+    { "key.l2", "L2", NULL, "Tab, C", ok_key, 1 }, { "key.r2", "R2", NULL, "G, V", ok_key, 1 },
+    { "key.l3", "L3", NULL, "T", ok_key, 1 }, { "key.r3", "R3", NULL, "Y", ok_key, 1 },
+    { "key.start", "Start", NULL, "Escape, Return", ok_key, 1 }, { "key.select", "Select", NULL, "Backspace, Right Shift", ok_key, 1 },
+    { "pad.deadzone", "Stick dead zone (0-32767)", NULL, "9000", ok_dz, 1 },
+    { "confirm_quickload", "Confirm quick-load (1 = ask)", "1|0", "1", ok_01, 2 },
+    { "audio.buffer_ms", "Audio buffer ms (30-500)", NULL, "180", ok_audio, 2 },
+    { "skip_launcher", "Skip this window (1 = on)", "0|1", "0", ok_01, 2 },
+};
+#define NFIELDS ((int)(sizeof FIELDS / sizeof FIELDS[0]))
+static const Field *field_of(const char *k) { for (int i = 0; i < NFIELDS; i++) if (!_stricmp(FIELDS[i].key, k)) return &FIELDS[i]; return NULL; }
+
+/* Same approach as psxrt_ini_set (stubs/psxrt_io.c): the last matching line keeps its text through '=' and gets the new value; an absent
+ * key is appended; comments, other keys and line ends stay. */
+static char *ini_set_text(const char *t, const char *key, const char *val) {
+    size_t kl = strlen(key); const char *hit_end = NULL, *hit_eol = NULL, *p = t;
+    while (*p) {
+        const char *e = p; while (*e && *e != '\n' && *e != '\r') e++;
+        const char *c = p; while (c < e && (*c == ' ' || *c == '\t')) c++;
+        if ((size_t)(e - c) > kl && !_strnicmp(c, key, kl)) {
+            const char *q = c + kl; while (q < e && (*q == ' ' || *q == '\t')) q++;
+            if (q < e && *q == '=') { hit_end = q + 1; hit_eol = e; }
+        }
+        p = e; if (*p == '\r' && p[1] == '\n') p++; if (*p) p++;
+    }
+    Sb b = { 0 };
+    if (hit_end) { sb_add(&b, t, hit_end - t); sb_f(&b, " %s", val); sb_s(&b, hit_eol); return b.p; }
+    const char *eol = strstr(t, "\r\n") ? "\r\n" : "\n"; size_t tl = strlen(t);
+    sb_add(&b, t, tl); if (tl && t[tl - 1] != '\n' && t[tl - 1] != '\r') sb_s(&b, eol);
+    sb_f(&b, "%s = %s%s", key, val, eol); return b.p;
+}
+/* 1 saved, 0 write failed, -2 UTF-16 (left untouched), -3 unknown key or invalid value. Temp file + flush + replace; BOM and ANSI bytes kept. */
+static int ini_write(const char *root, const char *key, const char *val) {
+    const Field *f = field_of(key); if (!f || !f->ok(val)) return -3;
+    char *path = fmt("%s\\settings.ini", root), *tmp = fmt("%s\\settings.ini.tmp", root);
+    if (!exists(path)) CopyFileW(W(fmt("%s\\settings.default.ini", root)), W(path), TRUE);
+    HANDLE h = CreateFileW(W(path), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    DWORD n = 0, got = 0; char *b = NULL;
+    if (h != INVALID_HANDLE_VALUE) { n = GetFileSize(h, NULL); b = malloc(n + 1); if (!ReadFile(h, b, n, &got, NULL)) got = 0; CloseHandle(h); n = got; b[n] = 0; }
+    else b = _strdup("");
+    unsigned char *u = (unsigned char *)b;
+    if (n >= 2 && ((u[0] == 0xFF && u[1] == 0xFE) || (u[0] == 0xFE && u[1] == 0xFF))) return -2;
+    if (strlen(b) != n) return -2;   /* NUL bytes: UTF-16 without a BOM */
+    int bom = n >= 3 && !memcmp(b, "\xEF\xBB\xBF", 3); char *out = ini_set_text(b + (bom ? 3 : 0), key, val);
+    HANDLE w = CreateFileW(W(tmp), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL); if (w == INVALID_HANDLE_VALUE) return 0;
+    DWORD m = (DWORD)strlen(out), g2 = 0, g1 = 0; int ok = 1;
+    if (bom) ok = WriteFile(w, "\xEF\xBB\xBF", 3, &g1, NULL) && g1 == 3;
+    ok = ok && WriteFile(w, out, m, &g2, NULL) && g2 == m && FlushFileBuffers(w);
+    CloseHandle(w);
+    if (!ok || !MoveFileExW(W(tmp), W(path), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) { DeleteFileW(W(tmp)); return 0; }
+    return 1;
+}
+static void ini_load(const char *root) {   /* settings.ini -> get(); missing file = empty (defaults) */
+    size_t n; char *t = read_file(fmt("%s\\settings.ini", root), &n); Sb scratch = { 0 };
+    parse_ini(t ? ini_decode(t, n, &scratch) : "");
+}
+
+/* ---------- status rows: what the Play button needs ---------- */
+static void status_rows(const char *root, int ok[4], char *txt[4]) {
+    for (int n = 1; n <= 2; n++) {
+        char *c = fmt("%s\\roms\\disc%d\\%s.cue", root, n, fmt(DISC, n)); ok[n - 1] = exists(c);
+        txt[n - 1] = fmt(ok[n - 1] ? "Disc %d: found" : "Disc %d: missing (roms\\disc%d, run INSTALL.bat)", n, n);
+    }
+    const char *b = get("bios"); char *own = fmt("%s\\roms\\scph5501.bin", root), *ob = fmt("%s\\tools\\ref\\psxrecomp\\bios\\openbios.bin", root);
+    if (!*b || !_stricmp(b, "auto")) {
+        int o = exists(own) && exists(fmt("%s\\recomp\\bios\\_gen\\generated\\SCPH5501_full.c", root));
+        ok[2] = o || exists(ob); txt[2] = fmt(!ok[2] ? "BIOS: missing (run INSTALL.bat)" : o ? "BIOS: your SCPH-5501 dump" : "BIOS: OpenBIOS (bundled)");
+    } else if (!_stricmp(b, "openbios")) { ok[2] = exists(ob); txt[2] = fmt(ok[2] ? "BIOS: OpenBIOS (bundled)" : "BIOS: OpenBIOS missing (run INSTALL.bat)"); }
+    else { ok[2] = exists(b); txt[2] = fmt(ok[2] ? "BIOS: %s" : "BIOS: %s not found", b); }
+    ok[3] = exists(fmt("%s\\recomp\\rtfull\\_build_final\\psxrecomp-game.exe", root));
+    txt[3] = fmt(ok[3] ? "Game: built" : "Game: not built (run INSTALL.bat)");
+}
+
 /* ---------- self-test ---------- */
 static int tfail;
 #define CHECK(c) do { if (!(c)) { tfail++; fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #c); } } while (0)
@@ -349,18 +445,155 @@ static int selftest(void) {
     { HANDLE a = take_lock(root), b = take_lock(root), c = take_lock(fmt("%sx", root)); char *up = _strdup(root); for (char *k = up; *k; k++) if (*k >= 'a' && *k <= 'z') *k -= 32;
       HANDLE d = take_lock(up);
       CHECK(a && !b && c && !d); }   /* same folder (any case) is taken, another folder is free */
+    { /* launcher: status rows and the settings.ini writer */
+        int sok[4]; char *stx[4]; unsigned char bb[3]; DWORD g; HANDLE hh;
+        tree(root, "; keep\r\nbios = auto\r\nFilter = linear\r\nunknown.key = 7\r\n");
+        ini_load(root); status_rows(root, sok, stx);
+        for (int i = 0; i < 4; i++) fprintf(stderr, "status %c %s\n", sok[i] ? '+' : '-', stx[i]);
+        CHECK(sok[0] && sok[1] && sok[2] && sok[3]);
+        CHECK(ini_write(root, "filter", "nearest") == 1 && ini_write(root, "scanlines", "on") == 1 && ini_write(root, "key.cross", "K, J") == 1);
+        CHECK(has(root, "settings.ini", "; keep\r\nbios = auto\r\nFilter = nearest\r\nunknown.key = 7\r\nscanlines = on\r\nkey.cross = K, J\r\n"));
+        ini_load(root); CHECK(!strcmp(get("filter"), "nearest") && !strcmp(get("key.cross"), "K, J") && !strcmp(get("unknown.key"), "7"));
+        CHECK(ini_write(root, "filter", "bogus") == -3 && ini_write(root, "window_width", "639") == -3 && ini_write(root, "nokey", "1") == -3 && ini_write(root, "key.up", "a\nb") == -3);
+        CHECK(!exists(fmt("%s\\settings.ini.tmp", root)));
+        tree(root, "\xEF\xBB\xBF" "a = 1\n"); CHECK(ini_write(root, "skip_launcher", "1") == 1 && has(root, "settings.ini", "a = 1\nskip_launcher = 1\n"));
+        hh = CreateFileW(W(fmt("%s\\settings.ini", root)), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL); memset(bb, 0, 3); ReadFile(hh, bb, 3, &g, NULL); CloseHandle(hh);
+        CHECK(bb[0] == 0xEF && bb[1] == 0xBB && bb[2] == 0xBF);   /* BOM kept */
+        tree(root, "x=1\n"); tree16(root, "filter = linear\n", 0);
+        CHECK(ini_write(root, "filter", "nearest") == -2);   /* UTF-16 refused, file untouched */
+        hh = CreateFileW(W(fmt("%s\\settings.ini", root)), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL); memset(bb, 0, 3); ReadFile(hh, bb, 2, &g, NULL); CloseHandle(hh);
+        CHECK(bb[0] == 0xFF && bb[1] == 0xFE);
+        for (int i = 0; i < NFIELDS; i++) CHECK(FIELDS[i].ok(FIELDS[i].def));   /* every default passes its own validator */
+    }
     fprintf(stderr, tfail ? "selftest: %d FAILED\n" : "selftest: all passed\n", tfail);
     return tfail ? 1 : 0;
 }
 
 /* ---------- launcher ---------- */
+static HWND g_hide;   /* the launcher window, hidden while the game runs */
+
+/* prepare + start the game and wait for it. 0 = could not start (message in errmsg); 1 = ran, exit code in *rc. */
+static int launch_game(const char *root, int *rc) {
+    DeleteFileW(W(fmt("%s\\play\\launch.txt", root)));
+    Prep o;
+    if (!prepare(root, &o)) return 0;
+    for (int i = 0; i < o.nenv; i++) { char *eq = strchr(o.env[i], '='); *eq = 0; SetEnvironmentVariableW(W(o.env[i]), W(eq + 1)); }
+    wchar_t *cmd = W(fmt("\"%s\" %s", o.exe, o.args));
+    SECURITY_ATTRIBUTES sa = { sizeof sa, NULL, TRUE };   /* game output -> play\last.log / last.err */
+    rotate_logs(o.run);
+    HANDLE out = CreateFileW(W(fmt("%s\\last.log", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
+    HANDLE err = CreateFileW(W(fmt("%s\\last.err", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
+    STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi; DWORD c = 1;
+    si.dwFlags = STARTF_USESTDHANDLES; si.hStdOutput = out; si.hStdError = err; si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    if (g_hide) ShowWindow(g_hide, SW_HIDE);
+    if (!CreateProcessW(W(o.exe), cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, W(o.run), &si, &pi)) {
+        if (g_hide) ShowWindow(g_hide, SW_SHOW);
+        snprintf(errmsg, sizeof errmsg, "Cannot start the game exe. Run INSTALL.bat first."); return 0;
+    }
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    GetExitCodeProcess(pi.hProcess, &c); *rc = (int)c; return 1;
+}
+
+/* ---------- the window ---------- */
+#define ID_PLAY 900
+#define ID_TAB 901
+#define ID_F0 1000
+static struct { HWND tab, play, msg, st[4], lbl[64], ctl[64]; const char *root; int rc; } G;
+
+static void ui_set(int i, const char *v) {   /* show v in field i's control */
+    const Field *f = &FIELDS[i];
+    if (!f->opts) { SetWindowTextW(G.ctl[i], W(v)); return; }
+    int idx = 0, n = 0; char *o = _strdup(f->opts);
+    for (char *t = strtok(o, "|"); t; t = strtok(NULL, "|"), n++) if (!_stricmp(t, v)) idx = n;
+    SendMessageW(G.ctl[i], CB_SETCURSEL, idx, 0);
+}
+static void ui_status(void) {
+    int ok[4]; char *tx[4]; ini_load(G.root); status_rows(G.root, ok, tx);
+    for (int i = 0; i < 4; i++) SetWindowTextW(G.st[i], W(fmt("%s  %s", ok[i] ? "\xE2\x9C\x94" : "\xE2\x9C\x96", tx[i])));
+    EnableWindow(G.play, ok[0] && ok[1] && ok[2] && ok[3]);
+}
+static void ui_reload(void) {
+    ui_status();
+    for (int i = 0; i < NFIELDS; i++) { const char *v = get(FIELDS[i].key); char *l = lower(v); ui_set(i, *l && FIELDS[i].ok(l) ? l : FIELDS[i].def); }
+}
+static void ui_page(void) {
+    int p = (int)SendMessageW(G.tab, TCM_GETCURSEL, 0, 0);
+    for (int i = 0; i < NFIELDS; i++) { int s = FIELDS[i].page == p ? SW_SHOW : SW_HIDE; ShowWindow(G.lbl[i], s); ShowWindow(G.ctl[i], s); }
+}
+static void ui_commit(int i) {   /* field i changed: validate and save; a bad edit snaps back to the saved value */
+    const Field *f = &FIELDS[i]; wchar_t w[128] = L""; char v[256];
+    if (f->opts) { int s = (int)SendMessageW(G.ctl[i], CB_GETCURSEL, 0, 0); if (s >= 0) SendMessageW(G.ctl[i], CB_GETLBTEXT, s, (LPARAM)w); }
+    else GetWindowTextW(G.ctl[i], w, 128);
+    snprintf(v, sizeof v, "%s", U(w)); { char *t = v; while (isws(*t)) t++; memmove(v, t, strlen(t) + 1); for (size_t n = strlen(v); n && isws(v[n - 1]); ) v[--n] = 0; }
+    ini_load(G.root);
+    if (!strcmp(v, get(f->key)) || (!*get(f->key) && !strcmp(v, f->def))) return;   /* unchanged: leave the file alone */
+    int r = ini_write(G.root, f->key, v);
+    SetWindowTextW(G.msg, W(r == 1 ? fmt("Saved %s = %s", f->key, v) : r == -2 ? "Not saved: settings.ini is UTF-16. Save it as UTF-8." :
+        r == -3 ? fmt("Not saved: %s is not a valid value for %s", v, f->key) : "Not saved: cannot write settings.ini"));
+    if (r != 1) { ini_load(G.root); const char *o = get(f->key); char *l = lower(o); ui_set(i, *l && f->ok(l) ? l : f->def); }
+}
+static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
+    switch (m) {
+    case WM_CREATE: {
+        NONCLIENTMETRICSW nm = { sizeof nm }; SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof nm, &nm, 0);
+        HFONT font = CreateFontIndirectW(&nm.lfMessageFont), big = (nm.lfMessageFont.lfHeight *= 2, CreateFontIndirectW(&nm.lfMessageFont));
+        HINSTANCE hi = GetModuleHandleW(NULL);
+        for (int i = 0; i < 4; i++) { G.st[i] = CreateWindowExW(0, L"STATIC", L"", WS_CHILD | WS_VISIBLE, 16, 10 + i * 22, 470, 20, h, NULL, hi, NULL); SendMessageW(G.st[i], WM_SETFONT, (WPARAM)font, 0); }
+        G.play = CreateWindowExW(0, L"BUTTON", L"Play", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 16, 104, 470, 56, h, (HMENU)ID_PLAY, hi, NULL);
+        SendMessageW(G.play, WM_SETFONT, (WPARAM)big, 0);
+        G.tab = CreateWindowExW(0, WC_TABCONTROLW, L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPSIBLINGS, 16, 172, 470, 290, h, (HMENU)ID_TAB, hi, NULL);
+        SendMessageW(G.tab, WM_SETFONT, (WPARAM)font, 0);
+        for (int p = 0; p < 3; p++) { TCITEMW it = { TCIF_TEXT }; it.pszText = W(PAGES[p]); SendMessageW(G.tab, TCM_INSERTITEMW, p, (LPARAM)&it); }
+        int cnt[3] = { 0 };
+        for (int i = 0; i < NFIELDS; i++) {
+            const Field *f = &FIELDS[i]; int n = cnt[f->page]++, two = f->page == 1 && n < 16;
+            int col = two ? n / 8 : 0, row = two ? n % 8 : (f->page == 1 ? 8 : n), lw = two ? 70 : 220, ew = two ? 150 : 150;
+            int x = 32 + col * 230, y = 208 + row * 28;
+            G.lbl[i] = CreateWindowExW(0, L"STATIC", W(f->label), WS_CHILD, x, y + 3, lw, 20, h, NULL, hi, NULL);
+            if (f->opts) {
+                G.ctl[i] = CreateWindowExW(0, L"COMBOBOX", L"", WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST | WS_VSCROLL, x + lw, y, ew, 200, h, (HMENU)(INT_PTR)(ID_F0 + i), hi, NULL);
+                char *o = _strdup(f->opts); for (char *t = strtok(o, "|"); t; t = strtok(NULL, "|")) SendMessageW(G.ctl[i], CB_ADDSTRING, 0, (LPARAM)W(t));
+            } else G.ctl[i] = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"", WS_CHILD | WS_TABSTOP | ES_AUTOHSCROLL, x + lw, y, ew, 22, h, (HMENU)(INT_PTR)(ID_F0 + i), hi, NULL);
+            SendMessageW(G.lbl[i], WM_SETFONT, (WPARAM)font, 0); SendMessageW(G.ctl[i], WM_SETFONT, (WPARAM)font, 0);
+        }
+        G.msg = CreateWindowExW(0, L"STATIC", L"Changes are saved to settings.ini as you make them.", WS_CHILD | WS_VISIBLE, 16, 470, 470, 20, h, NULL, hi, NULL);
+        SendMessageW(G.msg, WM_SETFONT, (WPARAM)font, 0);
+        ui_reload(); ui_page(); return 0; }
+    case WM_NOTIFY:
+        if (((NMHDR *)lp)->idFrom == ID_TAB && ((NMHDR *)lp)->code == TCN_SELCHANGE) ui_page();
+        return 0;
+    case WM_COMMAND: {
+        int id = LOWORD(wp), nc = HIWORD(wp);
+        if (id == ID_PLAY) {
+            g_hide = h; int rc = 0;
+            if (launch_game(G.root, &rc)) { G.rc = rc; DestroyWindow(h); }
+            else { MessageBoxW(h, W(errmsg), L"Star Ocean: not ready", MB_OK | MB_ICONERROR); ui_status(); }
+        } else if (id >= ID_F0 && id < ID_F0 + NFIELDS && (nc == CBN_SELCHANGE || nc == EN_KILLFOCUS)) ui_commit(id - ID_F0);
+        return 0; }
+    case WM_DESTROY: PostQuitMessage(0); return 0;
+    }
+    return DefWindowProcW(h, m, wp, lp);
+}
+static int run_gui(const char *root) {
+    INITCOMMONCONTROLSEX ic = { sizeof ic, ICC_TAB_CLASSES }; InitCommonControlsEx(&ic);
+    HINSTANCE hi = GetModuleHandleW(NULL); G.root = root;
+    WNDCLASSW wc = { 0 }; wc.lpfnWndProc = wndproc; wc.hInstance = hi; wc.hCursor = LoadCursorW(NULL, (LPCWSTR)IDC_ARROW); wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+    wc.lpszClassName = L"SO2Launcher"; wc.hIcon = LoadIconW(hi, MAKEINTRESOURCEW(1)); RegisterClassW(&wc);
+    RECT r = { 0, 0, 502, 500 }; AdjustWindowRect(&r, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
+    HWND h = CreateWindowW(L"SO2Launcher", L"Star Ocean: The Second Story", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
+        CW_USEDEFAULT, CW_USEDEFAULT, r.right - r.left, r.bottom - r.top, NULL, NULL, hi, NULL);
+    if (!h) return 1;
+    MSG msg; while (GetMessageW(&msg, NULL, 0, 0) > 0) { if (!IsDialogMessageW(h, &msg)) { TranslateMessage(&msg); DispatchMessageW(&msg); } }
+    return G.rc;
+}
 
 int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
     int argc; wchar_t **av = CommandLineToArgvW(GetCommandLineW(), &argc);
-    int self = 0, only = 0; char *root = NULL;
+    int self = 0, only = 0, play = 0; char *root = NULL;
     for (int i = 1; i < argc; i++) {
         if (!wcscmp(av[i], L"--selftest")) self = 1;
         else if (!wcscmp(av[i], L"--prepare")) only = 1;
+        else if (!wcscmp(av[i], L"--play")) play = 1;
         else if (!wcscmp(av[i], L"--quiet")) quiet = 1;
         else if (!wcscmp(av[i], L"--root") && i + 1 < argc) root = U(av[++i]);
     }
@@ -379,20 +612,12 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
         fprintf(stderr, "PLAY: already running from this folder\n"); return 3;
     }
     SetCurrentDirectoryW(W(root));   /* a relative settings.ini bios path resolves against the game folder */
-    DeleteFileW(W(fmt("%s\\play\\launch.txt", root)));
-    Prep o;
-    if (!prepare(root, &o)) { if (only) { fprintf(stderr, "PLAY: %s\n", errmsg); return 1; } die(errmsg); }
-    if (only) return 0;
-    for (int i = 0; i < o.nenv; i++) { char *eq = strchr(o.env[i], '='); *eq = 0; SetEnvironmentVariableW(W(o.env[i]), W(eq + 1)); }
-    wchar_t *cmd = W(fmt("\"%s\" %s", o.exe, o.args));
-    SECURITY_ATTRIBUTES sa = { sizeof sa, NULL, TRUE };   /* game output -> play\last.log / last.err */
-    rotate_logs(o.run);
-    HANDLE out = CreateFileW(W(fmt("%s\\last.log", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
-    HANDLE err = CreateFileW(W(fmt("%s\\last.err", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
-    STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi; DWORD rc = 1;
-    si.dwFlags = STARTF_USESTDHANDLES; si.hStdOutput = out; si.hStdError = err; si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-    if (!CreateProcessW(W(o.exe), cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, W(o.run), &si, &pi)) die("Cannot start the game exe. Run INSTALL.bat first.");
-    WaitForSingleObject(pi.hProcess, INFINITE);
-    GetExitCodeProcess(pi.hProcess, &rc);
-    return (int)rc;
+    if (!only && !play && !quiet) {   /* window, unless settings.ini says skip_launcher = 1 */
+        ini_load(root);
+        if (strcmp(get("skip_launcher"), "1")) return run_gui(root);
+    }
+    if (only) { DeleteFileW(W(fmt("%s\\play\\launch.txt", root))); Prep o; if (!prepare(root, &o)) { fprintf(stderr, "PLAY: %s\n", errmsg); return 1; } return 0; }
+    int rc = 0;
+    if (!launch_game(root, &rc)) die(errmsg);
+    return rc;
 }
