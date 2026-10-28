@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pull a few dozen pictures off the player's OWN Star Ocean 2 disc images for the wide-screen side panels.
 
-  python -I tools\\extract_side_art.py [--roms roms] [--out play\\sidefill] [--count 40]
+  python -I scripts\\extract_side_art.py [--roms roms] [--out play\\sidefill] [--count 40]
 
 Reads the .bin images under --roms (read-only), decodes the 24-bit title picture and the pre-rendered field backgrounds
 (256x256 RGB555 pages inside SO2.BIN's SLZ entries, holes filled by push-pull), drops near-blank / near-duplicate ones, writes PNGs.
