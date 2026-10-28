@@ -294,6 +294,8 @@ static void disc_help(void) {
 static void step_discs(List *given) {
     if (disc_ok(1) && disc_ok(2)) { say("  Both discs are already installed."); return; }
     int interactive = given->n == 0;
+    /* a stray file found in roms (or picked) is skipped with a warning; a file the player dragged onto INSTALL.bat is an error */
+#define BAD(...) do { if (interactive) { say("  Skipping: " __VA_ARGS__); continue; } fail(__VA_ARGS__); } while (0)
     if (interactive) {
         scan_roms(given);
         if (given->n) say("  Found %d file(s) in roms\\.", given->n);
@@ -312,23 +314,23 @@ static void step_discs(List *given) {
         List images = { 0 };
         for (int i = 0; i < given->n; i++) {
             char *g = given->v[i], *e = lower(ext_of(g)); k++;
-            if (!exists(g)) fail("Cannot find '%s'. Drag the disc files themselves onto INSTALL.bat.", g);
-            if (is_dir(g)) fail("'%s' is a folder. Drag the two disc FILES (.7z, .zip, .bin/.cue or .chd) onto INSTALL.bat, not a folder.", base(g));
+            if (!exists(g)) BAD("Cannot find '%s'. Drag the disc files themselves onto INSTALL.bat.", g);
+            if (is_dir(g)) BAD("'%s' is a folder. Drag the two disc FILES (.7z, .zip, .bin/.cue or .chd) onto INSTALL.bat, not a folder.", base(g));
             if (!strcmp(e, ".7z") || !strcmp(e, ".zip")) {
                 char *dir = fmt("%s\\a%d", tmp, k); say("  Unpacking %s...", ascii(base(g))); mkdirs(dir);
                 int rc = !strcmp(e, ".zip") ? run("tar x zip", NULL, fmt("\"%s\" -xf \"%s\" -C \"%s\"", tar_exe(), g, dir))
                                            : run("7z x", NULL, fmt("\"%s\" x -y \"-o%s\" \"%s\"", seven_zip(), dir, g));
-                if (rc) fail("Could not unpack %s. The file may be damaged or incomplete.", g);
+                if (rc) BAD("Could not unpack %s. The file may be damaged or incomplete.", g);
                 collect(dir, &images);
             } else if (!strcmp(e, ".cue")) {
                 char *names[8]; char *t = read_file(g, NULL); int n = t ? cue_files(t, names, 8) : 0;
-                if (n != 1) fail("%s lists %d data files. Only single-file disc images (one .bin per disc) are supported.", base(g), n);
+                if (n != 1) BAD("%s lists %d data files. Only single-file disc images (one .bin per disc) are supported.", base(g), n);
                 char *b = fmt("%s\\%s", parent(g), names[0]);
-                if (!exists(b)) fail("%s points at '%s', which is not next to it.", base(g), names[0]);
+                if (!exists(b)) BAD("%s points at '%s', which is not next to it.", base(g), names[0]);
                 push(&images, b);
             } else if (!strcmp(e, ".bin") || !strcmp(e, ".chd")) push(&images, g);
-            else if (!strcmp(e, ".iso")) fail("%s is a 2048-byte ISO. The game needs the raw (2352-byte) .bin dump of each disc, not an ISO.", base(g));
-            else fail("%s is not a disc file I understand. Use the .7z, .zip, .bin/.cue or .chd of each disc.", base(g));
+            else if (!strcmp(e, ".iso")) BAD("%s is a 2048-byte ISO. The game needs the raw (2352-byte) .bin dump of each disc, not an ISO.", base(g));
+            else BAD("%s is not a disc file I understand. Use the .7z, .zip, .bin/.cue or .chd of each disc.", base(g));
         }
         int seen[3] = { 0 }; List uniq = { 0 };
         for (int i = 0; i < images.n; i++) if (!in_list(&uniq, lower(images.v[i]))) push(&uniq, lower(images.v[i])), images.v[uniq.n - 1] = images.v[i];
@@ -342,6 +344,7 @@ static void step_discs(List *given) {
                 im = fmt("%s\\d.bin", d2);
             }
             say("  Checking %s...", ascii(name)); char *h = hash_file(im, 1); int n = !h ? 0 : !strcmp(h, DISC_SHA1[1]) ? 1 : !strcmp(h, DISC_SHA1[2]) ? 2 : 0;
+            if (!h) { say("  Cannot read '%s' (locked by another program?). Close anything using it and run INSTALL.bat again.", ascii(name)); continue; }
             if (!n) { say("  '%s' is not a supported Star Ocean 2 disc. Use the unmodified USA dumps (SCUS-94421 and SCUS-94422); other regions and edited images do not work.", ascii(name)); continue; }
             if (seen[n] || disc_ok(n)) { say("  '%s' is disc %d, which you already gave. Disc %d is the other one.", ascii(name), n, 3 - n); continue; }
             seen[n] = 1; char *d = fmt("%s\\roms\\disc%d", root, n), *dn = disc_name(n), *dst = fmt("%s\\%s.bin", d, dn); mkdirs(d);
@@ -395,8 +398,9 @@ static char *step_tools(void) {
         if (!ask("  Visual Studio 2022 Build Tools (C++) are needed (about 8 GB). Install them now with winget? Windows will ask for your approval."))
             fail("The Visual Studio C++ compiler is needed to build the game. Install it (see README) and run INSTALL.bat again.");
         say("  Installing Build Tools (this can take a while)...");
-        if (run("winget BuildTools", NULL, "winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --accept-package-agreements --accept-source-agreements --override \"--passive --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\""))
-            fail("Installing the Build Tools failed or was cancelled.");
+        int wrc = run("winget BuildTools", NULL, "winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --accept-package-agreements --accept-source-agreements --override \"--passive --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\"");
+        if (wrc == 3010) say("  The Build Tools were installed, but Windows needs a restart to finish.");   /* 3010 = success, reboot required */
+        else if (wrc) fail("Installing the Build Tools failed or was cancelled.");
         vs = find_vs(); if (!vs) fail("The Build Tools install did not finish (a restart may be needed). Restart Windows if asked, then run INSTALL.bat again.");
     }
     setenv_("SO2_VS", vs); log_note(fmt("compiler: %s", vs));
@@ -505,9 +509,11 @@ int wmain(int argc, wchar_t **argv) {
     }
     if (!r) { static wchar_t d[32768]; DWORD n = GetModuleFileNameW(NULL, d, 32768); wchar_t *sl = n && n < 32768 ? wcsrchr(d, L'\\') : NULL; if (!sl) { fprintf(stderr, "Cannot find the folder this program is in. Start INSTALL.bat instead.\n"); return 1; } *sl = 0; r = U(d); }
     path_prepend(fmt("%s\\System32", getenv("SystemRoot") ? getenv("SystemRoot") : "C:\\Windows"));   /* build_all.ps1 calls bare `tar`: use bsdtar, not a GNU tar from Git Bash/MSYS */
+    { size_t rl = strlen(r); while (rl > 2 && r[rl - 1] == '\\') r[--rl] = 0; }   /* drive root: "C:\" would eat the closing quote on a command line; "C:" + "\roms" still works */
     root = r;
     if (strlen(root) > MAX_ROOT) { fprintf(stderr, "The folder path is too long (%d characters, the limit is %d): %s\nThe compiler tools used for the build cannot handle long paths. Move the game folder to a short path such as C:\\StarOcean2 and run INSTALL.bat again.\n", (int)strlen(root), MAX_ROOT, root); if (!noask && con_out) system("pause"); return 1; }
     SetCurrentDirectoryW(W(root)); logp = fmt("%s\\install.log", root); mkdirs(fmt("%s\\.install", root));
+    MoveFileExW(W(logp), W(fmt("%s.prev", logp)), MOVEFILE_REPLACE_EXISTING);   /* keep the previous run's log */
     char *hdr = fmt("Star Ocean 2 install log (INSTALL.bat)\r\n"); write_file(logp, hdr, strlen(hdr));
     const char *commit = "f42d2c004b3dd6ef6ccb83101b40ede55f24bf59";   /* audited psxrecomp pin (RECOMP_NOTES '2026-10-26 psxrecomp safety audit') */
     say("Star Ocean: The Second Story - PC install"); say("A detailed log is written to install.log."); say("");

@@ -8,6 +8,8 @@ setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
 set "ROOT=%CD%"
+rem at a drive root CD ends in a backslash, which would swallow the closing quote of --root "C:\"
+if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 set "PF86=%ProgramFiles(x86)%"
 if not exist ".install" mkdir ".install"
 set "DBLCLICK="
@@ -54,7 +56,15 @@ set "SO2RC=1" & goto :end
 :build
 call :compile
 if not "%SO2RC%"=="0" goto :end
-".install\setup.exe" --root "%ROOT%" %*
+rem each argument is re-quoted one by one: a raw %* breaks on a dragged file name with & or %
+set "SARGS="
+:argl
+if "%~1"=="" goto :argd
+set SARGS=%SARGS% "%~1"
+shift
+goto :argl
+:argd
+".install\setup.exe" --root "%ROOT%" %SARGS%
 set "SO2RC=%ERRORLEVEL%"
 goto :end
 
