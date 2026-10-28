@@ -268,6 +268,70 @@ static void rotate_logs(const char *run) {
     for (int i = 0; i < 2; i++) MoveFileExW(W(fmt("%s\\%s", run, n[i][0])), W(fmt("%s\\%s", run, n[i][1])), MOVEFILE_REPLACE_EXISTING);
 }
 
+/* ---------- rolling memory-card backups: saves\*.mcd -> saves\backups\<stamp>\ (originals are only read) ---------- */
+#define BK_KEEP 30
+static void bk_log(const char *root, const char *msg) {   /* one line to play\launcher.log; never fails the caller */
+    char *p = fmt("%s\\play\\launcher.log", root); mkdirs(parent(p));
+    HANDLE f = CreateFileW(W(p), FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, 0, NULL); if (f == INVALID_HANDLE_VALUE) return;
+    SYSTEMTIME t; GetLocalTime(&t); char *l = fmt("%04d-%02d-%02d %02d:%02d:%02d backup: %s\r\n", t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond, msg);
+    DWORD n; WriteFile(f, l, (DWORD)strlen(l), &n, NULL); CloseHandle(f);
+}
+static unsigned char *raw_read(const char *p, DWORD *len) {   /* binary read (read_file would strip a BOM) */
+    HANDLE f = CreateFileW(W(p), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    if (f == INVALID_HANDLE_VALUE) return NULL;
+    DWORD n = GetFileSize(f, NULL), got = 0; unsigned char *b = malloc(n + 1);
+    if (n == INVALID_FILE_SIZE || !ReadFile(f, b, n, &got, NULL) || got != n) b = NULL;
+    CloseHandle(f); *len = n; return b;
+}
+static int bk_stamp_ok(const char *s) {   /* YYYY-MM-DD_HHMMSS */
+    if (strlen(s) != 17) return 0;
+    for (int i = 0; i < 17; i++) if (i == 4 || i == 7 ? s[i] != '-' : i == 10 ? s[i] != '_' : s[i] < '0' || s[i] > '9') return 0;
+    return 1;
+}
+static int bk_cmp(const void *a, const void *b) { return strcmp(*(char **)a, *(char **)b); }
+static char **bk_list(const char *dir, int *n) {   /* backup folder names (stamps), sorted oldest first */
+    char **v = NULL; *n = 0; WIN32_FIND_DATAW d; HANDLE h = FindFirstFileW(W(fmt("%s\\*", dir)), &d);
+    if (h == INVALID_HANDLE_VALUE) return NULL;
+    do { char *nm = U(d.cFileName); if ((d.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && bk_stamp_ok(nm)) { v = realloc(v, (*n + 1) * sizeof *v); v[(*n)++] = nm; } } while (FindNextFileW(h, &d));
+    FindClose(h); if (*n) qsort(v, *n, sizeof *v, bk_cmp); return v;
+}
+static void bk_rmdir(const char *bdir, const char *dir) {   /* delete one backup folder; refuses anything not directly inside bdir */
+    size_t L = strlen(bdir);
+    if (_strnicmp(dir, bdir, L) || dir[L] != '\\' || strstr(dir + L, "..") || !bk_stamp_ok(dir + L + 1)) return;
+    WIN32_FIND_DATAW d; HANDLE h = FindFirstFileW(W(fmt("%s\\*", dir)), &d);
+    if (h != INVALID_HANDLE_VALUE) { do { if (!(d.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) DeleteFileW(W(fmt("%s\\%s", dir, U(d.cFileName)))); } while (FindNextFileW(h, &d)); FindClose(h); }
+    RemoveDirectoryW(W(dir));
+}
+/* 1 = new backup made, 0 = nothing to do, -1 = error (logged). stamp is injectable for the self-test. */
+static int backup_cards(const char *root, const char *stamp) {
+    char *S = fmt("%s\\saves", root), *B = fmt("%s\\backups", S); int n = 0; char **old = bk_list(B, &n);
+    char *last = n ? fmt("%s\\%s", B, old[n - 1]) : NULL; char *names[16]; int nn = 0, changed = 0;
+    WIN32_FIND_DATAW d; HANDLE h = FindFirstFileW(W(fmt("%s\\*.mcd", S)), &d);
+    if (h == INVALID_HANDLE_VALUE) return 0;
+    do {
+        if (d.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY || nn == 16) continue;
+        char *nm = U(d.cFileName), *src = fmt("%s\\%s", S, nm); DWORD sl = 0, ol = 0; unsigned char *a = raw_read(src, &sl);
+        if (!a || sl < 2 || a[0] != 'M' || a[1] != 'C') { bk_log(root, fmt("%s is empty or not a memory card; not backed up, older backups kept", nm)); continue; }
+        unsigned char *b = last ? raw_read(fmt("%s\\%s", last, nm), &ol) : NULL;
+        if (!b || ol != sl || memcmp(a, b, sl)) changed = 1;
+        names[nn++] = nm;
+    } while (FindNextFileW(h, &d));
+    FindClose(h);
+    if (!nn || !changed) return 0;
+    char *dst = fmt("%s\\%s", B, stamp); if (exists(dst)) return 0;
+    mkdirs(dst); int ok = 1;
+    for (int i = 0; i < nn; i++) if (!CopyFileW(W(fmt("%s\\%s", S, names[i])), W(fmt("%s\\%s", dst, names[i])), TRUE)) { ok = 0; bk_log(root, fmt("could not copy %s", names[i])); }
+    if (!ok) return -1;
+    bk_log(root, fmt("saved %d card file(s) to saves\\backups\\%s", nn, stamp));
+    old = bk_list(B, &n);
+    for (int i = 0; i < n - BK_KEEP; i++) bk_rmdir(B, fmt("%s\\%s", B, old[i]));
+    return 1;
+}
+static void backup_now(const char *root) {
+    SYSTEMTIME t; GetLocalTime(&t);
+    backup_cards(root, fmt("%04d-%02d-%02d_%02d%02d%02d", t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond));
+}
+
 /* ---------- launcher settings: the editable keys, and the safe settings.ini writer ---------- */
 typedef struct { const char *key, *label, *opts, *def; int (*ok)(const char *); int page; } Field;   /* opts NULL = edit box, else "a|b|c" combo */
 static int ok_key(const char *v) { size_t n = strlen(v); if (!n || n > 60) return 0; for (; *v; v++) if ((unsigned char)*v < 32 || (unsigned char)*v > 126) return 0; return 1; }
@@ -537,6 +601,22 @@ static int selftest(void) {
         CHECK(prepare(root, &o) && !has(root, "play\\launch.txt", "PSXRT_WINDOW_HEIGHT") && has(root, "play\\launch.txt", "PSXRT_SIDE_FILL=blur\n") && has(root, "play\\settings.warn", "window_height = 99 is not valid; using 0\n"));
     }
     }
+    { /* card backups: rotation keeps 30, unchanged = no new folder, bad card not backed up, path guard */
+        char *R = fmt("%s_bk%lu", root, GetTickCount()), *B = fmt("%s\\saves\\backups", R);
+        mkdirs(fmt("%s\\saves", R)); write_str(fmt("%s\\saves\\card1.mcd", R), "MCgood1"); mk(R, "saves\\keep.txt", "x");
+        CHECK(backup_cards(R, "2026-01-01_000000") == 1 && has(R, "saves\\backups\\2026-01-01_000000\\card1.mcd", "MCgood1"));
+        CHECK(backup_cards(R, "2026-01-01_000001") == 0 && !exists(fmt("%s\\2026-01-01_000001", B)));   /* unchanged */
+        write_str(fmt("%s\\saves\\card1.mcd", R), "");   /* corrupt: 0 bytes */
+        CHECK(backup_cards(R, "2026-01-01_000002") == 0 && !exists(fmt("%s\\2026-01-01_000002", B)) && has(R, "saves\\backups\\2026-01-01_000000\\card1.mcd", "MCgood1") && has(R, "play\\launcher.log", "not a memory card"));
+        write_str(fmt("%s\\saves\\card1.mcd", R), "XXbad");   /* no MC header */
+        CHECK(backup_cards(R, "2026-01-01_000003") == 0 && !exists(fmt("%s\\2026-01-01_000003", B)));
+        for (int i = 0; i < 40; i++) { write_str(fmt("%s\\saves\\card1.mcd", R), fmt("MC%d", i)); backup_cards(R, fmt("2026-02-01_%06d", i)); }
+        int n; char **v = bk_list(B, &n);
+        CHECK(n == BK_KEEP && !strcmp(v[n - 1], "2026-02-01_000039") && !strcmp(v[0], "2026-02-01_000010"));   /* oldest dropped, newest kept */
+        CHECK(has(R, "saves\\keep.txt", "x") && has(R, "saves\\card1.mcd", "MC39"));   /* originals untouched */
+        mk(R, "saves\\notbackup\\f.txt", "y"); bk_rmdir(B, fmt("%s\\saves\\notbackup", R)); bk_rmdir(B, fmt("%s\\..\\2026-01-01_000000", B));
+        CHECK(has(R, "saves\\notbackup\\f.txt", "y"));   /* path guard */
+    }
     fprintf(stderr, tfail ? "selftest: %d FAILED\n" : "selftest: all passed\n", tfail);
     return tfail ? 1 : 0;
 }
@@ -553,6 +633,7 @@ static int launch_game(const char *root, int *rc) {
     wchar_t *cmd = W(fmt("\"%s\" %s", o.exe, o.args));
     SECURITY_ATTRIBUTES sa = { sizeof sa, NULL, TRUE };   /* game output -> play\last.log / last.err */
     rotate_logs(o.run);
+    backup_now(root);   /* before the game can touch the cards */
     HANDLE out = CreateFileW(W(fmt("%s\\last.log", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
     HANDLE err = CreateFileW(W(fmt("%s\\last.err", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
     STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi; DWORD c = 1;
@@ -563,7 +644,7 @@ static int launch_game(const char *root, int *rc) {
         snprintf(errmsg, sizeof errmsg, "Cannot start the game exe. Run INSTALL.bat first."); return 0;
     }
     WaitForSingleObject(pi.hProcess, INFINITE);
-    GetExitCodeProcess(pi.hProcess, &c); *rc = (int)c; return 1;
+    GetExitCodeProcess(pi.hProcess, &c); *rc = (int)c; backup_now(root); return 1;
 }
 
 /* ---------- the window: custom-painted with GDI+ (flat API, declared here so no C++ headers are needed), double-buffered, one hit-test list ---------- */
@@ -754,6 +835,7 @@ static void render(HDC dc) {
         if (!all_ready()) { static const char *nm[4] = { "Disc 1", "Disc 2", "BIOS", "the built game" }; int first = 1; strcpy(hint, "Cannot start yet. Missing: ");
             for (int i = 0; i < 4; i++) if (!G.ok[i]) { if (!first) strcat(hint, ", "); strcat(hint, nm[i]); first = 0; } strcat(hint, ". Run INSTALL.bat to fix this."); }
         text(hint, 280, 478, 680, 24, F_BODY, all_ready() ? C_GREEN : 0xFFF0A0AC, 0, 1);
+        text("Saves are backed up automatically (saves\\backups).", 280, 508, 680, 20, F_SM, C_MUT, 0, 1);
     } else if (G.page == 1) {
         if (fs_mode()) text("Fullscreen uses your desktop resolution.", 280, 390, 340, 18, F_SM, C_GOLD, 0, 1);   /* in the gap under the disabled Window size box */
         MONITORINFO mi = { sizeof mi }; int dw = GetSystemMetrics(SM_CXSCREEN), dh = GetSystemMetrics(SM_CYSCREEN);
