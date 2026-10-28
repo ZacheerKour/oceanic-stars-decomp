@@ -81,11 +81,11 @@ void psxrt_audio_pulled(const void *bridge, const void *pcm, int bytes) {
     if (s_wav) { fwrite(pcm, 1, (size_t)bytes, s_wav); s_wav_bytes += (uint64_t)bytes; }
     if (!stats && !s_wav) return;
     pulled += (uint64_t)(bytes / 4);
-    /* dry = the bridge played no audio: frames it counted as underrun, or (patched bridge) frames while re-priming */
+    /* dry = a pull in which the bridge hit underrun (its counter counts events, not frames) or was re-priming; dry_frames adds the whole pull, so dry ms is an upper bound */
     static int was_primed;
     const uint64_t ur = b->stats.underrun_events;
     const uint64_t d = ur != last_ur ? ur - last_ur : was_primed && !b->primed ? (uint64_t)(bytes / 4) : 0;
-    if (d) { if (!dry) ur_events++; dry = 1; dry_frames += d; last_ur = ur; }
+    if (d) { if (!dry) ur_events++; dry = 1; dry_frames += (uint64_t)(bytes / 4); last_ur = ur; }
     else dry = 0;
     was_primed |= b->primed;
     /* No SPU output since the last pull: the producer (emulation thread) is stalled. */
@@ -103,7 +103,7 @@ void psxrt_audio_pulled(const void *bridge, const void *pcm, int bytes) {
         int voices = 0;
         for (uint32_t m = si.active_mask; m; m &= m - 1) voices++;
         total_events += ur_events;
-        fprintf(stderr, "[psxrt-audio-stats] t=%.1f spu=%.0f/s pulled=%.0f/s fill=%.0fms underruns=%llu (total %llu) dry=%.0fms "
+        fprintf(stderr, "[psxrt-audio-stats] t=%.1f spu=%.0f/s pulled=%.0f/s fill=%.0fms underruns=%llu (total %llu) dry<=%.0fms "
                 "overflow=%llu corr=%+.4f stall_max=%llums keyon=%u voices=%d spuctrl=%04x main=%d/%d\n", (double)now / 1000.0,
                 (double)(b->stats.pushed_frames - last_pushed) / sec, (double)pulled / sec, b->stats.last_fill_ms,
                 (unsigned long long)ur_events, (unsigned long long)total_events, (double)dry_frames * 1000.0 / b->cfg.host_rate,

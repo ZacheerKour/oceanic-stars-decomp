@@ -79,7 +79,7 @@ foreach ($d in @($root, (Split-Path $exe))) { $f = Join-Path $d 'gamecontrollerd
 
 foreach ($k in $set.Keys) { if ($k -like 'env.*') { Set-Item "env:$($k.Substring(4))" $set[$k] } }   # env.PSX_VSYNC = 1 etc.
 $a = @('--no-launcher', '--game', (Join-Path $P 'game.toml'), '--memcard-dir', $S, '--bios', (Resolve-Path $bios).Path)
-if ($set['extra_args']) { $a += $set['extra_args'] -split '\s+' }
+if ($set['extra_args']) { $a += $set['extra_args'].Trim() -split '\s+' }
 if ($Prepare) {   # PLAYTHISGAME.exe starts the game itself (a direct child, so Steam sees the process): exe, args, run dir, env lines
     $env_ = foreach ($k in $set.Keys) { if ($k -like 'env.*') { "$($k.Substring(4))=$($set[$k])" } }
     if ($env:SDL_GAMECONTROLLERCONFIG_FILE) { $env_ += "SDL_GAMECONTROLLERCONFIG_FILE=$env:SDL_GAMECONTROLLERCONFIG_FILE" }
