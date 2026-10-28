@@ -18,7 +18,12 @@ import slz, toc  # noqa: E402  (repo decoders: SLZ chunks, SO2.BIN table of cont
 
 class Disc:
     def __init__(s, path):
-        s.f = open(path, 'rb'); s.m = mmap.mmap(s.f.fileno(), 0, access=mmap.ACCESS_READ); s.n = len(s.m) // SEC
+        s.f = open(path, 'rb')
+        try:
+            if os.fstat(s.f.fileno()).st_size % SEC or os.fstat(s.f.fileno()).st_size < 17 * SEC: raise ValueError('not a raw 2352-byte-sector image')
+            s.m = mmap.mmap(s.f.fileno(), 0, access=mmap.ACCESS_READ); s.n = len(s.m) // SEC
+            if s.sec(16)[1:6] != b'CD001': raise ValueError('no ISO9660 volume descriptor at LBA 16')
+        except Exception: s.f.close(); raise
     def sec(s, l): return s.m[l * SEC + 24:l * SEC + 24 + 2048]
     def read(s, l, size): return b''.join(s.sec(l + i) for i in range((size + 2047) // 2048))[:size]
 
@@ -57,7 +62,7 @@ def field_pages(d, w, sz, entries):
         e = d.read(lba, s * 2048)
         for m in re.finditer(rb'SLZ[\x00\x01\x02]', e[:0x30000]):
             try: chunks = slz.dec_all(e[m.start():])
-            except Exception: continue
+            except BaseException: continue
             for c in chunks:
                 if len(c) == 131072: yield i, c
             break
@@ -114,11 +119,13 @@ def main():
     ap.add_argument('--count', type=int, default=40, help='number of pictures to write')
     ap.add_argument('--max-holes', type=float, default=0.30, help='skip field pages with more unused (black) area than this')
     a = ap.parse_args()
-    bins = sorted(p for p in glob.glob(os.path.join(a.roms, '**', '*.bin'), recursive=True) if not os.path.basename(p).lower().startswith('scph'))
+    bins = sorted(p for p in glob.glob(os.path.join(glob.escape(a.roms), '**', '*.bin'), recursive=True) if not os.path.basename(p).lower().startswith('scph'))
     if not bins: print('no disc images (.bin) under', a.roms); return 2
-    os.makedirs(a.out, exist_ok=True)
-    for old in glob.glob(os.path.join(a.out, 'side_*.png')): os.remove(old)
-    discs = [Disc(p) for p in bins]; hashes = []; cand = []   # cand: (tag, w, h, rgb)
+    discs = []
+    for p in bins:
+        try: discs.append(Disc(p))
+        except Exception as e: print('skipping', os.path.basename(p), '-', e)
+    hashes = []; cand = []   # cand: (tag, w, h, rgb)
 
     def keep(rgb, w, h):
         m, sd = stats(rgb)
@@ -127,22 +134,40 @@ def main():
         if any(bin(hs ^ x).count('1') <= 8 for x in hashes): return False
         hashes.append(hs); return True
 
-    d1 = discs[0]; w, sz = toc.load(d1)
+    d1 = w = sz = None
+    for d in discs:   # the disc whose SO2.BIN table of contents reads (disc 1 in practice)
+        try: w, sz = toc.load(d); d1 = d; break
+        except Exception: continue
+    if d1 is None: print('no usable Star Ocean 2 disc image found'); return 2
     for i in (18,):                      # the 24-bit title picture (Earth + ship); 19/20 are copies
-        lba, n = toc.ent(w, sz, i)
-        for tw, th, px in tim24(slz.dec_all(d1.read(lba, n * 2048))[0]):
-            if keep(px, tw, th): cand.append(('title', tw, th, px))
+        try:
+            lba, n = toc.ent(w, sz, i)
+            for tw, th, px in tim24(slz.dec_all(d1.read(lba, n * 2048))[0]):
+                if keep(px, tw, th): cand.append(('title', tw, th, px))
+        except Exception as e: print('title picture skipped -', e)
     # field backgrounds: spread over the ~900 scene entries, so take every `step`-th one that passes the filters
     scenes = list(range(3207, 4116)); step = max(1, len(scenes) // (a.count * 2))
     for i, c in field_pages(d1, w, sz, scenes[::step]):
         if len(cand) >= a.count: break
         rgb, holes = fill_holes(px15(c, 256, 256), 256, 256)
         if holes <= a.max_holes and keep(rgb, 256, 256): cand.append(('field%d' % i, 256, 256, rgb))
+    os.makedirs(a.out, exist_ok=True)
+    new = []   # write to .tmp, swap in with os.replace; old pictures go only after a new one landed
     for k, (tag, tw, th, px) in enumerate(cand[:a.count]):
-        p = os.path.join(a.out, 'side_%02d_%s.png' % (k, tag)); write_png(p, tw, th, px); print('  %s %dx%d' % (os.path.basename(p), tw, th))
-    print('wrote', min(len(cand), a.count), 'pictures to', a.out)
-    return 0 if cand else 1
+        p = os.path.join(a.out, 'side_%02d_%s.png' % (k, tag)); write_png(p + '.tmp', tw, th, px); os.replace(p + '.tmp', p); new.append(p)
+        print('  %s %dx%d' % (os.path.basename(p), tw, th))
+    for old in glob.glob(os.path.join(glob.escape(a.out), 'side_*.png')):
+        if new and old not in new: os.remove(old)
+    print('wrote', len(new), 'pictures to', a.out)
+    return 0 if new else 1
+
+
+def safe_main():
+    """Never raises: install treats any non-zero code as 'skipped'. 3 = unexpected crash."""
+    try: return main()
+    except SystemExit as e: return e.code if isinstance(e.code, int) else 3
+    except BaseException as e: print('side art skipped -', type(e).__name__, e); return 3
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(safe_main())

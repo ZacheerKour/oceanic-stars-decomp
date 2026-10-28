@@ -556,6 +556,8 @@ int wmain(int argc, wchar_t **argv) {
         stamp_set("exe_launcher.stamp", lstamp);
     }
 
+    /* optional wide-screen side pictures from the player's own discs; never fails the install */
+    say("Game art for wide screens: %s", run("side art", NULL, fmt("\"%s\\tools\\python\\python.exe\" -I scripts\\extract_side_art.py --roms roms", root)) ? "skipped" : "done");
     say(""); say("Done. Double-click PLAYTHISGAME.exe:"); say("  %s", out);
     if (con_out && !noask && ask("Create a Desktop shortcut?")) {
         wchar_t desk[MAX_PATH]; IShellLinkW *sl = NULL; IPersistFile *pf = NULL; int ok = 0;

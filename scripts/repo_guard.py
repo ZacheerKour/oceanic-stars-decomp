@@ -1,6 +1,6 @@
 """Fails if a tracked file (or a commit) looks like game data or a privacy leak. Needs no game data.
 Usage: python -I scripts/repo_guard.py                    check the tracked tree
-       python -I scripts/repo_guard.py --history [RANGE]  check every commit in RANGE (default: all of HEAD, e.g. origin/main..HEAD):
+       python -I scripts/repo_guard.py --history [RANGE]  check every commit in RANGE (default: --all, every ref, e.g. origin/main..HEAD):
                                                           added lines, file names, blobs, author/committer identity, messages
        python -I scripts/repo_guard.py --selftest         prove every rule fires on fixtures (no repo needed beyond a temp one)"""
 import re, subprocess, sys, os, tempfile
@@ -36,7 +36,9 @@ def name_problems(f):
     if f in ALLOW_PATHS: return out
     if os.path.splitext(low)[1] in BAD_EXT: out.append("game-like binary extension")
     if low.startswith(BAD_DIR): out.append("internal tooling directory")
-    if low.startswith("play/") and os.path.splitext(low)[1] in (".png", ".tim", ".str", ".jpg"): out.append("extracted game art under play/")
+    if low.startswith("play/") and os.path.splitext(low)[1] in (".png", ".jpg"): out.append("extracted game art under play/")
+    if os.path.splitext(low)[1] in (".tim", ".str", ".xa"): out.append("game asset extension (.tim/.str/.xa)")
+    if "sidefill" in low.split("/")[:-1]: out.append("sidefill/ holds extracted game art")
     if GEN_PATH.search(f): out.append("generated C under recomp/ (derived from game code)")
     return out
 
@@ -82,17 +84,28 @@ def git(root, *a):
     return subprocess.check_output(["git", "-C", root] + list(a))
 
 
+def revs(root, rng):  # rng "--all" = every ref
+    return git(root, "rev-list", rng).decode().split()
+
+
+def raw_entries(root, c):
+    """(blob sha, new path) per added/modified/renamed file of commit c (merges against every parent). -z, so a rename yields its NEW path."""
+    f = git(root, "diff-tree", "-m", "-r", "-z", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--diff-filter=AMR", c).decode("utf-8", "replace").split("\0")
+    out = []; i = 0
+    while i < len(f) and f[i].startswith(":"):
+        meta = f[i].split(); n = 2 if meta[4][0] in "RC" else 1
+        out.append((meta[3], f[i + n])); i += 1 + n
+    return out
+
+
 def history_problems(root, rng):
     """Every commit in rng (a rev or range): identities, message, file names, added blobs/lines. Returns [(commit, why)]."""
     bad = []
-    for c in git(root, "rev-list", rng).decode().split():
+    for c in revs(root, rng):
         an, ae, cn, ce, msg = git(root, "log", "-1", "--format=%an%x00%ae%x00%cn%x00%ce%x00%B", c).decode("utf-8", "replace").split("\0", 4)
         for w in identity_problems("author", an, ae) + identity_problems("committer", cn, ce) + text_problems(msg):
             bad.append((c[:10], w))
-        raw = git(root, "diff-tree", "-r", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--diff-filter=AMR", c).decode("utf-8", "replace")
-        for ln in raw.splitlines():
-            meta, _, path = ln.partition("\t")
-            sha = meta.split()[3]
+        for sha, path in raw_entries(root, c):
             size = int(git(root, "cat-file", "-s", sha))
             for w in name_problems(path): bad.append((c[:10], path + ": " + w))
             if size > 5 * 1024 * 1024: bad.append((c[:10], path + ": over 5 MB"))
@@ -101,19 +114,25 @@ def history_problems(root, rng):
                 if b: bad.append((c[:10], path + ": " + b))
             if os.path.splitext(path.lower())[1] in C_EXT and size < 2 * 1024 * 1024 and GEN_BANNER.search(git(root, "cat-file", "blob", sha)[:2048]):
                 bad.append((c[:10], path + ": generator banner in C source"))
-        patch = git(root, "diff-tree", "-p", "-U0", "--root", "--no-commit-id", "--no-color", "--diff-filter=AMR", c).decode("utf-8", "replace")
+        patch = git(root, "diff-tree", "-m", "-p", "-U0", "--root", "--no-commit-id", "--no-color", "--diff-filter=AMR", c).decode("utf-8", "replace")
         added = "\n".join(l[1:] for l in patch.splitlines() if l.startswith("+") and not l.startswith("+++"))
         for w in text_problems(added): bad.append((c[:10], "added line: " + w))
     return bad
 
 
 def tree_problems(root):
-    files = git(root, "ls-files", "-z").decode("utf-8").split("\0")[:-1]
+    """Checks the INDEX (what a commit would contain), not the working copy."""
+    ents = [e for e in git(root, "ls-files", "-s", "-z").decode("utf-8", "replace").split("\0") if e]
+    files = []; shas = []
+    for e in ents:
+        meta, _, f = e.partition("\t"); mode, sha = meta.split()[:2]
+        if mode == "160000": continue  # submodule pointer: no blob here
+        files.append(f); shas.append(sha)
     bad = []
+    p = subprocess.Popen(["git", "-C", root, "cat-file", "--batch"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    out = p.communicate("".join(s + "\n" for s in shas).encode())[0]; pos = 0
     for f in files:
-        p = os.path.join(root, f)
-        if not os.path.isfile(p): continue
-        with open(p, "rb") as h: data = h.read()
+        nl = out.index(b"\n", pos); size = int(out[pos:nl].split()[2]); data = out[nl + 1:nl + 1 + size]; pos = nl + 1 + size + 1
         for w in blob_problems(f, data): bad.append((f, w))
     return files, bad
 
@@ -127,6 +146,7 @@ def selftest():
     for ext in sorted(BAD_EXT): expect(name_problems("x/a" + ext), "extension " + ext)
     expect(not name_problems("x/a.txt") and not name_problems("recomp/bios/gen_scph5501.ps1"), "clean names")
     expect(name_problems("play/sidefill/a.png") and name_problems("play/x.str") and not name_problems("tools/a.png"), "play art")
+    expect(name_problems("docs/sidefill/a.txt") and name_problems("a/b.TIM") and name_problems("x.xa") and not name_problems("docs/sidefill.md"), "sidefill/.tim/.str/.xa anywhere")
     expect(name_problems(".beads/x") and name_problems(".claude/x"), "tooling dirs")
     expect(name_problems("recomp/bios/_gen/generated/a.c") and name_problems("recomp/x/gen_tables.c") and not name_problems("src/gen_a.c"), "generated C path")
     expect(blob_problems("a.c", b"/* Generated by psxrecomp */\nint x;\n"), "generator banner")
@@ -154,6 +174,12 @@ def selftest():
         why = " | ".join(w for _, w in history_problems(d, "HEAD~1..HEAD"))
         for k in ("author e-mail", "author name", "added line: home path", "b.zip", "c.dat"): expect(k in why, "history catches " + k)
         expect(not history_problems(d, "HEAD~1"), "history range excludes the bad commit")
+        # rename into a banned path (only the new path is banned), and a bad commit on a side branch reachable only by --all
+        g("mv", "a.txt", "sidefill_ok.txt"); os.makedirs(os.path.join(d, "play")); g("mv", "sidefill_ok.txt", "play/pic.png"); g("commit", "-qm", "ren")
+        expect("play/pic.png" in " ".join(w for _, w in history_problems(d, "HEAD~1..HEAD")), "history catches rename target")
+        g("checkout", "-q", "-b", "side"); open(os.path.join(d, "s.tim"), "w").write("t"); g("add", "."); g("commit", "-qm", "tim"); g("checkout", "-q", "-")
+        expect(any("s.tim" in w for _, w in history_problems(d, "--all")) and not any("s.tim" in w for _, w in history_problems(d, "HEAD")), "history --all sees other branches")
+        g("add", "-A"); expect(tree_problems(d)[1] == [] or all("b.zip" in f or "c.dat" in f or "play" in f for f, _ in tree_problems(d)[1]), "tree check runs on the index")
     print("repo_guard selftest: %d problem(s)" % n)
     return n
 
@@ -162,10 +188,10 @@ if __name__ == "__main__":
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if "--selftest" in sys.argv: sys.exit(1 if selftest() else 0)
     if "--history" in sys.argv:
-        i = sys.argv.index("--history"); rng = sys.argv[i + 1] if i + 1 < len(sys.argv) else "HEAD"
+        i = sys.argv.index("--history"); rng = sys.argv[i + 1] if i + 1 < len(sys.argv) else "--all"
         bad = history_problems(root, rng)
         for c, why in bad: print("FAIL", c, why)
-        print("repo_guard --history %s: %d commit(s) checked, %d problem(s)" % (rng, len(git(root, "rev-list", rng).split()), len(bad)))
+        print("repo_guard --history %s: %d commit(s) checked, %d problem(s)" % (rng, len(revs(root, rng)), len(bad)))
         sys.exit(1 if bad else 0)
     files, bad = tree_problems(root)
     for f, why in bad: print("FAIL", f, why)
