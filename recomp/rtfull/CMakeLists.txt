@@ -99,8 +99,13 @@ set(OVERLAY_OPT "/Od" CACHE STRING "cl optimization flag for the overlay C")
 # Copy-with-patch: a few TUs need a minimal edit for MSVC or for the sandbox. The edited copy goes to the build dir
 # (the clone is never touched), replaces the original in the source list, and each edit must match exactly once.
 set(PATCHED "${CMAKE_BINARY_DIR}/patched")
-function(psxrt_patch rel)   # psxrt_patch(<path under clone> OLD1 NEW1 [OLD2 NEW2 ...]); no ';' in OLD/NEW (CMake lists)
+# Patched copies are made at configure time, so every input must retrigger configure (else a pin bump or an edited source
+# keeps compiling a stale copy): the clone's file and the list file are CMAKE_CONFIGURE_DEPENDS.
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${R}/runtime/runtime.cmake")
+function(psxrt_patch rel)   # psxrt_patch(<path under clone> OLD1 NEW1 [OLD2 NEW2 ...]); ';' in OLD/NEW is written @SC@ (CMake lists)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${R}/${rel}")
     file(READ "${R}/${rel}" txt)
+    string(REPLACE "\r\n" "\n" txt "${txt}")   # CRLF checkout: patch text is LF
     set(args ${ARGN})
     list(LENGTH args n)
     math(EXPR last "${n} - 1")
@@ -108,6 +113,8 @@ function(psxrt_patch rel)   # psxrt_patch(<path under clone> OLD1 NEW1 [OLD2 NEW
         math(EXPR j "${i} + 1")
         list(GET args ${i} old)
         list(GET args ${j} new)
+        string(REPLACE "@SC@" ";" old "${old}")
+        string(REPLACE "@SC@" ";" new "${new}")
         string(FIND "${txt}" "${old}" p1)
         string(FIND "${txt}" "${old}" p2 REVERSE)
         if(p1 EQUAL -1 OR NOT p1 EQUAL p2)
@@ -116,7 +123,13 @@ function(psxrt_patch rel)   # psxrt_patch(<path under clone> OLD1 NEW1 [OLD2 NEW
         string(REPLACE "${old}" "${new}" txt "${txt}")
     endforeach()
     get_filename_component(name "${rel}" NAME)
-    file(WRITE "${PATCHED}/${name}" "${txt}")
+    set(old_txt "")
+    if(EXISTS "${PATCHED}/${name}")
+        file(READ "${PATCHED}/${name}" old_txt)
+    endif()
+    if(NOT old_txt STREQUAL txt)   # unchanged copy keeps its mtime: a reconfigure does not recompile it
+        file(WRITE "${PATCHED}/${name}" "${txt}")
+    endif()
     list(REMOVE_ITEM RT_SOURCES "${R}/${rel}")
     list(APPEND RT_SOURCES "${PATCHED}/${name}")
     set(RT_SOURCES "${RT_SOURCES}" PARENT_SCOPE)
@@ -149,6 +162,26 @@ psxrt_patch(runtime/src/main.cpp
     "PSXRT_MAIN_ACCESSORS\nstatic bool local_mouse_live(int override_word) {"
     "if (psx_window_fullscreen_set(sdl_window, &s_window_fullscreen, g_fullscreen) != 0)"
     "if (psx_window_fullscreen_set(sdl_window, &s_window_fullscreen, g_fullscreen ? g_fullscreen : psxrt_launch_fullscreen()) != 0)")
+# Savestate write is atomic (stubs/psxrt_pst.h): <slot>.tmp, flush+commit, fclose checked, MoveFileEx over the slot; a failure keeps
+# the old state and boot_state_save() returns 0, so the runtime's toast says "Save failed", never "Saved".
+psxrt_patch(runtime/src/boot_state.c
+    "FILE* f = fopen(path, \"wb\")"
+    "char psxrt_tmp[1100]@SC@ FILE* f = psxrt_pst_open(path, psxrt_tmp, sizeof psxrt_tmp)"
+    "    fclose(f)@SC@
+    if (!ok)
+        remove(path)@SC@"
+    "    ok = psxrt_pst_commit(f, ok, psxrt_tmp, path)@SC@")
+set_property(SOURCE "${PATCHED}/boot_state.c" APPEND PROPERTY COMPILE_OPTIONS "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_pst.h")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_pst.h")
+# Memory card load: a >=128 KB file without "MC" at offset 0 (renamed .gme / DexDrive image: header shifted) used to load as a card
+# and the game offered to format it. Refuse it instead: load_card_image fails, the slot is left empty, the file is never written.
+psxrt_patch(runtime/src/memcard.c
+    "    if (fread(c->data, 1, MEMCARD_SIZE, f) != MEMCARD_SIZE) return -1@SC@"
+    "    if (fread(c->data, 1, MEMCARD_SIZE, f) != MEMCARD_SIZE) return -1@SC@
+    if (c->data[0] != 'M' || c->data[1] != 'C') {   /* psxrt: raw 128 KB image with MC header only, no auto-convert */
+        fprintf(stderr, \"memcard: card %d: %s has no 'MC' header (not a raw 128 KB image?): refused, file left untouched\\n\", card + 1, c->filepath)@SC@
+        return -1@SC@
+    }")
 # Pause menu: psx_runtime_menu.c (launcher-only, stubs here) is replaced by stubs/psxrt_menu_ui.inc, compiled inside a copy of
 # psx_savestate_menu.c for its font; the visual OSD (toasts: slot, saved, loaded) is switched on without the launcher.
 list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/psx_runtime_menu.c")
@@ -170,6 +203,8 @@ psxrt_patch(runtime/src/psx_sdl_audio.cpp
     "        s_audio_callback(s_audio_userdata, buffer, chunk), psxrt_audio_tap(buffer, chunk)"
     "static void SDLCALL psx_sdl3_audio_feed("
     "PSXRT_AUDIO_ACCESSORS /* psxrt: device reopen, stubs/psxrt_audio.h */\nstatic void SDLCALL psx_sdl3_audio_feed(")
+# NOTE: the recomp_audio_drc.h patch below is only meaningful together with the main.cpp patch above (psxrt_audio_pulled in the
+# audio callback, stubs/psxrt_audio.c reading the same stats); the check after it fails the configure if either copy is missing.
 # Audio bridge: after the ring runs dry, wait until it is refilled to the target before playing again. Upstream stays
 # primed, so after any stall (disc load, device switch) it played each sample as it arrived from a near-empty ring: one
 # underrun became many short ones (crackle) and the fill took ~30 s to climb back (correction is capped at 0.5%).
@@ -180,6 +215,9 @@ psxrt_patch(runtime/src/recomp_audio_drc.h
     "                b->stats.underrun_events++, b->primed = 0 /* psxrt: re-prime after a stall */"
     "if (!b->primed && fill_ms >= c->target_ms)"
     "if (!b->primed && fill_ms >= c->target_ms * (b->stats.underrun_events ? 0.34 : 1.0)) /* psxrt */")
+if(NOT EXISTS "${PATCHED}/main.cpp" OR NOT EXISTS "${PATCHED}/recomp_audio_drc.h")
+    message(FATAL_ERROR "psxrt: recomp_audio_drc.h and main.cpp must both be patched (the audio re-prime patch depends on the main.cpp one)")
+endif()
 # Boot-logo stall: the interpreter's per-PC "occupant fingerprint" (debug-server-only data) scans the 16384-entry static-match
 # cache on EVERY external interp entry: ~9000 entries/frame while the BIOS logo runs = ~200 ms/frame (guest at ~8%, jingle cut).
 # psxrt_occ_crc (stubs/psxrt_evlog.c) only does the scan when PSXRT_OCC=1.

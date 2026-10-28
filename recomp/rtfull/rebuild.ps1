@@ -4,6 +4,9 @@ $vs = if ($env:SO2_VS) { $env:SO2_VS } else { 'C:\Program Files (x86)\Microsoft 
 cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul 2>nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] } }
 $env:Path = "$vs\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;$vs\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;$env:Path"
 $B = Join-Path $PSScriptRoot $BuildDir
+# Patched runtime copies are made at configure time: re-run configure first (cached vars kept) so a pin bump or edited source is never built stale.
+cmake -S $PSScriptRoot -B $B *> "$B\configure.log"
+if ($LASTEXITCODE) { 'configure failed:'; Get-Content "$B\configure.log" | Select-Object -Last 15; exit 1 }
 cmake --build $B -- -k 0 *> "$B\build.log"
 "build exit $LASTEXITCODE"
 Get-Content "$B\build.log" | Select-String ': (fatal )?error |LNK\d+' | Select-Object -First 20 | ForEach-Object { $_.Line }
