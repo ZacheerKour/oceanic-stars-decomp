@@ -1,0 +1,19 @@
+# Graphics options: window mode row (borderless fullscreen and back) and the size row while fullscreen (persisted, applied when windowed).
+12500 MENU open
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU accept
+12500 MENU accept
+12500 MENU shot_gfx_fullscreen
+12500 MENU down
+12500 MENU right
+12500 MENU shot_gfx_size_while_fs
+12500 MENU up
+12500 MENU left
+12500 MENU shot_gfx_windowed_again
+12500 MENU close
+12700 DUMP after_mode
+13000 -

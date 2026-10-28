@@ -127,6 +127,13 @@ from other pads; it only sees SDL3 gamepads. What to do:
 - Display, also in `settings.ini`: `window_width` (starting width, height follows 4:3), `render_scale` (1 = native .. 8, sharper 3D,
   needs a faster GPU), `scale_mode = fit | integer | stretch` (fit keeps 4:3 with equal bars on both sides) and
   `filter = linear | nearest`. The window can be resized or maximised; Alt+Enter or Ctrl+F toggles fullscreen.
+- **Graphics options (in game):** press F10 (pad: Select+Start), pick "Graphics options". Rows: window mode (windowed / borderless
+  fullscreen), window size (480p..2160p, 4:3), scale mode, filter, internal resolution (1x..8x) and scanlines (F4 also toggles).
+  Up/Down and Left/Right or Cross/Enter on keyboard or pad; Esc/Circle goes back. Changes apply at once and are saved to
+  `settings.ini` (`window_mode`, `window_width`, `scale_mode`, `filter`, `render_scale`, `scanlines`). If the renderer
+  refuses a live resolution change the row says RESTART and the value is used from the next start. The picture is always 4:3
+  (the game draws 4:3 and there is no honest widescreen mode), so there is no widescreen row. The first start shows a toast
+  with the F10 hint once (`hint_shown = 1` is then added to `settings.ini`).
 - The run directory `play\` holds the generated `game.toml` and the logs of the last start (`last.log`, `last.err`).
 
 ## Known issues

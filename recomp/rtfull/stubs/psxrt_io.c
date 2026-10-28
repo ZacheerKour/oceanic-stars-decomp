@@ -20,6 +20,7 @@
 #include <string.h>
 #include <math.h>
 #include "psxrt_io.h"
+#include <windows.h>
 #ifndef PSXRT_IO_SELFTEST
 #include <SDL3/SDL.h>
 #endif
@@ -82,13 +83,153 @@ int psxrt_chord_step(int *prev, uint16_t word, uint16_t *out) {
     return fire;
 }
 
+/* ---- Graphics page model ---- */
+const int psxrt_widths[5] = { 640, 960, 1440, 1920, 2880 };   /* 4:3 windows 480p 720p 1080p 1440p 2160p */
+static const char *const k_modes[3] = { "fit", "integer", "stretch" };
+
+int psxrt_gfx_step(PsxrtGfx *g, int row, int d) {   /* d = +1 / -1; 1 when a value changed */
+    int i;
+    switch (row) {
+    case GR_WINMODE: g->fs = !g->fs; return 1;
+    case GR_WINSIZE: {
+        int w = g->width;
+        if (d > 0) { for (i = 0; i < 5 && psxrt_widths[i] <= w; i++) {} w = psxrt_widths[i % 5]; }
+        else { for (i = 4; i >= 0 && psxrt_widths[i] >= w; i--) {} w = psxrt_widths[i < 0 ? 4 : i]; }
+        g->width = w;
+        return 1;
+    }
+    case GR_SCALE: g->mode = (g->mode + d + 3) % 3; return 1;
+    case GR_FILTER: g->linear = !g->linear; return 1;
+    case GR_IRES: g->ires = (g->ires - 1 + d + 8) % 8 + 1; return 1;
+    case GR_SCAN: g->scan = !g->scan; return 1;
+    }
+    return 0;
+}
+int psxrt_gfx_kv(int row, const PsxrtGfx *g, char *key, char *val, int n) {
+    const char *k, *v;
+    char b[16];
+    switch (row) {
+    case GR_WINMODE: k = "window_mode"; v = g->fs ? "borderless" : "windowed"; break;
+    case GR_WINSIZE: k = "window_width"; snprintf(b, sizeof b, "%d", g->width); v = b; break;
+    case GR_SCALE: k = "scale_mode"; v = k_modes[g->mode]; break;
+    case GR_FILTER: k = "filter"; v = g->linear ? "linear" : "nearest"; break;
+    case GR_IRES: k = "render_scale"; snprintf(b, sizeof b, "%d", g->ires); v = b; break;
+    case GR_SCAN: k = "scanlines"; v = g->scan ? "on" : "off"; break;
+    default: return 0;
+    }
+    snprintf(key, (size_t)n, "%s", k);
+    snprintf(val, (size_t)n, "%s", v);
+    return 1;
+}
+
+/* ---- settings.ini rewrite (same line grammar as recomp/launcher/play.c: key = value, key case-insensitive, last one wins) ---- */
+static int all_digits(const char *v, int maxlen) { int n = (int)strlen(v); if (!n || n > maxlen) return 0; for (; *v; v++) if (*v < '0' || *v > '9') return 0; return 1; }
+int psxrt_ini_valid(const char *k, const char *v) {   /* the ranges play.c accepts, so a persisted value never trips its fallback */
+    if (!_stricmp(k, "window_width")) return all_digits(v, 4) && atoi(v) >= 640 && atoi(v) <= 7680;
+    if (!_stricmp(k, "render_scale")) return all_digits(v, 1) && v[0] >= '1' && v[0] <= '8';
+    if (!_stricmp(k, "scale_mode")) return !strcmp(v, "fit") || !strcmp(v, "integer") || !strcmp(v, "stretch");
+    if (!_stricmp(k, "filter")) return !strcmp(v, "linear") || !strcmp(v, "nearest");
+    if (!_stricmp(k, "scanlines")) return !strcmp(v, "on") || !strcmp(v, "off");
+    if (!_stricmp(k, "window_mode")) return !strcmp(v, "windowed") || !strcmp(v, "borderless");
+    if (!_stricmp(k, "hint_shown")) return !strcmp(v, "1");
+    return 0;
+}
+char *psxrt_ini_set(const char *t, const char *key, const char *val) {
+    if (!psxrt_ini_valid(key, val)) return NULL;
+    const size_t kl = strlen(key), tl = strlen(t);
+    const char *hit = NULL, *hit_end = NULL, *hit_eol = NULL;   /* last matching line: text through its '=' is kept, its value replaced */
+    const char *p = t;
+    while (*p) {
+        const char *e = p; while (*e && *e != '\n' && *e != '\r') e++;
+        const char *c = p; while (c < e && (*c == ' ' || *c == '\t')) c++;
+        if ((size_t)(e - c) > kl && !_strnicmp(c, key, kl)) {
+            const char *q = c + kl; while (q < e && (*q == ' ' || *q == '\t')) q++;
+            if (q < e && *q == '=') { hit = p; hit_end = q + 1; hit_eol = e; }
+        }
+        p = e; if (*p == '\r' && p[1] == '\n') p++; if (*p) p++;
+    }
+    char *o = (char *)malloc(tl + kl + strlen(val) + 16);
+    if (!o) return NULL;
+    if (hit) {
+        size_t n = (size_t)(hit_end - t);
+        memcpy(o, t, n);
+        n += (size_t)sprintf(o + n, " %s", val);
+        strcpy(o + n, hit_eol);
+    } else {
+        const char *eol = strstr(t, "\r\n") ? "\r\n" : "\n";
+        memcpy(o, t, tl);
+        sprintf(o + tl, "%s%s = %s%s", tl && t[tl - 1] != '\n' ? eol : "", key, val, eol);
+    }
+    return o;
+}
+int psxrt_ini_persist(const char *key, const char *val) {
+    const char *path = getenv("PSXRT_SETTINGS_INI");
+    if (!path || !*path) return -1;
+    FILE *f = fopen(path, "rb");
+    if (!f) return 0;
+    char *buf = (char *)malloc(1 << 20);
+    size_t n = buf ? fread(buf, 1, (1 << 20) - 1, f) : 0;
+    const int big = buf && !feof(f);
+    fclose(f);
+    if (!buf || big || !n) { free(buf); return 0; }
+    buf[n] = 0;
+    char *out = psxrt_ini_set(buf, key, val);
+    free(buf);
+    if (!out) return 0;
+    char tmp[1024];
+    snprintf(tmp, sizeof tmp, "%s.tmp", path);
+    const size_t on = strlen(out);
+    int ok = 0;
+    f = fopen(tmp, "wb");
+    if (f) {
+        ok = fwrite(out, 1, on, f) == on && fflush(f) == 0;
+        ok = fclose(f) == 0 && ok;
+    }
+    free(out);
+    if (ok) ok = MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+    if (!ok) remove(tmp);   /* only our own temp file */
+    return ok;
+}
+
+static int s_scale_mode = -1, s_fs_launch = -1;
+int psxrt_scale_mode(void) {   /* 0 fit, 1 integer, 2 stretch: from PSXRT_SCALE_MODE until the menu changes it */
+    if (s_scale_mode < 0) {
+        const char *e = getenv("PSXRT_SCALE_MODE");
+        s_scale_mode = !e ? 0 : !strcmp(e, "integer") ? 1 : !strcmp(e, "stretch") ? 2 : 0;
+    }
+    return s_scale_mode;
+}
+void psxrt_scale_mode_set(int m) { s_scale_mode = m < 0 || m > 2 ? 0 : m; }
+int psxrt_launch_fullscreen(void) {   /* PSXRT_FULLSCREEN=1 (settings.ini window_mode = borderless); never for a hidden test window */
+    if (s_fs_launch < 0) {
+        const char *e = getenv("PSXRT_FULLSCREEN"), *h = getenv("PSX_HIDDEN_WINDOW");
+        s_fs_launch = e && !strcmp(e, "1") && !(h && *h && *h != '0');
+    }
+    return s_fs_launch;
+}
+
 void psxrt_menu_reset(PsxrtMenu *m, int mounted, int ndiscs) {
     m->sel = 0;
     m->quit_armed = 0;
+    m->page = 0;
+    m->gsel = 0;
     m->disc_target = ndiscs > 1 ? (mounted == 1 ? 2 : 1) : 1;
+}
+static int gfx_menu_input(PsxrtMenu *m, int in) {
+    const int row = m->gsel;
+    switch (in) {
+    case PM_IN_TOGGLE: return MA_CLOSE;
+    case PM_IN_BACK: m->page = 0; return MA_NONE;
+    case PM_IN_UP: case PM_IN_DOWN: m->gsel = (row + GR_ROWS + (in == PM_IN_DOWN ? 1 : -1)) % GR_ROWS; return MA_NONE;
+    case PM_IN_LEFT: case PM_IN_RIGHT: case PM_IN_ACCEPT:
+        if (row == GR_BACK) { if (in == PM_IN_ACCEPT) m->page = 0; return MA_NONE; }
+        return psxrt_gfx_step(&m->g, row, in == PM_IN_LEFT ? -1 : 1) ? MA_GFX : MA_NONE;
+    }
+    return MA_NONE;
 }
 int psxrt_menu_input(PsxrtMenu *m, int in, int nd) {
     const int row = m->sel;
+    if (m->page == 1) return gfx_menu_input(m, in);
     switch (in) {
     case PM_IN_TOGGLE: return MA_CLOSE;
     case PM_IN_BACK:   /* Esc / Circle: first backs out of a pending quit, then closes */
@@ -111,6 +252,7 @@ int psxrt_menu_input(PsxrtMenu *m, int in, int nd) {
         case PM_LOAD: return MA_LOAD;
         case PM_SWAP: return nd > 1 ? MA_SWAP : MA_NONE;
         case PM_FULLSCREEN: return MA_FULLSCREEN;
+        case PM_GRAPHICS: m->page = 1; m->gsel = 0; return MA_GRAPHICS;
         default:   /* PM_QUIT: needs a second accept on the same row */
             if (!m->quit_armed) { m->quit_armed = 1; return MA_NONE; }
             m->quit_armed = 0;
@@ -380,6 +522,12 @@ static void script_apply(void) {
     psxrt_diag_frame(fr);
     psxrt_evlog_frame(fr);
     if (s_nsteps < 0) { psxrt_prof_start(); load_script(); }
+#ifndef PSXRT_IO_SELFTEST
+    if (fr == 600) {   /* first start only: play.c sets PSXRT_HINT until settings.ini has hint_shown = 1 */
+        const char *h = getenv("PSXRT_HINT");
+        if (h && *h == '1') { host_osd_push("F10 or Select+Start = menu (Graphics options inside)", 6000); psxrt_ini_persist("hint_shown", "1"); }
+    }
+#endif
     {
         static int logon = -1;
         static uint16_t last = 0xFFFFu;
@@ -478,7 +626,7 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
         CHECK(psxrt_chord_step(&prev, r1, &o) == HK_NONE && o == r1);              /* R1 alone (character switch) untouched */
         CHECK(psxrt_chord_step(&prev, (uint16_t)(sel & r1 & ~(1u << 14)), &o) == HK_SAVE && (o & (1u << 14)) == 0);   /* other buttons pass through */
     }
-    /* pause menu: rows Resume, Save, Load, Swap, Fullscreen, Quit */
+    /* pause menu: rows Resume, Save, Load, Swap, Fullscreen, Graphics, Quit */
     {
         PsxrtMenu m;
         psxrt_menu_reset(&m, 1, 2);
@@ -500,6 +648,9 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
         psxrt_menu_input(&m, PM_IN_DOWN, 2);
         CHECK(m.sel == PM_FULLSCREEN && psxrt_menu_input(&m, PM_IN_ACCEPT, 2) == MA_FULLSCREEN);
         psxrt_menu_input(&m, PM_IN_DOWN, 2);
+        CHECK(m.sel == PM_GRAPHICS && psxrt_menu_input(&m, PM_IN_ACCEPT, 2) == MA_GRAPHICS && m.page == 1 && m.gsel == 0);
+        CHECK(psxrt_menu_input(&m, PM_IN_BACK, 2) == MA_NONE && m.page == 0 && m.sel == PM_GRAPHICS);   /* back returns to the main page */
+        psxrt_menu_input(&m, PM_IN_DOWN, 2);
         CHECK(m.sel == PM_QUIT && psxrt_menu_input(&m, PM_IN_ACCEPT, 2) == MA_NONE && m.quit_armed);   /* first accept only arms */
         CHECK(psxrt_menu_input(&m, PM_IN_BACK, 2) == MA_NONE && !m.quit_armed);    /* Circle backs out of the confirm, menu stays */
         psxrt_menu_input(&m, PM_IN_ACCEPT, 2);
@@ -508,6 +659,78 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
         CHECK(psxrt_menu_input(&m, PM_IN_ACCEPT, 2) == MA_QUIT && !m.quit_armed);  /* second accept quits */
         psxrt_menu_reset(&m, 2, 2); CHECK(m.disc_target == 1);
         psxrt_menu_reset(&m, 1, 1); CHECK(m.disc_target == 1);
+    }
+    /* graphics page: navigation, value cycling, settings.ini key/value pairs */
+    {
+        PsxrtMenu m; char k[32], v[32];
+        psxrt_menu_reset(&m, 1, 1);
+        m.sel = PM_GRAPHICS; psxrt_menu_input(&m, PM_IN_ACCEPT, 1);
+        m.g.fs = 0; m.g.width = 960; m.g.mode = 0; m.g.linear = 1; m.g.ires = 1; m.g.scan = 0;
+        CHECK(psxrt_menu_input(&m, PM_IN_UP, 1) == MA_NONE && m.gsel == GR_BACK);          /* wraps */
+        CHECK(psxrt_menu_input(&m, PM_IN_ACCEPT, 1) == MA_NONE && m.page == 0);            /* Back row leaves */
+        m.sel = PM_GRAPHICS; psxrt_menu_input(&m, PM_IN_ACCEPT, 1);
+        CHECK(psxrt_menu_input(&m, PM_IN_ACCEPT, 1) == MA_GFX && m.g.fs == 1);             /* accept cycles */
+        CHECK(psxrt_gfx_kv(GR_WINMODE, &m.g, k, v, 32) && !strcmp(k, "window_mode") && !strcmp(v, "borderless"));
+        CHECK(psxrt_menu_input(&m, PM_IN_LEFT, 1) == MA_GFX && m.g.fs == 0);
+        psxrt_menu_input(&m, PM_IN_DOWN, 1);
+        CHECK(psxrt_menu_input(&m, PM_IN_RIGHT, 1) == MA_GFX && m.g.width == 1440);
+        psxrt_menu_input(&m, PM_IN_RIGHT, 1); psxrt_menu_input(&m, PM_IN_RIGHT, 1); CHECK(m.g.width == 2880);
+        psxrt_menu_input(&m, PM_IN_RIGHT, 1); CHECK(m.g.width == 640);                      /* wraps */
+        psxrt_menu_input(&m, PM_IN_LEFT, 1); CHECK(m.g.width == 2880);
+        m.g.width = 1000; psxrt_gfx_step(&m.g, GR_WINSIZE, 1); CHECK(m.g.width == 1440);   /* custom size -> neighbours */
+        m.g.width = 1000; psxrt_gfx_step(&m.g, GR_WINSIZE, -1); CHECK(m.g.width == 960);
+        psxrt_menu_input(&m, PM_IN_DOWN, 1);
+        psxrt_menu_input(&m, PM_IN_LEFT, 1); CHECK(m.g.mode == 2 && psxrt_gfx_kv(GR_SCALE, &m.g, k, v, 32) && !strcmp(v, "stretch"));
+        psxrt_menu_input(&m, PM_IN_RIGHT, 1); CHECK(m.g.mode == 0);
+        psxrt_menu_input(&m, PM_IN_DOWN, 1); psxrt_menu_input(&m, PM_IN_ACCEPT, 1);
+        CHECK(!m.g.linear && psxrt_gfx_kv(GR_FILTER, &m.g, k, v, 32) && !strcmp(k, "filter") && !strcmp(v, "nearest"));
+        psxrt_menu_input(&m, PM_IN_DOWN, 1);
+        psxrt_menu_input(&m, PM_IN_LEFT, 1); CHECK(m.g.ires == 8);                          /* 1 wraps to 8 */
+        CHECK(psxrt_gfx_kv(GR_IRES, &m.g, k, v, 32) && !strcmp(k, "render_scale") && !strcmp(v, "8"));
+        psxrt_menu_input(&m, PM_IN_RIGHT, 1); CHECK(m.g.ires == 1);
+        psxrt_menu_input(&m, PM_IN_DOWN, 1); psxrt_menu_input(&m, PM_IN_ACCEPT, 1);
+        CHECK(m.g.scan == 1 && psxrt_gfx_kv(GR_SCAN, &m.g, k, v, 32) && !strcmp(k, "scanlines") && !strcmp(v, "on"));
+        CHECK(!psxrt_gfx_kv(GR_BACK, &m.g, k, v, 32));
+        CHECK(psxrt_menu_input(&m, PM_IN_TOGGLE, 1) == MA_CLOSE);
+        /* every width the page can produce is valid for play.c */
+        for (int i = 0; i < 5; i++) { snprintf(v, sizeof v, "%d", psxrt_widths[i]); CHECK(psxrt_ini_valid("window_width", v)); }
+    }
+    /* settings.ini rewrite */
+    {
+        const char *src = "; PLAY settings\r\n[play]\r\nbios = auto\r\n; window_width = 111\r\n  Window_Width = 960  \r\nfilter=linear\r\nwindow_width = 1280\r\nkey.up = W";
+        char *o = psxrt_ini_set(src, "window_width", "1440");
+        CHECK(o && strstr(o, "; window_width = 111\r\n") && strstr(o, "  Window_Width = 960  \r\n"));   /* comment and the earlier line stay */
+        CHECK(o && strstr(o, "\r\nwindow_width = 1440\r\nkey.up = W") && !strstr(o, "1280"));              /* last one wins, CRLF kept */
+        free(o);
+        o = psxrt_ini_set(src, "filter", "nearest");
+        CHECK(o && strstr(o, "\r\nfilter= nearest\r\n") && strstr(o, "bios = auto\r\n"));
+        free(o);
+        o = psxrt_ini_set(src, "scanlines", "on");                                                       /* absent: appended, no trailing newline in src */
+        CHECK(o && strstr(o, "key.up = W\r\nscanlines = on\r\n") && !strcmp(o + strlen(o) - 15, "scanlines = on\r\n") + 1);
+        free(o);
+        o = psxrt_ini_set("a = 1\n", "scale_mode", "integer");
+        CHECK(o && !strcmp(o, "a = 1\nscale_mode = integer\n"));
+        free(o);
+        o = psxrt_ini_set("", "render_scale", "3"); CHECK(o && !strcmp(o, "render_scale = 3\n")); free(o);
+        o = psxrt_ini_set("x = 1\r\n", "key.up = ", "W"); CHECK(!o);                                       /* only known keys */
+        CHECK(!psxrt_ini_set(src, "window_width", "639") && !psxrt_ini_set(src, "window_width", "7681") && !psxrt_ini_set(src, "window_width", "abc"));
+        CHECK(!psxrt_ini_set(src, "render_scale", "9") && !psxrt_ini_set(src, "render_scale", "0") && !psxrt_ini_set(src, "render_scale", "10"));
+        CHECK(!psxrt_ini_set(src, "scale_mode", "zoom") && !psxrt_ini_set(src, "filter", "x") && !psxrt_ini_set(src, "scanlines", "1"));
+        CHECK(psxrt_ini_valid("window_width", "640") && psxrt_ini_valid("window_width", "7680") && psxrt_ini_valid("hint_shown", "1"));
+        /* persist: temp + replace on a real file, and nothing configured is not an error */
+        {
+            const char *path = "psxrt_io_selftest.ini";
+            FILE *f = fopen(path, "wb"); fputs("[play]\n; keep me\nfilter = linear\n", f); fclose(f);
+            _putenv_s("PSXRT_SETTINGS_INI", path);
+            CHECK(psxrt_ini_persist("filter", "nearest") == 1);
+            char b[128] = ""; f = fopen(path, "rb"); size_t n = fread(b, 1, sizeof b - 1, f); fclose(f); b[n] = 0;
+            CHECK(!strcmp(b, "[play]\n; keep me\nfilter = nearest\n"));
+            CHECK(psxrt_ini_persist("filter", "bogus") == 0);
+            _putenv_s("PSXRT_SETTINGS_INI", "no_such_dir/x.ini");
+            CHECK(psxrt_ini_persist("filter", "linear") == 0);
+            _putenv_s("PSXRT_SETTINGS_INI", "");
+            CHECK(psxrt_ini_persist("filter", "linear") == -1);
+        }
     }
     puts(fails ? "selftest FAILED" : "selftest OK");
     return fails != 0;

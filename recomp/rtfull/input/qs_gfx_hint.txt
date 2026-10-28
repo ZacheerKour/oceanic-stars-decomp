@@ -1,0 +1,5 @@
+# First-start hint toast (run with -Env PSXRT_HINT=1 PSXRT_SETTINGS_INI=<copy of settings.default.ini>): toast at script frame 600, 6 s.
+590 DUMP hint_before
+640 DUMP hint_toast
+1500 DUMP hint_gone
+1600 -

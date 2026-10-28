@@ -94,6 +94,8 @@ static int all_digits(const char *v, int maxlen) { int n = (int)strlen(v); if (!
 static int ok_width(const char *v) { return all_digits(v, 4) && v[0] != '0' && atoi(v) >= 640 && atoi(v) <= 7680; }   /* the runtime's range */
 static int ok_scale(const char *v) { return all_digits(v, 1) && v[0] >= '1' && v[0] <= '8'; }
 static int ok_filter(const char *v) { return !strcmp(v, "linear") || !strcmp(v, "nearest"); }
+static int ok_onoff(const char *v) { return !strcmp(v, "on") || !strcmp(v, "off"); }
+static int ok_wmode(const char *v) { return !strcmp(v, "windowed") || !strcmp(v, "borderless"); }
 static int ok_mode(const char *v) { return !strcmp(v, "fit") || !strcmp(v, "integer") || !strcmp(v, "stretch"); }
 static int ok_audio(const char *v) { return all_digits(v, 6) && atoi(v) >= 30 && atoi(v) <= 500; }   /* the runtime rejects values outside this */
 static int ok_dz(const char *v) { return all_digits(v, 6) && atoi(v) <= 32767; }
@@ -152,6 +154,13 @@ static int prepare(const char *root, Prep *o) {
     sb_f(&tb, "\n[audio]\nbuffer_ms = %d\n", atoi(abs_));
     char *ww = pick("window_width", "960", ok_width), *rs = pick("render_scale", "1", ok_scale), *flt = pick("filter", "linear", ok_filter);
     put("env.PSXRT_SCALE_MODE", pick("scale_mode", "fit", ok_mode));   /* env.* lines reach the game */
+    /* in-game Graphics options (stubs/psxrt_io.c): scanlines and window mode apply at start, the menu writes every change back to
+       settings.ini (PSXRT_SETTINGS_INI), PSXRT_WINDOW_WIDTH seeds the size row while the game starts fullscreen */
+    put("env.PSX_SCANLINES", strcmp(pick("scanlines", "off", ok_onoff), "on") ? "0" : "1");
+    put("env.PSXRT_FULLSCREEN", strcmp(pick("window_mode", "windowed", ok_wmode), "borderless") ? "0" : "1");
+    put("env.PSXRT_WINDOW_WIDTH", ww);
+    put("env.PSXRT_SETTINGS_INI", ini);
+    if (strcmp(get("hint_shown"), "1")) put("env.PSXRT_HINT", "1");   /* first-start toast, the game then writes hint_shown = 1 */
     {   /* (?m)^\[video\].*$ -> $0 + the three keys; .* takes a CR too, so the inserted text lands after it */
         Sb b = { 0 }; const char *c = tb.p;
         while (*c) {
@@ -244,6 +253,15 @@ static int selftest(void) {
     CHECK(has(root, "play\\game.toml", "window_width = 960") && has(root, "play\\game.toml", "antialiasing = true"));
     tree(root, "window_width = 7680\n");
     CHECK(prepare(root, &o) && has(root, "play\\game.toml", "window_width = 7680\n"));
+    CHECK(has(root, "play\\launch.txt", "PSX_SCANLINES=0\nPSXRT_FULLSCREEN=0\nPSXRT_WINDOW_WIDTH=7680\nPSXRT_SETTINGS_INI=") && has(root, "play\\launch.txt", "settings.ini\nPSXRT_HINT=1\n"));
+    /* what the in-game Graphics menu writes (stubs/psxrt_io.c psxrt_ini_valid) must be accepted here without a warning */
+    tree(root, "window_width = 1440\nrender_scale = 3\nscale_mode = integer\nfilter = nearest\nscanlines = on\nwindow_mode = borderless\nhint_shown = 1\n");
+    CHECK(prepare(root, &o));
+    CHECK(has(root, "play\\game.toml", "window_width = 1440\nsupersampling = 3\nantialiasing = false"));
+    CHECK(has(root, "play\\launch.txt", "PSXRT_SCALE_MODE=integer\nPSX_SCANLINES=1\nPSXRT_FULLSCREEN=1\nPSXRT_WINDOW_WIDTH=1440\n"));
+    CHECK(!has(root, "play\\launch.txt", "PSXRT_HINT") && !has(root, "play\\settings.warn", "settings.ini"));
+    tree(root, "scanlines = maybe\nwindow_mode = full\n");
+    CHECK(prepare(root, &o) && has(root, "play\\settings.warn", "scanlines = maybe is not valid; using off\n") && has(root, "play\\settings.warn", "window_mode = full is not valid; using windowed\n"));
     fprintf(stderr, tfail ? "selftest: %d FAILED\n" : "selftest: all passed\n", tfail);
     return tfail ? 1 : 0;
 }

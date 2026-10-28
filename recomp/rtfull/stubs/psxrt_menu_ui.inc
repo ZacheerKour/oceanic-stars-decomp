@@ -2,6 +2,8 @@
  * (recomp/rtfull/CMakeLists.txt) so it can use that file's 8x8 font and rect helpers, and it replaces psx_runtime_menu.c,
  * whose non-launcher stubs left main.cpp's menu loop (pause guest and audio, keyboard + pad navigation) with nothing to
  * show. The state machine itself is psxrt_menu_input() in psxrt_io.c. */
+#include <stdlib.h>
+#include <stdio.h>
 #include "psx_runtime_menu.h"
 #include "psx_disc_tray.h"
 #include "psxrt_io.h"
@@ -15,11 +17,15 @@ static PsxrtMenu pm_m;
 static int pm_is_open, pm_dirty = 1;
 static char pm_note[64];
 static uint32_t pm_img[SSM_W * SSM_H];
+int psx_video_get_scanlines(float *strength);   /* main.cpp */
+void psx_video_set_scanlines(int on, float strength);
 
 int psxrt_pm_open(void) { return pm_is_open; }
 
+static void pm_render_gfx(void);
 static void pm_render(void)
 {
+    if (pm_m.page) { pm_render_gfx(); return; }
     char buf[96];
     const int slot = psxrt_slot(), nd = psx_disc_tray_disc_count();
     int i;
@@ -27,7 +33,7 @@ static void pm_render(void)
     fill_rect(pm_img, 0, 0, SSM_W, 56, 0xFF171B25u);
     draw_text(pm_img, 24, 20, "GAME MENU", 0xFFFFD24Du, 2);
     for (i = 0; i < PM_ROWS; i++) {
-        const int y = 84 + i * 52, sel = (i == pm_m.sel);
+        const int y = 70 + i * 46, sel = (i == pm_m.sel);
         switch (i) {
         case PM_RESUME: snprintf(buf, sizeof buf, "RESUME"); break;
         case PM_SAVE: snprintf(buf, sizeof buf, "SAVE STATE  < SLOT %d >  %s", slot + 1, savestate_slot_exists(slot) ? "USED" : "EMPTY"); break;
@@ -37,16 +43,105 @@ static void pm_render(void)
             else snprintf(buf, sizeof buf, "SWAP DISC  (ONE DISC ONLY)");
             break;
         case PM_FULLSCREEN: snprintf(buf, sizeof buf, "TOGGLE FULLSCREEN"); break;
+        case PM_GRAPHICS: snprintf(buf, sizeof buf, "GRAPHICS OPTIONS  >"); break;
         default: snprintf(buf, sizeof buf, pm_m.quit_armed ? "QUIT? PRESS CROSS/ENTER AGAIN" : "QUIT GAME"); break;
         }
-        fill_rect(pm_img, 24, y, SSM_W - 48, 44, sel ? 0xFF2B2830u : 0xFF191D27u);
-        stroke_rect(pm_img, 24, y, SSM_W - 48, 44, sel ? 0xFFFFD24Du : 0xFF303746u);
-        draw_text(pm_img, 40, y + 14, buf, sel ? (i == PM_QUIT && pm_m.quit_armed ? 0xFFFF6B6Bu : 0xFFFFD24Du) : 0xFFE2E5EBu, 2);
+        fill_rect(pm_img, 24, y, SSM_W - 48, 40, sel ? 0xFF2B2830u : 0xFF191D27u);
+        stroke_rect(pm_img, 24, y, SSM_W - 48, 40, sel ? 0xFFFFD24Du : 0xFF303746u);
+        draw_text(pm_img, 40, y + 12, buf, sel ? (i == PM_QUIT && pm_m.quit_armed ? 0xFFFF6B6Bu : 0xFFFFD24Du) : 0xFFE2E5EBu, 2);
     }
     if (pm_note[0]) draw_text(pm_img, 24, 410, pm_note, 0xFFFF6B6Bu, 1);
     fill_rect(pm_img, 0, 430, SSM_W, 50, 0xFF171B25u);
     draw_text(pm_img, 24, 440, "UP/DOWN MOVE  LEFT/RIGHT CHANGE  CROSS/ENTER OK", 0xFFB8BDC8u, 1);
     draw_text(pm_img, 24, 456, "CIRCLE/ESC BACK  F10 OR SELECT+START CLOSES", 0xFFB8BDC8u, 1);
+    pm_dirty = 0;
+}
+
+
+/* ---- Graphics options page: live values from the runtime, changes applied at once and written back to settings.ini ---- */
+static int pm_win_w, pm_ires_req;   /* last windowed width; requested internal scale (0 = what runs) */
+static void gfx_refresh(void)
+{
+    PsxrtGfx *g = &pm_m.g;
+    int w;
+    if (!pm_win_w) { const char *e = getenv("PSXRT_WINDOW_WIDTH"); pm_win_w = e && atoi(e) >= 640 ? atoi(e) : 960; }
+    g->fs = psxrt_gfx_fullscreen_get() ? 1 : 0;
+    if (!g->fs && (w = psxrt_gfx_window_width()) > 0) pm_win_w = w;
+    g->width = pm_win_w;
+    g->mode = psxrt_scale_mode();
+    g->linear = psxrt_gfx_filter_get();
+    g->ires = pm_ires_req ? pm_ires_req : psxrt_gfx_scale_get();
+    g->scan = psx_video_get_scanlines(NULL) ? 1 : 0;
+}
+static void gfx_apply(void)
+{
+    PsxrtGfx *g = &pm_m.g;
+    char k[32] = "", v[32] = "";
+    int saved;
+    const int row = pm_m.gsel;
+    switch (row) {
+    case GR_WINMODE:
+        if (!psxrt_gfx_fullscreen_set(g->fs)) snprintf(pm_note, sizeof pm_note, "WINDOW MODE CHANGE FAILED");
+        else if (!g->fs) psxrt_gfx_window_resize(pm_win_w);   /* back to windowed: the size chosen meanwhile */
+        break;
+    case GR_WINSIZE:
+        pm_win_w = g->width;
+        if (!g->fs) psxrt_gfx_window_resize(g->width);
+        break;
+    case GR_SCALE: psxrt_scale_mode_set(g->mode); psxrt_gfx_redraw(); break;
+    case GR_FILTER: psxrt_gfx_filter_set(g->linear); break;
+    case GR_IRES:
+        pm_ires_req = psxrt_gfx_scale_set(g->ires) ? 0 : g->ires;   /* refused live: the value is kept for the next start */
+        if (!pm_ires_req) g->ires = psxrt_gfx_scale_get();
+        break;
+    case GR_SCAN: psx_video_set_scanlines(g->scan, -1.0f); break;
+    }
+    saved = psxrt_gfx_kv(row, g, k, v, sizeof k) ? psxrt_ini_persist(k, v) : -2;
+    if (saved == 0 && !pm_note[0]) snprintf(pm_note, sizeof pm_note, "COULD NOT SAVE settings.ini");
+    fprintf(stderr, "[psxrt-gfx] row %d %s = %s, saved %d, fullscreen %d, window %d, scale %d%s\n", row, k, v, saved,
+            psxrt_gfx_fullscreen_get(), psxrt_gfx_window_width(), psxrt_gfx_scale_get(), pm_ires_req ? " (restart)" : "");
+    if (row != GR_IRES) gfx_refresh();
+}
+static void pm_render_gfx(void)
+{
+    static const char *const mode_n[3] = { "FIT", "INTEGER", "STRETCH" };
+    static const char *const size_n[5] = { "480P", "720P", "1080P", "1440P", "2160P" };
+    static const char *const hint[GR_ROWS] = {
+        "WINDOWED OR BORDERLESS FULLSCREEN (ALT+ENTER / F11 ALSO TOGGLE)", "WINDOW CLIENT SIZE, 4:3 (APPLIES WHILE WINDOWED)",
+        "FIT = LARGEST 4:3  INTEGER = SHARP WHOLE MULTIPLES  STRETCH = FILL WINDOW", "LINEAR = SMOOTH  NEAREST = HARD PIXELS",
+        "3D RENDER RESOLUTION, SHARPER BUT NEEDS A FASTER GPU", "CRT SCANLINE LOOK (F4 ALSO TOGGLES)", "" };
+    static const char *const lab[GR_ROWS] = { "WINDOW MODE", "WINDOW SIZE", "SCALE MODE", "FILTER", "INTERNAL RES", "SCANLINES", "BACK" };
+    const PsxrtGfx *g = &pm_m.g;
+    char val[40];
+    int i, p;
+    for (i = 0; i < SSM_W * SSM_H; i++) pm_img[i] = 0xFF0F1118u;
+    fill_rect(pm_img, 0, 0, SSM_W, 56, 0xFF171B25u);
+    draw_text(pm_img, 24, 20, "GRAPHICS OPTIONS", 0xFFFFD24Du, 2);
+    for (i = 0; i < GR_ROWS; i++) {
+        const int y = 66 + i * 44, sel = (i == pm_m.gsel);
+        val[0] = 0;
+        switch (i) {
+        case GR_WINMODE: snprintf(val, sizeof val, "< %s >", g->fs ? "BORDERLESS FULL" : "WINDOWED"); break;
+        case GR_WINSIZE:
+            for (p = 0; p < 5 && psxrt_widths[p] != g->width; p++) {}
+            snprintf(val, sizeof val, "< %dX%d %s >", g->width, g->width * 3 / 4, p < 5 ? size_n[p] : "");
+            break;
+        case GR_SCALE: snprintf(val, sizeof val, "< %s >", mode_n[g->mode]); break;
+        case GR_FILTER: snprintf(val, sizeof val, "< %s >", g->linear ? "LINEAR" : "NEAREST"); break;
+        case GR_IRES: snprintf(val, sizeof val, "< %dX >%s", g->ires, g->ires != psxrt_gfx_scale_get() ? " RESTART" : ""); break;
+        case GR_SCAN: snprintf(val, sizeof val, "< %s >", g->scan ? "ON" : "OFF"); break;
+        }
+        fill_rect(pm_img, 24, y, SSM_W - 48, 40, sel ? 0xFF2B2830u : 0xFF191D27u);
+        stroke_rect(pm_img, 24, y, SSM_W - 48, 40, sel ? 0xFFFFD24Du : 0xFF303746u);
+        draw_text(pm_img, 40, y + 12, lab[i], sel ? 0xFFFFD24Du : 0xFFE2E5EBu, 2);
+        if (val[0]) draw_text(pm_img, 250, y + 12, val, sel ? 0xFFFFFFFFu : 0xFFB8BDC8u, 2);
+    }
+    draw_text(pm_img, 24, 386, hint[pm_m.gsel], 0xFF7F8796u, 1);
+    if (pm_m.gsel == GR_IRES) draw_text(pm_img, 24, 398, "CHANGES LIVE IF THE RENDERER ALLOWS, ELSE ON NEXT START", 0xFF7F8796u, 1);
+    if (pm_note[0]) draw_text(pm_img, 24, 410, pm_note, 0xFFFF6B6Bu, 1);
+    fill_rect(pm_img, 0, 430, SSM_W, 50, 0xFF171B25u);
+    draw_text(pm_img, 24, 440, "UP/DOWN MOVE  LEFT/RIGHT OR CROSS/ENTER CHANGE", 0xFFB8BDC8u, 1);
+    draw_text(pm_img, 24, 456, "CIRCLE/ESC BACK  CHANGES ARE SAVED TO SETTINGS.INI", 0xFFB8BDC8u, 1);
     pm_dirty = 0;
 }
 
@@ -86,6 +181,8 @@ void psx_runtime_menu_input(int input, int repeat)
         }
         break;
     case MA_FULLSCREEN: pm_is_open = 0; psxrt_push_fullscreen(); break;
+    case MA_GRAPHICS: gfx_refresh(); break;
+    case MA_GFX: gfx_apply(); break;
     case MA_QUIT: psxrt_push_quit(); break;   /* the menu loop's SDL_QUIT branch shuts the runtime down */
     }
 }

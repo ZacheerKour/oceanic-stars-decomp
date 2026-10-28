@@ -1,0 +1,33 @@
+# Graphics options page driven in-frame at the static title: every row changed once, menu shots per row, then window captures.
+# Run: qrun.ps1 -Hidden -Run gfx -Env PSXRT_SETTINGS_INI=<copy of settings.default.ini> (settings.ini rewrite is checked after the run).
+12400 DUMP before
+12500 MENU open
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU accept
+12500 MENU shot_gfx_open
+12500 MENU down
+12500 MENU right
+12500 MENU shot_gfx_size
+12500 MENU down
+12500 MENU right
+12500 MENU shot_gfx_scale_integer
+12500 MENU down
+12500 MENU accept
+12500 MENU shot_gfx_filter_nearest
+12500 MENU down
+12500 MENU right
+12500 MENU shot_gfx_ires
+12500 MENU down
+12500 MENU accept
+12500 MENU shot_gfx_scanlines
+12500 MENU down
+12500 MENU shot_gfx_back_row
+12500 MENU accept
+12500 MENU shot_main_page
+12500 MENU close
+12700 DUMP after_integer_nearest_scan
+13000 -

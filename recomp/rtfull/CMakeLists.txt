@@ -143,7 +143,12 @@ psxrt_patch(runtime/src/main.cpp
     "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames)"
     "    rab_pull(&s_drc, reinterpret_cast<int16_t*>(stream), frames), psxrt_audio_pulled(&s_drc, stream, len) /* psxrt: stubs/psxrt_audio.c */"
     "        if (psx_local_mouse_event(ev)) continue"   # stubs/psxrt_video.h: redraw a static frame after a window event
-    "        PSXRT_ON_HOST_EVENT(ev)\n        if (psx_local_mouse_event(ev)) continue")
+    "        PSXRT_ON_HOST_EVENT(ev)\n        if (psx_local_mouse_event(ev)) continue"
+    # Graphics options menu: accessors for main.cpp statics (stubs/psxrt_video.h), and settings.ini window_mode at window creation
+    "static bool local_mouse_live(int override_word) {"
+    "PSXRT_MAIN_ACCESSORS\nstatic bool local_mouse_live(int override_word) {"
+    "if (psx_window_fullscreen_set(sdl_window, &s_window_fullscreen, g_fullscreen) != 0)"
+    "if (psx_window_fullscreen_set(sdl_window, &s_window_fullscreen, g_fullscreen ? g_fullscreen : psxrt_launch_fullscreen()) != 0)")
 # Pause menu: psx_runtime_menu.c (launcher-only, stubs here) is replaced by stubs/psxrt_menu_ui.inc, compiled inside a copy of
 # psx_savestate_menu.c for its font; the visual OSD (toasts: slot, saved, loaded) is switched on without the launcher.
 list(REMOVE_ITEM RT_SOURCES "${R}/runtime/src/psx_runtime_menu.c")

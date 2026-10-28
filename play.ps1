@@ -50,6 +50,11 @@ $ww = Pick 'window_width' '960' '^(?:6[4-9]\d|[7-9]\d\d|[1-6]\d{3}|7[0-5]\d\d|76
 $rs = Pick 'render_scale' '1' '^[1-8]$'
 $flt = Pick 'filter' 'linear' '^(linear|nearest)$'
 $set['env.PSXRT_SCALE_MODE'] = Pick 'scale_mode' 'fit' '^(fit|integer|stretch)$'   # env.* lines reach the game on both paths below
+$set['env.PSX_SCANLINES'] = if ((Pick 'scanlines' 'off' '^(on|off)$') -eq 'on') { '1' } else { '0' }   # in-game Graphics options (stubs/psxrt_io.c)
+$set['env.PSXRT_FULLSCREEN'] = if ((Pick 'window_mode' 'windowed' '^(windowed|borderless)$') -eq 'borderless') { '1' } else { '0' }
+$set['env.PSXRT_WINDOW_WIDTH'] = $ww
+$set['env.PSXRT_SETTINGS_INI'] = (Join-Path $root 'settings.ini')   # the menu writes every change back here
+if ($set['hint_shown'] -ne '1') { $set['env.PSXRT_HINT'] = '1' }   # first-start toast; the game then writes hint_shown = 1
 $t = $t -replace '(?m)^\[video\].*$', "`$0`nwindow_width = $ww`nsupersampling = $rs`nantialiasing = $(($flt -eq 'linear').ToString().ToLower())"
 [IO.File]::WriteAllText((Join-Path $P 'game.toml'), $t)
 [IO.File]::WriteAllText((Join-Path $P 'settings.warn'), $warn)

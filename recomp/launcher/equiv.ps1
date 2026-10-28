@@ -10,6 +10,7 @@ $cases = [ordered]@{
   good_mixed_case = "  WINDOW_WIDTH = 1280  `r`nRender_Scale = 3`r`nFilter = NEAREST`r`nscale_mode = Integer`r`n; c = d`r`nkey.cross = K, J`r`nkey.l3 =`r`n"
   env_extra = "env.PSX_VSYNC = 1`nenv.X.Y = a b`nextra_args =   --foo   bar  `nbios = openbios`npad.deadzone = 5000`naudio.buffer_ms = 250`nwindow_width = 7680`n"
   last_wins = "window_width = 800`nwindow_width = 1024`nbios = nope.bin`n"
+  gfx_menu_written = (Get-Content (Join-Path $repo 'settings.default.ini') -Raw) + "window_width = 1440`nhint_shown = 1`n"   # what the in-game Graphics menu appends
   audio_out_of_range = "audio.buffer_ms = 9999`npad.deadzone = abc`n"   # intentional difference
 }
 foreach ($c in $cases.Keys) {
