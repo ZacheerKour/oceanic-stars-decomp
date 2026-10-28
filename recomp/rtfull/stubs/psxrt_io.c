@@ -214,7 +214,7 @@ int psxrt_ini_persist(const char *key, const char *val) {
     int ok = 0;
     f = _wfopen(tmp, L"wb");
     if (f) {
-        ok = (!bom || fwrite("ï»¿", 1, 3, f) == 3) && fwrite(out, 1, on, f) == on && fflush(f) == 0 && FlushFileBuffers((HANDLE)_get_osfhandle(_fileno(f))) != 0;
+        ok = (!bom || fwrite("\357\273\277", 1, 3, f) == 3) && fwrite(out, 1, on, f) == on && fflush(f) == 0 && FlushFileBuffers((HANDLE)_get_osfhandle(_fileno(f))) != 0;
         ok = fclose(f) == 0 && ok;
     }
     free(out);
