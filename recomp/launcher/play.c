@@ -569,11 +569,13 @@ int GP GdipCreateBitmapFromHBITMAP(HBITMAP, HPALETTE, void **); int GP GdipSaveI
 enum { K_NAV, K_DD, K_CHK, K_PLAY };
 enum { F_BODY, F_SM, F_H1, F_NAV, F_BTN, F_LOGO, F_TAG, F_LAB, F_SUBLOGO, NF };
 typedef struct { int kind, id, en; float x, y, w, h; } It;
-static struct { HWND h; const char *root; int rc, page, focus, hover, nit, ok[4], track; char *tx[4]; char toast[128]; int toast_err; float s; It it[16]; void *banner, *fnt[NF], *sf, *tf; } G;
+static struct { HWND h; const char *root; int rc, page, focus, hover, nit, ok[4], track, open, psel; char *tx[4]; char toast[128]; int toast_err; float s; It it[16]; void *banner, *fnt[NF], *sf, *tf; } G;
 static void *gg;   /* the Graphics being painted */
 static const char *NAVS[3] = { "Game", "Graphics", "Controls" };
 
 static void refresh(void) { ini_load(G.root); status_rows(G.root, G.ok, G.tx); }
+static void layout(void);
+static int first_focus(void) { layout(); for (int i = 3; i < G.nit; i++) if (G.it[i].en) return i; return G.page; }   /* first usable control on the page (Play when ready) */
 static int all_ready(void) { return G.ok[0] && G.ok[1] && G.ok[2] && G.ok[3]; }
 static int fs_mode(void) { return dd_cur(D_WMODE) == 1; }
 static void layout(void) {
@@ -582,8 +584,8 @@ static void layout(void) {
     if (G.page == 0) { t[n++] = (It){ K_PLAY, 0, all_ready(), 280, 510, 680, 62 }; t[n++] = (It){ K_CHK, 1, 1, 280, 440, 680, 30 }; }
     else if (G.page == 1) {
         t[n++] = (It){ K_DD, D_WMODE, 1, 280, 284, 320, 38 }; t[n++] = (It){ K_DD, D_SIZE, !fs_mode(), 280, 368, 320, 38 };
-        t[n++] = (It){ K_DD, D_SCALE, 1, 280, 452, 320, 38 }; t[n++] = (It){ K_DD, D_FIT, 1, 640, 284, 320, 38 };
-        t[n++] = (It){ K_DD, D_FILT, 1, 640, 368, 320, 38 }; t[n++] = (It){ K_CHK, 0, 1, 640, 452, 320, 38 };
+        t[n++] = (It){ K_DD, D_SCALE, 1, 280, 464, 320, 38 }; t[n++] = (It){ K_DD, D_FIT, 1, 640, 284, 320, 38 };
+        t[n++] = (It){ K_DD, D_FILT, 1, 640, 368, 320, 38 }; t[n++] = (It){ K_CHK, 0, 1, 640, 464, 320, 38 };
     }
     G.nit = n;
 }
@@ -665,6 +667,14 @@ static void draw_banner(float x, float y, float w, float h) {
     GdipResetClip(gg);
 }
 
+#define POP_RH 30
+static void popup_rect(int id, float *x, float *y, float *w, float *h) {   /* below its box, or above when that would run off the content area */
+    for (int i = 3; i < G.nit; i++) if (G.it[i].kind == K_DD && G.it[i].id == id) {
+        const It *t = &G.it[i]; *x = t->x; *w = t->w; *h = DDS[id].n * POP_RH + 8; *y = t->y + t->h + 4;
+        if (*y + *h > 596) *y = t->y - 4 - *h; return;
+    }
+    *x = *y = *w = *h = 0;
+}
 static void render(HDC dc) {
     GdipCreateFromHDC(dc, &gg); GdipSetSmoothingMode(gg, 4); GdipSetTextRenderingHint(gg, 4); GdipSetInterpolationMode(gg, 7); GdipScaleWorldTransform(gg, G.s, G.s, 0);
     layout();
@@ -704,11 +714,11 @@ static void render(HDC dc) {
             for (int i = 0; i < 4; i++) if (!G.ok[i]) { if (!first) strcat(hint, ", "); strcat(hint, nm[i]); first = 0; } strcat(hint, ". Run INSTALL.bat to fix this."); }
         text(hint, 280, 478, 680, 24, F_BODY, all_ready() ? C_GREEN : 0xFFF0A0AC, 0, 1);
     } else if (G.page == 1) {
-        text(fs_mode() ? "Fullscreen uses your desktop resolution" : "", 280, 346, 320, 20, F_SM, C_GOLD, 2, 1);
+        if (fs_mode()) text("Fullscreen uses your desktop resolution.", 280, 408, 340, 18, F_SM, C_GOLD, 0, 1);   /* in the gap under the disabled Window size box */
         int dw = GetSystemMetrics(SM_CXSCREEN), dh = GetSystemMetrics(SM_CYSCREEN);
-        text("Higher render resolution looks sharper but needs a faster graphics card.", 280, 494, 680, 20, F_SM, C_MUT, 0, 1);
-        text("The game picture is 4:3, so on a 16:9 monitor you will see bars at the sides.", 280, 534, 680, 20, F_SM, C_MUT, 0, 1);
-        text(fmt("Your desktop is %d x %d. Biggest window that fits: %s.", dw, dh, O_SIZE[best_size(dw, dh)].label), 280, 556, 680, 20, F_SM, C_MUT, 0, 1);
+        text("Higher render resolution looks sharper but needs a faster graphics card.", 280, 510, 680, 20, F_SM, C_MUT, 0, 1);
+        text("The game picture is 4:3, so on a 16:9 monitor you will see bars at the sides.", 280, 538, 680, 20, F_SM, C_MUT, 0, 1);
+        text(fmt("Your desktop is %d x %d. Biggest window that fits: %s.", dw, dh, O_SIZE[best_size(dw, dh)].label), 280, 558, 680, 20, F_SM, C_MUT, 0, 1);
     } else {
         for (int i = 0, n = 0; i < NFIELDS; i++) {
             if (FIELDS[i].page != 1 || strncmp(FIELDS[i].key, "key.", 4)) continue;
@@ -721,10 +731,11 @@ static void render(HDC dc) {
         const It *t = &G.it[i]; int hv = G.hover == i && t->en;
         if (t->kind == K_DD) {
             const Dd *d = &DDS[t->id]; UINT ac = t->en ? C_MUT : RGBA(C_MUT, 90);
-            text(d->label, t->x, t->y - 24, t->w, 20, F_LAB, 0xFFB8C2E0, 0, 1);
-            rr(hv ? 0xFF16214A : C_PANEL, hv ? C_TEAL : C_LINE, 1.3f, t->x, t->y, t->w, t->h, 7);
+            text(d->label, t->x, t->y - 24, t->w, 20, F_LAB, t->en ? 0xFFB8C2E0 : RGBA(0xB8C2E0, 120), 0, 1);
+            rr(t->en ? (hv ? 0xFF16214A : C_PANEL) : 0xFF0E1530, t->en ? (hv ? C_TEAL : C_LINE) : 0xFF1B2448, 1.3f, t->x, t->y, t->w, t->h, 7);
             text(d->o[dd_cur(t->id)].label, t->x + 14, t->y, t->w - 44, t->h, F_BODY, t->en ? C_TXT : RGBA(C_MUT, 150), 0, 1);
-            line_(ac, 1.8f, t->x + t->w - 28, t->y + 16, t->x + t->w - 22, t->y + 22); line_(ac, 1.8f, t->x + t->w - 22, t->y + 22, t->x + t->w - 16, t->y + 16);
+            if (t->en) { line_(ac, 1.8f, t->x + t->w - 28, t->y + 16, t->x + t->w - 22, t->y + 22); line_(ac, 1.8f, t->x + t->w - 22, t->y + 22, t->x + t->w - 16, t->y + 16); }
+            else text("Auto", t->x + t->w - 64, t->y, 50, t->h, F_SM, RGBA(C_MUT, 150), 2, 1);
         } else if (t->kind == K_CHK) {
             float by = t->y + (t->h - 24) / 2; int on = chk_on(t->id);
             rr(on ? C_TEAL : C_PANEL, on ? C_TEAL : (hv ? C_TEAL : C_LINE), 1.5f, t->x, by, 24, 24, 6);
@@ -741,6 +752,16 @@ static void render(HDC dc) {
     text("Changes save automatically and apply the next time you press Play.", 280, 600, 480, 40, F_SM, C_MUT, 0, 1);
     if (*G.toast) text(G.toast, 640, 600, 320, 40, F_BODY, G.toast_err ? C_RED : C_GREEN, 2, 1);
     if (G.focus >= 0 && G.focus < G.nit && G.it[G.focus].en) { const It *t = &G.it[G.focus]; rr(0, C_GOLD, 2, t->x - 3, t->y - 3, t->w + 6, t->h + 6, 9); }
+    if (G.open >= 0) {   /* dark dropdown list, drawn last so it sits over everything */
+        float px, py, pw, ph; popup_rect(G.open, &px, &py, &pw, &ph); const Dd *d = &DDS[G.open]; int cur = dd_cur(G.open);
+        rr(RGBA(0x000000, 110), 0, 0, px + 2, py + 5, pw, ph, 9); rr(0xFF0D1530, C_TEAL, 1.3f, px, py, pw, ph, 9);
+        for (int k = 0; k < d->n; k++) {
+            float ry = py + 4 + k * POP_RH;
+            if (k == G.psel) rr(RGBA(C_TEAL, 55), RGBA(C_TEAL, 120), 1, px + 4, ry, pw - 8, POP_RH, 6);
+            text(d->o[k].label, px + 16, ry, pw - 50, POP_RH, F_BODY, k == cur ? C_GOLD : C_TXT, 0, 1);
+            if (k == cur) { line_(C_GOLD, 2, px + pw - 30, ry + 15, px + pw - 25, ry + 20); line_(C_GOLD, 2, px + pw - 25, ry + 20, px + pw - 16, ry + 10); }
+        }
+    }
     GdipDeleteGraphics(gg); gg = NULL;
 }
 static void gp_init(void) {
@@ -758,9 +779,10 @@ static void gp_init(void) {
     void *img = NULL; UINT iw = 0, ih = 0;   /* missing or corrupt: silently keep the drawn banner */
     if (exists(b) && !GdipCreateBitmapFromFile(W(b), &img) && img && !GdipGetImageWidth(img, &iw) && !GdipGetImageHeight(img, &ih) && iw && ih) G.banner = img;
 }
+static float shot_scale = 1; static int shot_open = -1;
 static int shot(const char *png, int page) {   /* --shot: render a page to a PNG without showing a window */
-    G.s = 1; G.page = page; G.focus = 3; G.hover = -1; gp_init(); refresh();
-    HDC sd = GetDC(NULL), dc = CreateCompatibleDC(sd); HBITMAP bm = CreateCompatibleBitmap(sd, 1000, 640); SelectObject(dc, bm);
+    G.s = shot_scale; G.page = page; G.hover = -1; G.open = -1; gp_init(); refresh(); G.focus = first_focus(); if (shot_open >= 0) { G.open = shot_open; G.psel = dd_cur(shot_open); }
+    HDC sd = GetDC(NULL), dc = CreateCompatibleDC(sd); HBITMAP bm = CreateCompatibleBitmap(sd, (int)(1000 * G.s), (int)(640 * G.s)); SelectObject(dc, bm);
     render(dc);
     void *img; static const CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
     if (GdipCreateBitmapFromHBITMAP(bm, NULL, &img)) return 1;
@@ -778,11 +800,7 @@ static void activate(int i) {
     if (t->kind == K_NAV) { G.page = t->id; G.hover = -1; InvalidateRect(G.h, NULL, FALSE); }
     else if (t->kind == K_CHK) save_key(t->id ? "skip_launcher" : "scanlines", chk_on(t->id) ? (t->id ? "0" : "off") : (t->id ? "1" : "on"));
     else if (t->kind == K_DD) {
-        HMENU m = CreatePopupMenu(); int cur = dd_cur(t->id), d = t->id;
-        for (int k = 0; k < DDS[d].n; k++) AppendMenuW(m, MF_STRING | (k == cur ? MF_CHECKED : 0), k + 1, W(DDS[d].o[k].label));
-        POINT p = { (int)(t->x * G.s), (int)((t->y + t->h) * G.s) }; ClientToScreen(G.h, &p);
-        int r = TrackPopupMenu(m, TPM_RETURNCMD | TPM_LEFTALIGN | TPM_TOPALIGN, p.x, p.y, 0, G.h, NULL); DestroyMenu(m);
-        if (r > 0) dd_set(d, r - 1); else InvalidateRect(G.h, NULL, FALSE);
+        G.open = t->id; G.psel = dd_cur(t->id); InvalidateRect(G.h, NULL, FALSE);
     } else if (t->kind == K_PLAY) {
         g_hide = G.h; int rc = 0;
         if (launch_game(G.root, &rc)) { G.rc = rc; DestroyWindow(G.h); }
@@ -790,10 +808,15 @@ static void activate(int i) {
     }
 }
 static int hit(LPARAM lp) { float x = (short)LOWORD(lp) / G.s, y = (short)HIWORD(lp) / G.s; layout(); for (int i = G.nit - 1; i >= 0; i--) { const It *t = &G.it[i]; if (t->en && x >= t->x && x < t->x + t->w && y >= t->y && y < t->y + t->h) return i; } return -1; }
+static void pop_close(void) { G.open = -1; InvalidateRect(G.h, NULL, FALSE); }
+static int pop_row(LPARAM lp) {   /* option row under the pointer, -1 outside the list */
+    float x = (short)LOWORD(lp) / G.s, y = (short)HIWORD(lp) / G.s, px, py, pw, ph; popup_rect(G.open, &px, &py, &pw, &ph);
+    if (x < px || x >= px + pw || y < py + 4 || y >= py + ph - 4) return -1; return (int)((y - py - 4) / POP_RH);
+}
 static void move_focus(int dir) { layout(); int from = G.focus < 0 ? (dir > 0 ? -1 : 0) : G.focus; for (int k = 1; k <= G.nit; k++) { int i = (from + dir * k + G.nit * 2) % G.nit; if (G.it[i].en) { G.focus = i; break; } } InvalidateRect(G.h, NULL, FALSE); }
 static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
     switch (m) {
-    case WM_CREATE: G.h = h; refresh(); layout(); G.focus = G.nit > 3 ? 3 : 0; G.hover = -1; return 0;
+    case WM_CREATE: G.h = h; G.open = -1; refresh(); G.focus = first_focus(); G.hover = -1; return 0;
     case WM_ERASEBKGND: return 1;
     case WM_PAINT: {
         PAINTSTRUCT ps; HDC dc = BeginPaint(h, &ps); RECT rc; GetClientRect(h, &rc);
@@ -802,13 +825,27 @@ static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
         SelectObject(md, old); DeleteObject(bm); DeleteDC(md); EndPaint(h, &ps); return 0; }
     case WM_MOUSEMOVE: {
         if (!G.track) { TRACKMOUSEEVENT te = { sizeof te, TME_LEAVE, h, 0 }; TrackMouseEvent(&te); G.track = 1; }
+        if (G.open >= 0) { int r = pop_row(lp); G.hover = r >= 0 ? 0 : -1; if (r >= 0 && r != G.psel) { G.psel = r; InvalidateRect(h, NULL, FALSE); } return 0; }
         int i = hit(lp); if (i != G.hover) { G.hover = i; InvalidateRect(h, NULL, FALSE); } return 0; }
     case WM_MOUSELEAVE: G.track = 0; G.hover = -1; InvalidateRect(h, NULL, FALSE); return 0;
     case WM_SETCURSOR: if (LOWORD(lp) == HTCLIENT && G.hover >= 0) { SetCursor(LoadCursorW(NULL, (LPCWSTR)IDC_HAND)); return TRUE; } break;
-    case WM_LBUTTONDOWN: { int i = hit(lp); if (i >= 0) activate(i); return 0; }
+    case WM_LBUTTONDOWN: {
+        if (G.open >= 0) { int r = pop_row(lp), d = G.open; pop_close(); if (r >= 0) dd_set(d, r); return 0; }   /* a click outside only closes the list */
+        int i = hit(lp); if (i >= 0) activate(i); return 0; }
+    case WM_KILLFOCUS: case WM_CANCELMODE: if (G.open >= 0) pop_close(); return 0;
+    case WM_ACTIVATE: if (LOWORD(wp) == WA_INACTIVE && G.open >= 0) pop_close(); return 0;
+    case WM_DPICHANGED: { G.s = LOWORD(wp) / 96.0f; const RECT *r = (const RECT *)lp; SetWindowPos(h, NULL, r->left, r->top, r->right - r->left, r->bottom - r->top, SWP_NOZORDER | SWP_NOACTIVATE); InvalidateRect(h, NULL, FALSE); return 0; }
     case WM_TIMER: if (wp == 1) { KillTimer(h, 1); G.toast[0] = 0; InvalidateRect(h, NULL, FALSE); } return 0;
     case WM_KEYDOWN: {
         layout(); const It *t = (G.focus >= 0 && G.focus < G.nit) ? &G.it[G.focus] : NULL;
+        if (G.open >= 0) {   /* the open list owns the keyboard */
+            int n = DDS[G.open].n;
+            if (wp == VK_DOWN) G.psel = G.psel + 1 < n ? G.psel + 1 : n - 1; else if (wp == VK_UP) G.psel = G.psel > 0 ? G.psel - 1 : 0;
+            else if (wp == VK_HOME) G.psel = 0; else if (wp == VK_END) G.psel = n - 1;
+            else if (wp == VK_RETURN || wp == VK_SPACE) { int d = G.open; pop_close(); dd_set(d, G.psel); }
+            else if (wp == VK_ESCAPE || wp == VK_TAB) pop_close();
+            InvalidateRect(h, NULL, FALSE); return 0;
+        }
         if (wp == VK_TAB) move_focus(GetKeyState(VK_SHIFT) < 0 ? -1 : 1);
         else if (wp == VK_DOWN) move_focus(1); else if (wp == VK_UP) move_focus(-1);
         else if ((wp == VK_LEFT || wp == VK_RIGHT) && t && t->kind == K_DD && t->en) dd_set(t->id, dd_cur(t->id) + (wp == VK_RIGHT ? 1 : -1));
@@ -819,7 +856,11 @@ static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
     return DefWindowProcW(h, m, wp, lp);
 }
 static int run_gui(const char *root) {
-    SetProcessDPIAware(); G.root = root;
+    {   /* per-monitor v2 when available (crisp text on mixed-DPI setups), else system DPI */
+        typedef BOOL (WINAPI *SetCtx)(HANDLE); SetCtx f = (SetCtx)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetProcessDpiAwarenessContext");
+        if (!f || !f((HANDLE)-4)) SetProcessDPIAware();
+    }
+    G.root = root; G.open = -1;
     HDC sd = GetDC(NULL); G.s = GetDeviceCaps(sd, LOGPIXELSX) / 96.0f; ReleaseDC(NULL, sd); if (G.s < 1) G.s = 1;
     gp_init();
     HINSTANCE hi = GetModuleHandleW(NULL);
@@ -843,6 +884,8 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
         else if (!wcscmp(av[i], L"--root") && i + 1 < argc) root = U(av[++i]);
         else if (!wcscmp(av[i], L"--shot") && i + 1 < argc) shotp = U(av[++i]);   /* render a page to a PNG, no window (to check the look) */
         else if (!wcscmp(av[i], L"--page") && i + 1 < argc) pg = _wtoi(av[++i]) % 3;
+        else if (!wcscmp(av[i], L"--scale") && i + 1 < argc) { shot_scale = (float)_wtof(av[++i]); if (shot_scale < 1 || shot_scale > 4) shot_scale = 1; }   /* --shot at 125% = 1.25 */
+        else if (!wcscmp(av[i], L"--open") && i + 1 < argc) shot_open = _wtoi(av[++i]);   /* --shot with dropdown N (0-4) open */
     }
     if ((self || only || quiet) && !GetStdHandle(STD_ERROR_HANDLE) && AttachConsole(ATTACH_PARENT_PROCESS)) { freopen("CONOUT$", "w", stdout); freopen("CONOUT$", "w", stderr); }   /* redirected stderr (pipe, file) is kept */
     if (self) return selftest();
