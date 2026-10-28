@@ -53,6 +53,10 @@ $set['env.PSXRT_SCALE_MODE'] = Pick 'scale_mode' 'fit' '^(fit|integer|stretch)$'
 $set['env.PSX_SCANLINES'] = if ((Pick 'scanlines' 'off' '^(on|off)$') -eq 'on') { '1' } else { '0' }   # in-game Graphics options (stubs/psxrt_io.c)
 $set['env.PSXRT_FULLSCREEN'] = if ((Pick 'window_mode' 'windowed' '^(windowed|borderless)$') -eq 'borderless') { '1' } else { '0' }
 $set['env.PSXRT_WINDOW_WIDTH'] = $ww
+$wh = Pick 'window_height' '0' '^(0|3[6-9]\d|[4-9]\d\d|[1-3]\d{3}|4[0-2]\d\d|43[01]\d|4320)$'   # 0 = the 4:3 height from window_width
+if ($wh -ne '0') { $set['env.PSXRT_WINDOW_HEIGHT'] = $wh }
+$set['env.PSXRT_SIDE_FILL'] = Pick 'side_fill' 'blur' '^(off|blur|art)$'   # fills the window outside the centred 4:3 picture (stubs/psxrt_sidefill.inc)
+$set['env.PSXRT_SIDEFILL_DIR'] = Join-Path $P 'sidefill'                    # local PNGs for side_fill = art
 $set['env.PSXRT_SETTINGS_INI'] = (Join-Path $root 'settings.ini')   # the menu writes every change back here
 if ($set['hint_shown'] -ne '1') { $set['env.PSXRT_HINT'] = '1' }   # first-start toast; the game then writes hint_shown = 1
 $t = $t -replace '(?m)^\[video\].*$', "`$0`nwindow_width = $ww`nsupersampling = $rs`nantialiasing = $(($flt -eq 'linear').ToString().ToLower())"

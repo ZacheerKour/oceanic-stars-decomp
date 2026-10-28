@@ -160,6 +160,9 @@ psxrt_patch(runtime/src/main.cpp
     # Graphics options menu: accessors for main.cpp statics (stubs/psxrt_video.h), and settings.ini window_mode at window creation
     "static bool local_mouse_live(int override_word) {"
     "PSXRT_MAIN_ACCESSORS\nstatic bool local_mouse_live(int override_word) {"
+    # settings.ini window_height / PSXRT_WINDOW_HEIGHT: an explicit width x height (16:9, ultrawide); the picture stays 4:3 inside it
+    "clamp_window_aspect(&game_w, &game_h, g_video_aspect_num, g_video_aspect_den)@SC@"
+    "clamp_window_aspect(&game_w, &game_h, g_video_aspect_num, g_video_aspect_den)@SC@ PSXRT_WINDOW_HEIGHT(game_w, game_h)@SC@"
     "if (psx_window_fullscreen_set(sdl_window, &s_window_fullscreen, g_fullscreen) != 0)"
     "if (psx_window_fullscreen_set(sdl_window, &s_window_fullscreen, g_fullscreen ? g_fullscreen : psxrt_launch_fullscreen()) != 0)")
 # Savestate write is atomic (stubs/psxrt_pst.h): <slot>.tmp, flush+commit, fclose checked, MoveFileEx over the slot; a failure keeps
@@ -250,7 +253,14 @@ psxrt_patch(runtime/src/gpu_gl_renderer.c
     "    PSXRT_LETTERBOX_INTEGER(num, den, dw, dh)\n    *x = (ww - dw) / 2"
     # F10 menu panel is a 640x480 image (square font pixels): draw it in a centred 4:3 box, never stretched to the window.
     "gl_draw_osd_image(px, ow, oh, ww, wh, 0, 0, ww, wh)"
-    "PSXRT_DRAW_MENU(px, ow, oh, ww, wh)")
+    "PSXRT_DRAW_MENU(px, ow, oh, ww, wh)"
+    # side fill (stubs/psxrt_sidefill.inc): after the picture, before the host OSD / menu
+    "static void gl_swap_with_osd(void) {"
+    "#include \"psxrt_sidefill.inc\"
+static void gl_swap_with_osd(void) {"
+    "            /* OSD authored for ~480-tall present@SC@ grow with drawable height. */"
+    "            psxrt_sidefill(ww, wh)@SC@
+            /* OSD authored for ~480-tall present@SC@ grow with drawable height. */")
 # Borderless fullscreen (docs/notes/2026-10-27-display-fixes.md): a popup window that exactly covers its monitor is promoted by
 # Windows and the GPU driver to fullscreen (flip presentation, display ownership), which blanked multi-monitor setups on alt-tab.
 # Stay one row short of the monitor so it is an ordinary desktop window; the video mode is never changed.
@@ -272,14 +282,14 @@ if(OVERLAY_SOURCES)
 endif()
 
 add_executable(psxrecomp-game
-    ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES} ${OVERLAY_SOURCES} stubs/psxrt_ovstats.c
+    ${RT_SOURCES} ${BIOS_SOURCES} ${GAME_SOURCES} ${OVERLAY_SOURCES} stubs/psxrt_ovstats.c stubs/psxrt_sidefill.c
     "${R}/runtime/src/psx_sha256_file.cpp"   # runtime.cmake adds it via psxrecomp_sha256_file()
     stubs/sandbox_stubs.c stubs/texture_image_decode_stub.cpp stubs/psxrt_diag.c stubs/psxrt_bios_probe.c stubs/psxrt_io.c stubs/psxrt_prof.c stubs/psxrt_audio.c stubs/psxrt_evlog.c)
 add_dependencies(psxrecomp-game codegen_hash)
 target_compile_features(psxrecomp-game PRIVATE c_std_11 cxx_std_17)
 target_include_directories(psxrecomp-game PRIVATE
     "${GEN_INC}" "${CMAKE_CURRENT_SOURCE_DIR}/stubs"
-    "${R}/runtime/include" "${R}/runtime/src" "${R}/recompiler/src" "${R}/recompiler/include"
+    "${R}/runtime/include" "${R}/runtime/src" "${R}/runtime/third_party" "${R}/recompiler/src" "${R}/recompiler/include"
     "${R}/recompiler/lib/fmt/include" "${R}/recompiler/lib/toml11"
     "${GAME_GEN_DIR}" "${DEPS_PREFIX}/include")
 target_compile_definitions(psxrecomp-game PRIVATE

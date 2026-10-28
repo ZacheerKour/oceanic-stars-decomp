@@ -124,6 +124,8 @@ static void parse_ini(const char *t) {   /* ^\s*([A-Za-z_][\w.]*)\s*=\s*(.*?)\s*
 static Sb warn;
 static int all_digits(const char *v, int maxlen) { int n = (int)strlen(v); if (!n || n > maxlen) return 0; for (; *v; v++) if (*v < '0' || *v > '9') return 0; return 1; }
 static int ok_width(const char *v) { return all_digits(v, 4) && v[0] != '0' && atoi(v) >= 640 && atoi(v) <= 7680; }   /* the runtime's range */
+static int ok_height(const char *v) { return !strcmp(v, "0") || (all_digits(v, 4) && v[0] != '0' && atoi(v) >= 360 && atoi(v) <= 4320); }   /* 0 = 4:3 from window_width */
+static int ok_fill(const char *v) { return !strcmp(v, "off") || !strcmp(v, "blur") || !strcmp(v, "art"); }
 static int ok_scale(const char *v) { return all_digits(v, 1) && v[0] >= '1' && v[0] <= '8'; }
 static int ok_filter(const char *v) { return !strcmp(v, "linear") || !strcmp(v, "nearest"); }
 static int ok_onoff(const char *v) { return !strcmp(v, "on") || !strcmp(v, "off"); }
@@ -195,6 +197,9 @@ static int prepare(const char *root, Prep *o) {
     put("env.PSXRT_SETTINGS_INI", ini);
     if (strcmp(get("hint_shown"), "1")) put("env.PSXRT_HINT", "1");   /* first-start toast, the game then writes hint_shown = 1 */
     put("env.PSXRT_CONFIRM_QUICKLOAD", pick("confirm_quickload", "1", ok_01));   /* F9 / Select+L1 load asks a second press within 3 s; 0 = off */
+    { char *wh = pick("window_height", "0", ok_height); if (strcmp(wh, "0")) put("env.PSXRT_WINDOW_HEIGHT", wh); }   /* real WxH window; 0 = 4:3 */
+    put("env.PSXRT_SIDE_FILL", pick("side_fill", "blur", ok_fill));   /* sides outside the centred 4:3 picture (stubs/psxrt_sidefill.inc) */
+    put("env.PSXRT_SIDEFILL_DIR", fmt("%s%csidefill", P, 92));            /* local PNGs for side_fill = art */
     {   /* (?m)^\[video\].*$ -> $0 + the three keys; .* takes a CR too, so the inserted text lands after it */
         Sb b = { 0 }; const char *c = tb.p;
         while (*c) {
@@ -270,6 +275,8 @@ static const char *PAGES[3] = { "Graphics", "Controls", "Gameplay" };
 static const Field FIELDS[] = {
     { "window_mode", "Window mode", "windowed|borderless", "windowed", ok_wmode, 0 },
     { "window_width", "Window width (640-7680)", NULL, "960", ok_width, 0 },
+    { "window_height", "Window height (0 = 4:3)", NULL, "0", ok_height, 0 },
+    { "side_fill", "Side fill", "off|blur|art", "blur", ok_fill, 0 },
     { "render_scale", "Internal resolution (x)", "1|2|3|4|5|6|7|8", "1", ok_scale, 0 },
     { "scale_mode", "Scale mode", "fit|integer|stretch", "fit", ok_mode, 0 },
     { "filter", "Filter", "linear|nearest", "linear", ok_filter, 0 },
@@ -355,21 +362,34 @@ static void status_rows(const char *root, int ok[4], char *txt[4]) {
 typedef struct { const char *val, *label; } Opt;
 typedef struct { const char *key, *label; const Opt *o; int n; } Dd;
 static const Opt O_WMODE[] = { { "windowed", "Windowed" }, { "borderless", "Borderless fullscreen" } };
-static const Opt O_SIZE[] = { { "960", "720p  960 x 720" }, { "1280", "960p  1280 x 960" }, { "1440", "1080p  1440 x 1080" }, { "1920", "1440p  1920 x 1440" }, { "2880", "2160p  2880 x 2160" } };
+/* Window size: val = "width:height", height 0 = the 4:3 window of window_width (settings.ini window_width + window_height) */
+static const Opt O_SIZE[] = { { "1280:720", "1280 x 720" }, { "1920:1080", "1920 x 1080" }, { "2560:1440", "2560 x 1440" }, { "3440:1440", "3440 x 1440 (ultrawide)" },
+    { "3840:2160", "3840 x 2160" }, { "960:0", "Classic 4:3  960 x 720" }, { "1280:0", "Classic 4:3  1280 x 960" }, { "1440:0", "Classic 4:3  1440 x 1080" },
+    { "1920:0", "Classic 4:3  1920 x 1440" }, { "2880:0", "Classic 4:3  2880 x 2160" } };
+#define NSIZE 10
 static const Opt O_SCALE[] = { { "1", "Native PS1 - 1x (320 x 240)" }, { "2", "2x (640 x 480)" }, { "3", "3x (960 x 720)" }, { "4", "4x (1280 x 960)" },
     { "5", "5x (1600 x 1200)" }, { "6", "6x (1920 x 1440)" }, { "7", "7x (2240 x 1680)" }, { "8", "8x (2560 x 1920)" } };
 static const Opt O_FIT[] = { { "fit", "Fit (keep 4:3)" }, { "integer", "Pixel perfect (integer)" }, { "stretch", "Stretch to window" } };
 static const Opt O_FILT[] = { { "linear", "Smooth" }, { "nearest", "Sharp pixels" } };
-enum { D_WMODE, D_SIZE, D_SCALE, D_FIT, D_FILT };
-static const Dd DDS[] = { { "window_mode", "Window mode", O_WMODE, 2 }, { "window_width", "Window size", O_SIZE, 5 }, { "render_scale", "Render resolution", O_SCALE, 8 },
-    { "scale_mode", "Picture fit", O_FIT, 3 }, { "filter", "Smoothing", O_FILT, 2 } };
+static const Opt O_FILL[] = { { "off", "Off" }, { "blur", "Blurred game" }, { "art", "Game art" } };
+enum { D_WMODE, D_SIZE, D_SCALE, D_FIT, D_FILT, D_FILL, NDD };
+static const Dd DDS[] = { { "window_mode", "Window mode", O_WMODE, 2 }, { "window_width", "Window size", O_SIZE, NSIZE }, { "render_scale", "Render resolution", O_SCALE, 8 },
+    { "scale_mode", "Picture fit", O_FIT, 3 }, { "filter", "Smoothing", O_FILT, 2 }, { "side_fill", "Side fill", O_FILL, 3 } };
 static int opt_find(const Opt *o, int n, const char *v) { for (int i = 0; i < n; i++) if (!_stricmp(o[i].val, v)) return i; return -1; }
 static int dd_cur(int d) {   /* index of the current settings.ini value (needs ini_load); bad/missing -> the default; a window width between sizes -> the nearest */
     const Dd *x = &DDS[d]; const char *v = get(x->key);
-    if (d == D_SIZE) { int w = ok_width(v) ? atoi(v) : 960, b = 0, bd = 1 << 30; for (int i = 0; i < x->n; i++) { int e = abs(atoi(x->o[i].val) - w); if (e < bd) { bd = e; b = i; } } return b; }
+    if (d == D_SIZE) {   /* exact width + height; else a 4:3 width -> the nearest classic size; a custom height -> the closest shape and size */
+        int w = ok_width(v) ? atoi(v) : 960, h = ok_height(get("window_height")) ? atoi(get("window_height")) : 0, b = 0, bd = 1 << 30;
+        for (int i = 0; i < x->n; i++) {
+            int ow = atoi(x->o[i].val), oh = atoi(strchr(x->o[i].val, ':') + 1), e = abs(ow - w) + abs((oh ? oh : ow * 3 / 4) - (h ? h : w * 3 / 4)) * 2;
+            if (e < bd) { bd = e; b = i; }
+        }
+        return b;
+    }
     int i = opt_find(x->o, x->n, v); if (i < 0) i = opt_find(x->o, x->n, field_of(x->key)->def); return i < 0 ? 0 : i;
 }
-static int best_size(int cx, int cy) { int b = 0; for (int i = 0; i < 5; i++) { int w = atoi(O_SIZE[i].val); if (w <= cx && w * 3 / 4 <= cy - 80) b = i; } return b; }   /* largest window that fits, leaving room for the title bar and taskbar */
+static void winsz_split(const char *val, char *w, char *h) { const char *c = strchr(val, ':'); sprintf(w, "%.*s", (int)(c - val), val); strcpy(h, c + 1); }
+static int best_size(int cx, int cy) { int b = -1, ba = 0; for (int i = 0; i < NSIZE; i++) { int w = atoi(O_SIZE[i].val), h = atoi(strchr(O_SIZE[i].val, ':') + 1); if (!h) h = w * 3 / 4; if (w <= cx && h <= cy - 80 && w * h > ba) { ba = w * h; b = i; } } return b < 0 ? 5 : b; }   /* largest window that fits, leaving room for the title bar and taskbar */
 
 /* ---------- self-test ---------- */
 static int tfail;
@@ -486,15 +506,30 @@ static int selftest(void) {
         for (int i = 0; i < NFIELDS; i++) CHECK(FIELDS[i].ok(FIELDS[i].def));   /* every default passes its own validator */
     { /* launcher option tables: every label value is accepted by the validator and round-trips through settings.ini */
         tree(root, "x = 1\n");
-        for (int d = 0; d < 5; d++) {
-            CHECK(dd_cur(d) == opt_find(DDS[d].o, DDS[d].n, field_of(DDS[d].key)->def));   /* empty ini -> default */
+        for (int d = 0; d < NDD; d++) {
+            char w[8], h[8];
+            if (d == D_SIZE) { CHECK(dd_cur(d) == opt_find(DDS[d].o, DDS[d].n, "960:0")); }   /* empty ini -> 960 wide, 4:3 */
+            else CHECK(dd_cur(d) == opt_find(DDS[d].o, DDS[d].n, field_of(DDS[d].key)->def));   /* empty ini -> default */
             for (int i = 0; i < DDS[d].n; i++) {
-                CHECK(field_of(DDS[d].key)->ok(DDS[d].o[i].val) && ini_write(root, DDS[d].key, DDS[d].o[i].val) == 1);
+                if (d == D_SIZE) {   /* the launcher writes window_height then window_width; every option round-trips */
+                    winsz_split(DDS[d].o[i].val, w, h);
+                    CHECK(ok_width(w) && ok_height(h) && ini_write(root, "window_height", h) == 1 && ini_write(root, "window_width", w) == 1);
+                } else CHECK(field_of(DDS[d].key)->ok(DDS[d].o[i].val) && ini_write(root, DDS[d].key, DDS[d].o[i].val) == 1);
                 ini_load(root); CHECK(dd_cur(d) == i);
             }
         }
-        CHECK(ini_write(root, "window_width", "1100") == 1); ini_load(root); CHECK(dd_cur(D_SIZE) == 0);   /* between sizes: nearest (1100 is 140 from 960, 180 from 1280) */
-        CHECK(best_size(2560, 1440) == 2 && best_size(3840, 2160) == 3 && best_size(1920, 1080) == 1 && best_size(800, 600) == 0);
+        tree(root, "x = 1\n");
+        CHECK(ini_write(root, "window_width", "1100") == 1); ini_load(root); CHECK(dd_cur(D_SIZE) == 5);   /* 4:3 between sizes: nearest classic (1100 is 140 from 960, 180 from 1280) */
+        CHECK(ini_write(root, "window_width", "3440") == 1 && ini_write(root, "window_height", "1440") == 1); ini_load(root); CHECK(dd_cur(D_SIZE) == 3);
+        CHECK(ini_write(root, "window_height", "1441") == 1); ini_load(root); CHECK(dd_cur(D_SIZE) == 3);   /* odd height -> closest shape */
+        CHECK(ini_write(root, "window_height", "359") == -3 && ini_write(root, "window_height", "4321") == -3 && ini_write(root, "side_fill", "on") == -3);
+        CHECK(best_size(2560, 1440) == 1 && best_size(3840, 2160) == 3 && best_size(3440, 1440) == 1 && best_size(800, 600) == 5);
+        /* window_height / side_fill reach the game (and bad values fall back) */
+        tree(root, "window_width = 3440\nwindow_height = 1440\nside_fill = art\n");
+        CHECK(prepare(root, &o) && has(root, "play\\launch.txt", "PSXRT_WINDOW_HEIGHT=1440\nPSXRT_SIDE_FILL=art\nPSXRT_SIDEFILL_DIR=") && has(root, "play\\launch.txt", "\\play\\sidefill\n"));
+        CHECK(has(root, "play\\game.toml", "window_width = 3440\n"));
+        tree(root, "window_height = 99\nside_fill = glow\n");
+        CHECK(prepare(root, &o) && !has(root, "play\\launch.txt", "PSXRT_WINDOW_HEIGHT") && has(root, "play\\launch.txt", "PSXRT_SIDE_FILL=blur\n") && has(root, "play\\settings.warn", "window_height = 99 is not valid; using 0\n"));
     }
     }
     fprintf(stderr, tfail ? "selftest: %d FAILED\n" : "selftest: all passed\n", tfail);
@@ -583,9 +618,10 @@ static void layout(void) {
     for (int i = 0; i < 3; i++) t[n++] = (It){ K_NAV, i, 1, 12, 290 + i * 56, 216, 48 };
     if (G.page == 0) { t[n++] = (It){ K_PLAY, 0, all_ready(), 280, 510, 680, 62 }; t[n++] = (It){ K_CHK, 1, 1, 280, 440, 680, 30 }; }
     else if (G.page == 1) {
-        t[n++] = (It){ K_DD, D_WMODE, 1, 280, 284, 320, 38 }; t[n++] = (It){ K_DD, D_SIZE, !fs_mode(), 280, 368, 320, 38 };
-        t[n++] = (It){ K_DD, D_SCALE, 1, 280, 464, 320, 38 }; t[n++] = (It){ K_DD, D_FIT, 1, 640, 284, 320, 38 };
-        t[n++] = (It){ K_DD, D_FILT, 1, 640, 368, 320, 38 }; t[n++] = (It){ K_CHK, 0, 1, 640, 464, 320, 38 };
+        t[n++] = (It){ K_DD, D_WMODE, 1, 280, 284, 320, 38 }; t[n++] = (It){ K_DD, D_SIZE, !fs_mode(), 280, 350, 320, 38 };
+        t[n++] = (It){ K_DD, D_SCALE, 1, 280, 416, 320, 38 }; t[n++] = (It){ K_DD, D_FIT, 1, 640, 284, 320, 38 };
+        t[n++] = (It){ K_DD, D_FILT, 1, 640, 350, 320, 38 }; t[n++] = (It){ K_DD, D_FILL, 1, 640, 416, 320, 38 };
+        t[n++] = (It){ K_CHK, 0, 1, 280, 466, 320, 38 };
     }
     G.nit = n;
 }
@@ -714,10 +750,10 @@ static void render(HDC dc) {
             for (int i = 0; i < 4; i++) if (!G.ok[i]) { if (!first) strcat(hint, ", "); strcat(hint, nm[i]); first = 0; } strcat(hint, ". Run INSTALL.bat to fix this."); }
         text(hint, 280, 478, 680, 24, F_BODY, all_ready() ? C_GREEN : 0xFFF0A0AC, 0, 1);
     } else if (G.page == 1) {
-        if (fs_mode()) text("Fullscreen uses your desktop resolution.", 280, 408, 340, 18, F_SM, C_GOLD, 0, 1);   /* in the gap under the disabled Window size box */
+        if (fs_mode()) text("Fullscreen uses your desktop resolution.", 280, 390, 340, 18, F_SM, C_GOLD, 0, 1);   /* in the gap under the disabled Window size box */
         int dw = GetSystemMetrics(SM_CXSCREEN), dh = GetSystemMetrics(SM_CYSCREEN);
         text("Higher render resolution looks sharper but needs a faster graphics card.", 280, 510, 680, 20, F_SM, C_MUT, 0, 1);
-        text("The game picture is 4:3, so on a 16:9 monitor you will see bars at the sides.", 280, 538, 680, 20, F_SM, C_MUT, 0, 1);
+        text("The picture stays 4:3, centred. On a wider window the sides show the blurred game or your own art.", 280, 538, 680, 20, F_SM, C_MUT, 0, 1);
         text(fmt("Your desktop is %d x %d. Biggest window that fits: %s.", dw, dh, O_SIZE[best_size(dw, dh)].label), 280, 558, 680, 20, F_SM, C_MUT, 0, 1);
     } else {
         for (int i = 0, n = 0; i < NFIELDS; i++) {
@@ -794,7 +830,13 @@ static void save_key(const char *k, const char *v) {
     if (r == 1) set_toast("Saved", 0); else set_toast(r == -2 ? "Not saved: settings.ini is UTF-16" : "Not saved: cannot write settings.ini", 1);
     refresh(); InvalidateRect(G.h, NULL, FALSE);
 }
-static void dd_set(int d, int i) { if (i >= 0 && i < DDS[d].n && i != dd_cur(d)) save_key(DDS[d].key, DDS[d].o[i].val); }
+static void dd_set(int d, int i) {
+    if (i < 0 || i >= DDS[d].n || i == dd_cur(d)) return;
+    if (d == D_SIZE) {   /* two keys: width, then height (0 = 4:3) */
+        char w[8], h[8]; winsz_split(DDS[d].o[i].val, w, h);
+        if (ini_write(G.root, "window_height", h) == 1) save_key("window_width", w); else save_key("window_height", h);
+    } else save_key(DDS[d].key, DDS[d].o[i].val);
+}
 static void activate(int i) {
     const It *t = &G.it[i]; if (!t->en) return; G.focus = i;
     if (t->kind == K_NAV) { G.page = t->id; G.hover = -1; InvalidateRect(G.h, NULL, FALSE); }

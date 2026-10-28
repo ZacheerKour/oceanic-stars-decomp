@@ -150,6 +150,8 @@ int psxrt_gfx_kv(int row, const PsxrtGfx *g, char *key, char *val, int n) {
 static int all_digits(const char *v, int maxlen) { int n = (int)strlen(v); if (!n || n > maxlen) return 0; for (; *v; v++) if (*v < '0' || *v > '9') return 0; return 1; }
 int psxrt_ini_valid(const char *k, const char *v) {   /* the ranges play.c accepts, so a persisted value never trips its fallback */
     if (!_stricmp(k, "window_width")) return all_digits(v, 4) && atoi(v) >= 640 && atoi(v) <= 7680;
+    if (!_stricmp(k, "window_height")) return !strcmp(v, "0") || (all_digits(v, 4) && atoi(v) >= 360 && atoi(v) <= 4320);   /* 0 = 4:3 from window_width */
+    if (!_stricmp(k, "side_fill")) return !strcmp(v, "off") || !strcmp(v, "blur") || !strcmp(v, "art");
     if (!_stricmp(k, "render_scale")) return all_digits(v, 1) && v[0] >= '1' && v[0] <= '8';
     if (!_stricmp(k, "scale_mode")) return !strcmp(v, "fit") || !strcmp(v, "integer") || !strcmp(v, "stretch");
     if (!_stricmp(k, "filter")) return !strcmp(v, "linear") || !strcmp(v, "nearest");
@@ -823,6 +825,8 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
         CHECK(!psxrt_ini_set(src, "window_width", "639") && !psxrt_ini_set(src, "window_width", "7681") && !psxrt_ini_set(src, "window_width", "abc"));
         CHECK(!psxrt_ini_set(src, "render_scale", "9") && !psxrt_ini_set(src, "render_scale", "0") && !psxrt_ini_set(src, "render_scale", "10"));
         CHECK(!psxrt_ini_set(src, "scale_mode", "zoom") && !psxrt_ini_set(src, "filter", "x") && !psxrt_ini_set(src, "scanlines", "1"));
+        CHECK(psxrt_ini_valid("window_height", "0") && psxrt_ini_valid("window_height", "1440") && !psxrt_ini_valid("window_height", "359") && !psxrt_ini_valid("window_height", "4321"));
+        CHECK(psxrt_ini_valid("side_fill", "art") && !psxrt_ini_valid("side_fill", "on"));
         CHECK(psxrt_ini_valid("window_width", "640") && psxrt_ini_valid("window_width", "7680") && psxrt_ini_valid("hint_shown", "1"));
         /* persist: temp + replace on a real file, and nothing configured is not an error */
         {
