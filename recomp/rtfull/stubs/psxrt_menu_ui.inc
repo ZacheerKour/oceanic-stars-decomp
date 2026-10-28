@@ -59,7 +59,17 @@ static void pm_render(void)
 
 
 /* ---- Graphics options page: live values from the runtime, changes applied at once and written back to settings.ini ---- */
-static int pm_win_w, pm_ires_req;   /* last windowed width; requested internal scale (0 = what runs) */
+static int pm_win_w;   /* last windowed width */
+static void pm_flush(int force)   /* debounced settings.ini writes (psxrt_ini_queue): quiet 400 ms, or forced on close */
+{
+    const int r = psxrt_ini_flush(psxrt_now_ms(), force);
+    if (r == 2) return;
+    if (r == 0) snprintf(pm_note, sizeof pm_note, "COULD NOT SAVE settings.ini");
+    else if (r == -2) snprintf(pm_note, sizeof pm_note, "COULD NOT SAVE: FILE ENCODING (SETTINGS.INI IS UTF-16)");
+    pm_dirty = 1;
+    fprintf(stderr, "[psxrt-gfx] settings.ini write %d\n", r);
+}
+static void pm_close(void) { pm_flush(1); pm_is_open = 0; }
 static void gfx_refresh(void)
 {
     PsxrtGfx *g = &pm_m.g;
@@ -70,19 +80,20 @@ static void gfx_refresh(void)
     g->width = pm_win_w;
     g->mode = psxrt_scale_mode();
     g->linear = psxrt_gfx_filter_get();
-    g->ires = pm_ires_req ? pm_ires_req : psxrt_gfx_scale_get();
+    g->ires = psxrt_gfx_scale_get();
     g->scan = psx_video_get_scanlines(NULL) ? 1 : 0;
 }
 static void gfx_apply(void)
 {
     PsxrtGfx *g = &pm_m.g;
     char k[32] = "", v[32] = "";
-    int saved;
+    int ok = 1;   /* only a change that took effect is written to settings.ini, and with the value that is actually applied */
     const int row = pm_m.gsel;
     switch (row) {
     case GR_WINMODE:
-        if (!psxrt_gfx_fullscreen_set(g->fs)) snprintf(pm_note, sizeof pm_note, "WINDOW MODE CHANGE FAILED");
+        if (!psxrt_gfx_fullscreen_set(g->fs)) { ok = 0; snprintf(pm_note, sizeof pm_note, "WINDOW MODE CHANGE FAILED"); }
         else if (!g->fs) psxrt_gfx_window_resize(pm_win_w);   /* back to windowed: the size chosen meanwhile */
+        gfx_refresh();   /* real mode, not the requested one */
         break;
     case GR_WINSIZE:
         pm_win_w = g->width;
@@ -90,17 +101,16 @@ static void gfx_apply(void)
         break;
     case GR_SCALE: psxrt_scale_mode_set(g->mode); psxrt_gfx_redraw(); break;
     case GR_FILTER: psxrt_gfx_filter_set(g->linear); break;
-    case GR_IRES:
-        pm_ires_req = psxrt_gfx_scale_set(g->ires) ? 0 : g->ires;   /* refused live: the value is kept for the next start */
-        if (!pm_ires_req) g->ires = psxrt_gfx_scale_get();
+    case GR_IRES:   /* refused: the runtime keeps its scale and nothing is saved */
+        if (!psxrt_gfx_scale_set(g->ires)) { ok = 0; snprintf(pm_note, sizeof pm_note, "INTERNAL RES NOT APPLIED: RENDERER REFUSED"); }
+        g->ires = psxrt_gfx_scale_get();
         break;
     case GR_SCAN: psx_video_set_scanlines(g->scan, -1.0f); break;
     }
-    saved = psxrt_gfx_kv(row, g, k, v, sizeof k) ? psxrt_ini_persist(k, v) : -2;
-    if (saved == 0 && !pm_note[0]) snprintf(pm_note, sizeof pm_note, "COULD NOT SAVE settings.ini");
-    fprintf(stderr, "[psxrt-gfx] row %d %s = %s, saved %d, fullscreen %d, window %d, scale %d%s\n", row, k, v, saved,
-            psxrt_gfx_fullscreen_get(), psxrt_gfx_window_width(), psxrt_gfx_scale_get(), pm_ires_req ? " (restart)" : "");
-    if (row != GR_IRES) gfx_refresh();
+    if (ok && psxrt_gfx_kv(row, g, k, v, sizeof k)) psxrt_ini_queue(k, v, psxrt_now_ms());
+    fprintf(stderr, "[psxrt-gfx] row %d %s = %s, queued %d, fullscreen %d, window %d, scale %d\n", row, k, v, ok && k[0],
+            psxrt_gfx_fullscreen_get(), psxrt_gfx_window_width(), psxrt_gfx_scale_get());
+    if (row != GR_WINMODE) gfx_refresh();
 }
 static void pm_render_gfx(void)
 {
@@ -128,7 +138,7 @@ static void pm_render_gfx(void)
             break;
         case GR_SCALE: snprintf(val, sizeof val, "< %s >", mode_n[g->mode]); break;
         case GR_FILTER: snprintf(val, sizeof val, "< %s >", g->linear ? "LINEAR" : "NEAREST"); break;
-        case GR_IRES: snprintf(val, sizeof val, "< %dX >%s", g->ires, g->ires != psxrt_gfx_scale_get() ? " RESTART" : ""); break;
+        case GR_IRES: snprintf(val, sizeof val, "< %dX >", g->ires); break;
         case GR_SCAN: snprintf(val, sizeof val, "< %s >", g->scan ? "ON" : "OFF"); break;
         }
         fill_rect(pm_img, 24, y, SSM_W - 48, 40, sel ? 0xFF2B2830u : 0xFF191D27u);
@@ -137,7 +147,7 @@ static void pm_render_gfx(void)
         if (val[0]) draw_text(pm_img, 250, y + 12, val, sel ? 0xFFFFFFFFu : 0xFFB8BDC8u, 2);
     }
     draw_text(pm_img, 24, 386, hint[pm_m.gsel], 0xFF7F8796u, 1);
-    if (pm_m.gsel == GR_IRES) draw_text(pm_img, 24, 398, "CHANGES LIVE IF THE RENDERER ALLOWS, ELSE ON NEXT START", 0xFF7F8796u, 1);
+    if (pm_m.gsel == GR_IRES) draw_text(pm_img, 24, 398, "APPLIED LIVE; IF THE RENDERER REFUSES IT, NOTHING IS SAVED", 0xFF7F8796u, 1);
     if (pm_note[0]) draw_text(pm_img, 24, 410, pm_note, 0xFFFF6B6Bu, 1);
     fill_rect(pm_img, 0, 430, SSM_W, 50, 0xFF171B25u);
     draw_text(pm_img, 24, 440, "UP/DOWN MOVE  LEFT/RIGHT OR CROSS/ENTER CHANGE", 0xFFB8BDC8u, 1);
@@ -156,44 +166,45 @@ int psx_runtime_menu_open(void)
     pm_dirty = 1;
     return 1;
 }
-void psx_runtime_menu_close(void) { pm_is_open = 0; }
+void psx_runtime_menu_close(void) { pm_close(); }
 int psx_runtime_menu_is_open(void) { return pm_is_open; }
 void psx_runtime_menu_input(int input, int repeat)
 {
     int a, r;
     char msg[48];
-    if (!pm_is_open || (repeat && (input == PSX_MENU_ACCEPT || input == PSX_MENU_BACK || input == PSX_MENU_TOGGLE))) return;
+    if (!pm_is_open || (repeat && input != PSX_MENU_UP && input != PSX_MENU_DOWN)) return;   /* key repeat only moves the cursor: a held key must not spam changes or settings.ini writes */
     a = psxrt_menu_input(&pm_m, input, psx_disc_tray_disc_count());
     pm_note[0] = 0;
     pm_dirty = 1;
     switch (a) {
-    case MA_CLOSE: pm_is_open = 0; break;
-    case MA_SAVE: pm_is_open = 0; psxrt_hk_run(HK_SAVE); break;
-    case MA_LOAD: pm_is_open = 0; psxrt_hk_run(HK_LOAD); break;
+    case MA_CLOSE: pm_close(); break;
+    case MA_SAVE: pm_close(); psxrt_hk_run(HK_SAVE); break;
+    case MA_LOAD: pm_close(); psxrt_hk_run(HK_LOAD_NOW); break;
     case MA_SWAP:
         r = psx_disc_tray_cycle(pm_m.disc_target, PSX_DISC_TRAY_ORIGIN_MENU);
         if (r == PSX_DISC_TRAY_OK) {
             snprintf(msg, sizeof msg, "Disc %d inserted", pm_m.disc_target);
             host_osd_push(msg, 2500);
-            pm_is_open = 0;
+            pm_close();
         } else {
             snprintf(pm_note, sizeof pm_note, "DISC CHANGE FAILED (%d)", r);
         }
         break;
-    case MA_FULLSCREEN: pm_is_open = 0; psxrt_push_fullscreen(); break;
+    case MA_FULLSCREEN: pm_close(); psxrt_push_fullscreen(); break;
     case MA_GRAPHICS: gfx_refresh(); break;
     case MA_GFX: gfx_apply(); break;
-    case MA_QUIT: psxrt_push_quit(); break;   /* the menu loop's SDL_QUIT branch shuts the runtime down */
+    case MA_QUIT: pm_flush(1); psxrt_push_quit(); break;   /* the menu loop's SDL_QUIT branch shuts the runtime down */
     }
 }
 int psx_runtime_menu_selected_disc(void) { return pm_m.disc_target; }
 int psx_runtime_menu_select_disc(int disc) { (void)disc; return 0; }
 int psx_runtime_menu_insert(void) { return 0; }
 struct RecompRuntimeUi *psx_runtime_menu_model(void) { return NULL; }
-void psx_runtime_menu_set_fallback_enabled(int enabled) { if (!enabled) pm_is_open = 0; }
+void psx_runtime_menu_set_fallback_enabled(int enabled) { if (!enabled) pm_close(); }
 int psx_runtime_menu_overlay_image(const uint32_t **pixels, int *w, int *h)
 {
     if (!pm_is_open) return 0;
+    pm_flush(0);
     if (pm_dirty) pm_render();
     *pixels = pm_img;
     *w = SSM_W;
