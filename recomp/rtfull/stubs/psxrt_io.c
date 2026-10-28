@@ -12,7 +12,8 @@
  * SDL key-down event (windowed runs only: the event loop does not run headless), "<frame> MENU open|up|down|left|right|
  * accept|back|close|shot_<tag>" drives the pause menu (open and close in the same frame: an open menu is modal).
  * Hotkeys (key -> action table below, tested by PSXRT_IO_SELFTEST): F5 save, F9 load, F6/F7 slot -/+ (slots 1-9); pad word
- * Select+R1 = save, Select+L1 = load (the three buttons are hidden from the game while the chord is held).
+ * Select+R1 = save, Select+L1 = load held 450 ms (the three buttons are hidden from the game while the chord is held). A load from
+ * F9 or the chord asks a second press within 3 s (PSXRT_CONFIRM_QUICKLOAD=0, settings.ini confirm_quickload = 0, turns it off).
  * PSXRT_AUDIO_RMS=1: every ~5 s of device audio, log "[psxrt-audio] rms=<r> peak=<p> frames=<n>" (S16 stereo). */
 #include <stdint.h>
 #include <stdio.h>
@@ -21,6 +22,7 @@
 #include <math.h>
 #include "psxrt_io.h"
 #include <windows.h>
+#include <io.h>
 #ifndef PSXRT_IO_SELFTEST
 #include <SDL3/SDL.h>
 #endif
@@ -69,17 +71,39 @@ int psxrt_key_by_name(const char *n) {
     return 0;
 }
 int psxrt_slot(void) { return s_slot; }
-static void slot_step(int d) { s_slot = (s_slot + d + HK_SLOTS) % HK_SLOTS; }
-void psxrt_slot_set(int slot) { s_slot = slot < 0 ? 0 : slot >= HK_SLOTS ? HK_SLOTS - 1 : slot; }
+static int s_ld_slot = -1;   /* slot of a quick load waiting for its confirming second press */
+static uint32_t s_ld_t;
+static void slot_step(int d) { s_slot = (s_slot + d + HK_SLOTS) % HK_SLOTS; s_ld_slot = -1; }
+void psxrt_slot_set(int slot) { s_slot = slot < 0 ? 0 : slot >= HK_SLOTS ? HK_SLOTS - 1 : slot; s_ld_slot = -1; }
+uint32_t psxrt_now_ms(void) { return (uint32_t)GetTickCount64(); }
+/* 1 = go ahead with the quick load now; 0 = armed, the player must ask again within 3 s for the same slot */
+int psxrt_load_gate(int slot, uint32_t now, int confirm) {
+    if (!confirm) return 1;
+    if (s_ld_slot == slot && now - s_ld_t <= 3000u) { s_ld_slot = -1; return 1; }
+    s_ld_slot = slot; s_ld_t = now;
+    return 0;
+}
 
-/* Pad chord on the final port-1 word (live keyboard/pad ANDed with the script): Select+R1 = save, Select+L1 = load, fired on the
- * press edge. While it is held Select, L1 and R1 are cleared from *out so the game does not also switch characters. */
-int psxrt_chord_step(int *prev, uint16_t word, uint16_t *out) {
-    const int sel = !(word & 1u), l1 = !(word & (1u << 10)), r1 = !(word & (1u << 11));
-    const int now = sel && l1 != r1 ? (r1 ? HK_SAVE : HK_LOAD) : HK_NONE;
-    *out = now ? (uint16_t)(word | 1u | (1u << 10) | (1u << 11)) : word;
-    const int fire = now != *prev ? now : HK_NONE;
-    *prev = now;
+/* Pad chord on the final port-1 word (live keyboard/pad ANDed with the script). Select+R1 = save (fires on the press edge), Select+L1 =
+ * load (fires once after CHORD_LOAD_MS held). Only a clean chord counts: exactly those two buttons held, reached from fewer buttons.
+ * Any extra button, all three of Select/L1/R1, or releasing one of the three while another stays down marks the chord dirty until
+ * Select, L1 and R1 are all up, so releasing a bigger chord (or Shift+Shift typed in passing) cannot turn into a save/load.
+ * While the chord is armed Select, L1 and R1 are cleared from *out so the game does not also switch characters. */
+#define CH_SEL 1u
+#define CH_L1 (1u << 10)
+#define CH_R1 (1u << 11)
+#define CH_ALL (CH_SEL | CH_L1 | CH_R1)
+#define CHORD_LOAD_MS 450u
+int psxrt_chord_step(PsxrtChord *c, uint16_t word, uint32_t now, uint16_t *out) {
+    const uint16_t held = (uint16_t)~word, m = held & CH_ALL;
+    int cand = HK_NONE, fire = HK_NONE;
+    if (!m) c->dirty = 0;
+    else if ((held & ~CH_ALL) || (c->pm & ~m) || m == CH_ALL) c->dirty = 1;
+    if (!c->dirty) cand = m == (CH_SEL | CH_R1) ? HK_SAVE : m == (CH_SEL | CH_L1) ? HK_LOAD : HK_NONE;
+    if (cand != c->cand) { c->cand = cand; c->t0 = now; c->fired = 0; }
+    if (cand && !c->fired && (cand == HK_SAVE || now - c->t0 >= CHORD_LOAD_MS)) { c->fired = 1; fire = cand; }
+    c->pm = m;
+    *out = cand ? (uint16_t)(word | CH_ALL) : word;
     return fire;
 }
 
@@ -163,32 +187,59 @@ char *psxrt_ini_set(const char *t, const char *key, const char *val) {
     return o;
 }
 int psxrt_ini_persist(const char *key, const char *val) {
-    const char *path = getenv("PSXRT_SETTINGS_INI");
+    const wchar_t *path = _wgetenv(L"PSXRT_SETTINGS_INI");   /* wide: a game folder with non-ANSI characters must still open */
     if (!path || !*path) return -1;
-    FILE *f = fopen(path, "rb");
+    FILE *f = _wfopen(path, L"rb");
     if (!f) return 0;
     char *buf = (char *)malloc(1 << 20);
     size_t n = buf ? fread(buf, 1, (1 << 20) - 1, f) : 0;
     const int big = buf && !feof(f);
     fclose(f);
     if (!buf || big || !n) { free(buf); return 0; }
+    const unsigned char *u = (const unsigned char *)buf;   /* UTF-16 (BOM or NULs): this ANSI/UTF-8 rewrite would truncate it, so refuse */
+    if ((n >= 2 && ((u[0] == 0xFF && u[1] == 0xFE) || (u[0] == 0xFE && u[1] == 0xFF))) || memchr(buf, 0, n)) { free(buf); return -2; }
     buf[n] = 0;
     char *out = psxrt_ini_set(buf, key, val);
     free(buf);
     if (!out) return 0;
-    char tmp[1024];
-    snprintf(tmp, sizeof tmp, "%s.tmp", path);
+    wchar_t *tmp = (wchar_t *)malloc((wcslen(path) + 5) * sizeof(wchar_t));
+    if (!tmp) { free(out); return 0; }
+    wcscpy(tmp, path);
+    wcscat(tmp, L".tmp");
     const size_t on = strlen(out);
     int ok = 0;
-    f = fopen(tmp, "wb");
+    f = _wfopen(tmp, L"wb");
     if (f) {
-        ok = fwrite(out, 1, on, f) == on && fflush(f) == 0;
+        ok = fwrite(out, 1, on, f) == on && fflush(f) == 0 && FlushFileBuffers((HANDLE)_get_osfhandle(_fileno(f))) != 0;
         ok = fclose(f) == 0 && ok;
     }
     free(out);
-    if (ok) ok = MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
-    if (!ok) remove(tmp);   /* only our own temp file */
+    if (ok) ok = MoveFileExW(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+    if (!ok) _wremove(tmp);   /* only our own temp file */
+    free(tmp);
     return ok;
+}
+
+/* Debounced writes for the menu: the latest value per key is held and written 400 ms after the last change (or at once when forced:
+ * menu close/quit), so a burst of changes is one rewrite per key instead of one per press. */
+static struct { char k[32], v[32]; } s_pq[8];
+static int s_pn;
+static uint32_t s_pq_t;
+void psxrt_ini_queue(const char *key, const char *val, uint32_t now) {
+    int i;
+    for (i = 0; i < s_pn && strcmp(s_pq[i].k, key); i++) {}
+    if (i == 8) { psxrt_ini_flush(now, 1); i = 0; }
+    snprintf(s_pq[i].k, sizeof s_pq[i].k, "%s", key);
+    snprintf(s_pq[i].v, sizeof s_pq[i].v, "%s", val);
+    if (i == s_pn) s_pn++;
+    s_pq_t = now;
+}
+int psxrt_ini_flush(uint32_t now, int force) {   /* 2 = nothing written yet, else the last non-1 persist result (1 when all saved) */
+    int r = 1;
+    if (!s_pn || (!force && now - s_pq_t < 400u)) return 2;
+    for (int i = 0; i < s_pn; i++) { const int p = psxrt_ini_persist(s_pq[i].k, s_pq[i].v); if (p != 1) r = p; }
+    s_pn = 0;
+    return r;
 }
 
 static int s_scale_mode = -1, s_fs_launch = -1;
@@ -425,6 +476,7 @@ int psx_runtime_menu_overlay_image(const uint32_t **pixels, int *w, int *h);
 typedef char psxrt_chk_keys[(K_F5 == SDLK_F5 && K_F6 == SDLK_F6 && K_F7 == SDLK_F7 && K_F8 == SDLK_F8 && K_F9 == SDLK_F9 &&
                              K_F10 == SDLK_F10 && (MOD_BLOCK & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) == (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) ? 1 : -1];
 
+static int confirm_quickload(void) { const char *e = getenv("PSXRT_CONFIRM_QUICKLOAD"); return !(e && *e == '0'); }   /* settings.ini confirm_quickload */
 void psxrt_hk_run(int act) {
     char m[64];
     const int slot = s_slot;
@@ -432,8 +484,11 @@ void psxrt_hk_run(int act) {
     case HK_SAVE:   /* completion toast ("Saved slot N" / "Save failed") comes from the runtime's psx_frontend_on_savestate_notify */
         if (!savestate_request_save(slot)) { snprintf(m, sizeof m, "Slot %d: save not possible now", slot + 1); host_osd_push(m, 1800); }
         break;
-    case HK_LOAD:
+    case HK_LOAD: case HK_LOAD_NOW:   /* _NOW: the pause menu's own Load row, already a deliberate choice */
         if (!savestate_slot_exists(slot)) { snprintf(m, sizeof m, "Slot %d is empty", slot + 1); host_osd_push(m, 1800); }
+        else if (act == HK_LOAD && !psxrt_load_gate(slot, psxrt_now_ms(), confirm_quickload())) {
+            snprintf(m, sizeof m, "Slot %d: press load again within 3 s to confirm", slot + 1); host_osd_push(m, 2500);
+        }
         else if (!savestate_request_load(slot)) { snprintf(m, sizeof m, "Slot %d: load not possible now", slot + 1); host_osd_push(m, 1800); }
         break;
     case HK_SLOT_PREV: case HK_SLOT_NEXT:
@@ -500,10 +555,10 @@ static void menu_script(const char *c) {
     fprintf(stderr, "[psxrt-menu] unknown command %s\n", c);
 }
 static void chord_apply(void) {
-    static int prev;
+    static PsxrtChord ch;
     const uint16_t w = sio_get_pad_buttons_slot(0);
     uint16_t o;
-    const int fire = psxrt_chord_step(&prev, w, &o);
+    const int fire = psxrt_chord_step(&ch, w, psxrt_now_ms(), &o);
     if (o != w) sio_set_pad_state_slot(0, o);
     if (fire) psxrt_hk_run(fire);
 }
@@ -612,19 +667,71 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
     slot_step(-1); CHECK(psxrt_slot() == 8);
     slot_step(1); CHECK(psxrt_slot() == 0);
     psxrt_slot_set(99); CHECK(psxrt_slot() == 8); psxrt_slot_set(-3); CHECK(psxrt_slot() == 0);
-    /* pad chord: edge-triggered, hides Select/L1/R1 while held */
+    /* pad chord: clean transitions only; save on the press edge, load after 450 ms held; hides Select/L1/R1 while armed */
     {
-        const uint16_t none = 0xFFFF, sel = 0xFFFE, r1 = (uint16_t)~(1u << 11), l1 = (uint16_t)~(1u << 10);
-        int prev = 0; uint16_t o;
-        CHECK(psxrt_chord_step(&prev, none, &o) == HK_NONE && o == none);
-        CHECK(psxrt_chord_step(&prev, sel, &o) == HK_NONE && o == sel);            /* Select alone reaches the game */
-        CHECK(psxrt_chord_step(&prev, sel & r1, &o) == HK_SAVE && o == 0xFFFF);
-        CHECK(psxrt_chord_step(&prev, sel & r1, &o) == HK_NONE && o == 0xFFFF);    /* held: no refire, still hidden */
-        CHECK(psxrt_chord_step(&prev, none, &o) == HK_NONE);
-        CHECK(psxrt_chord_step(&prev, sel & l1, &o) == HK_LOAD);
-        CHECK(psxrt_chord_step(&prev, sel & l1 & r1, &o) == HK_NONE && o == (uint16_t)(sel & l1 & r1));   /* both bumpers: no chord */
-        CHECK(psxrt_chord_step(&prev, r1, &o) == HK_NONE && o == r1);              /* R1 alone (character switch) untouched */
-        CHECK(psxrt_chord_step(&prev, (uint16_t)(sel & r1 & ~(1u << 14)), &o) == HK_SAVE && (o & (1u << 14)) == 0);   /* other buttons pass through */
+        const uint16_t none = 0xFFFF, sel = 0xFFFE, r1 = (uint16_t)~(1u << 11), l1 = (uint16_t)~(1u << 10), cr = (uint16_t)~(1u << 14);
+        PsxrtChord c; uint16_t o; uint32_t t = 1000;
+        memset(&c, 0, sizeof c);
+        CHECK(psxrt_chord_step(&c, none, t, &o) == HK_NONE && o == none);
+        CHECK(psxrt_chord_step(&c, sel, t += 16, &o) == HK_NONE && o == sel);          /* Select alone reaches the game */
+        CHECK(psxrt_chord_step(&c, sel & r1, t += 16, &o) == HK_SAVE && o == 0xFFFF);
+        CHECK(psxrt_chord_step(&c, sel & r1, t += 16, &o) == HK_NONE && o == 0xFFFF);  /* held: no refire, still hidden */
+        CHECK(psxrt_chord_step(&c, none, t += 16, &o) == HK_NONE && o == none);
+        CHECK(psxrt_chord_step(&c, r1, t += 16, &o) == HK_NONE && o == r1);            /* R1 alone (character switch) untouched */
+        CHECK(psxrt_chord_step(&c, none, t += 16, &o) == HK_NONE);
+        /* load: needs the hold, fires once */
+        CHECK(psxrt_chord_step(&c, sel & l1, t += 16, &o) == HK_NONE && o == 0xFFFF);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 400, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 450, &o) == HK_LOAD && o == 0xFFFF);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 2000, &o) == HK_NONE);                /* once only */
+        CHECK(psxrt_chord_step(&c, none, t + 2016, &o) == HK_NONE);
+        /* a short tap (Shift+Shift typed in passing) never loads */
+        t += 3000;
+        CHECK(psxrt_chord_step(&c, sel & l1, t, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 300, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, none, t + 316, &o) == HK_NONE && o == none);
+        CHECK(psxrt_chord_step(&c, none, t + 2000, &o) == HK_NONE);
+        /* rolling: all three held, then R1 released -> Select+L1 left, which must not load (even held for seconds) */
+        t += 5000;
+        CHECK(psxrt_chord_step(&c, sel & l1 & r1, t, &o) == HK_NONE && o == (uint16_t)(sel & l1 & r1));   /* both bumpers: no chord, nothing hidden */
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 16, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 3000, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, none, t + 3016, &o) == HK_NONE);
+        /* ... nor a save from Select+R1 left after releasing L1 */
+        t += 9000;
+        CHECK(psxrt_chord_step(&c, sel & l1 & r1, t, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, sel & r1, t + 16, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, none, t + 32, &o) == HK_NONE);
+        /* one-frame swap Select+R1 -> Select+L1 is not a clean press */
+        t += 9000;
+        CHECK(psxrt_chord_step(&c, sel & r1, t, &o) == HK_SAVE);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 16, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, sel & l1, t + 3000, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, none, t + 3016, &o) == HK_NONE);
+        /* an extra button blocks the chord and passes through untouched; releasing it is not a clean press; a clean retry works */
+        t += 9000;
+        CHECK(psxrt_chord_step(&c, (uint16_t)(sel & r1 & cr), t, &o) == HK_NONE && o == (uint16_t)(sel & r1 & cr));
+        CHECK(psxrt_chord_step(&c, sel & r1, t + 16, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, none, t + 32, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, sel & r1, t + 48, &o) == HK_SAVE);
+        CHECK(psxrt_chord_step(&c, (uint16_t)(sel & r1 & cr), t + 64, &o) == HK_NONE && o == (uint16_t)(sel & r1 & cr));   /* cross added while held: chord drops */
+        CHECK(psxrt_chord_step(&c, none, t + 80, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, (uint16_t)(sel & l1 & cr), t + 4000, &o) == HK_NONE);
+        CHECK(psxrt_chord_step(&c, (uint16_t)(sel & l1 & cr), t + 9000, &o) == HK_NONE);
+    }
+    /* quick-load confirmation: first request arms, a second within 3 s for the same slot goes, slot change or timeout re-arms */
+    {
+        psxrt_slot_set(0);
+        CHECK(psxrt_load_gate(0, 10000, 0) == 1);                                      /* confirmation switched off */
+        CHECK(psxrt_load_gate(0, 10000, 1) == 0 && psxrt_load_gate(0, 12900, 1) == 1);
+        CHECK(psxrt_load_gate(0, 12950, 1) == 0 && psxrt_load_gate(0, 16000, 1) == 0); /* too late: armed again */
+        CHECK(psxrt_load_gate(1, 16100, 1) == 0 && psxrt_load_gate(0, 16200, 1) == 0); /* other slot does not confirm */
+        psxrt_slot_set(0);
+        CHECK(psxrt_load_gate(0, 17000, 1) == 0);
+        slot_step(1); slot_step(-1);                                                   /* a slot step cancels the pending load */
+        CHECK(psxrt_load_gate(0, 17100, 1) == 0);
+        CHECK(psxrt_load_gate(0, 0xFFFFFF00u, 1) == 0 && psxrt_load_gate(0, 0x100u, 1) == 1);   /* tick counter wrap */
+        psxrt_slot_set(0);
     }
     /* pause menu: rows Resume, Save, Load, Swap, Fullscreen, Graphics, Quit */
     {
@@ -730,6 +837,54 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
             CHECK(psxrt_ini_persist("filter", "linear") == 0);
             _putenv_s("PSXRT_SETTINGS_INI", "");
             CHECK(psxrt_ini_persist("filter", "linear") == -1);
+        }
+        /* UTF-16 files (BOM either order, or NULs) are refused and left byte for byte */
+        {
+            const char *path = "psxrt_io_selftest16.ini";
+            static const unsigned char le[] = { 0xFF, 0xFE, 'f', 0, 'i', 0, 'l', 0, 't', 0, 'e', 0, 'r', 0, ' ', 0, '=', 0, ' ', 0, 'x', 0 };
+            static const unsigned char be[] = { 0xFE, 0xFF, 0, 'f', 0, '=', 0, 'x' };
+            static const unsigned char nobom[] = { 'a', 0, '=', 0, '1', 0 };
+            const unsigned char *src[3] = { le, be, nobom };
+            const size_t len[3] = { sizeof le, sizeof be, sizeof nobom };
+            _putenv_s("PSXRT_SETTINGS_INI", path);
+            for (int i = 0; i < 3; i++) {
+                FILE *f = fopen(path, "wb"); fwrite(src[i], 1, len[i], f); fclose(f);
+                CHECK(psxrt_ini_persist("filter", "nearest") == -2);
+                unsigned char b[64]; f = fopen(path, "rb"); size_t n = fread(b, 1, sizeof b, f); fclose(f);
+                CHECK(n == len[i] && !memcmp(b, src[i], n));
+            }
+            _putenv_s("PSXRT_SETTINGS_INI", "");
+        }
+        /* a game folder with characters outside the ANSI code page: the path comes in wide and must still be written */
+        {
+            wchar_t dir[MAX_PATH], file[MAX_PATH];
+            GetTempPathW(MAX_PATH, dir);
+            wcscat(dir, L"psxrt_io_t");
+            CreateDirectoryW(dir, NULL);
+            wcscat(dir, L"\\\u00e9\u4e2d\u0416");
+            CreateDirectoryW(dir, NULL);
+            swprintf(file, MAX_PATH, L"%ls\\settings.ini", dir);
+            FILE *f = _wfopen(file, L"wb"); CHECK(f != NULL);
+            if (f) {
+                char b[64] = ""; size_t n;
+                fputs("[play]\nfilter = linear\n", f); fclose(f);
+                _wputenv_s(L"PSXRT_SETTINGS_INI", file);
+                CHECK(psxrt_ini_persist("filter", "nearest") == 1);
+                f = _wfopen(file, L"rb"); n = f ? fread(b, 1, sizeof b - 1, f) : 0; if (f) fclose(f); b[n] = 0;
+                CHECK(!strcmp(b, "[play]\nfilter = nearest\n"));
+                /* debounce: queued values wait 400 ms, the latest per key wins, force writes at once */
+                psxrt_ini_queue("filter", "linear", 5000); psxrt_ini_queue("filter", "nearest", 5100); psxrt_ini_queue("scanlines", "on", 5200);
+                CHECK(psxrt_ini_flush(5500, 0) == 2);                               /* only 300 ms since the last change */
+                CHECK(psxrt_ini_flush(5600, 0) == 1);
+                f = _wfopen(file, L"rb"); n = f ? fread(b, 1, sizeof b - 1, f) : 0; if (f) fclose(f); b[n] = 0;
+                CHECK(!strcmp(b, "[play]\nfilter = nearest\nscanlines = on\n"));
+                CHECK(psxrt_ini_flush(9000, 1) == 2);                               /* nothing pending */
+                psxrt_ini_queue("scanlines", "off", 9000);
+                CHECK(psxrt_ini_flush(9001, 1) == 1);
+                f = _wfopen(file, L"rb"); n = f ? fread(b, 1, sizeof b - 1, f) : 0; if (f) fclose(f); b[n] = 0;
+                CHECK(strstr(b, "scanlines = off\n") != NULL);
+                _wputenv_s(L"PSXRT_SETTINGS_INI", L"");
+            }
         }
     }
     puts(fails ? "selftest FAILED" : "selftest OK");

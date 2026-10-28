@@ -10,7 +10,7 @@ void psxrt_audio_tap(const void *buf, int bytes);
 uint32_t psxrt_occ_crc(uint32_t phys, int *valid);   /* stubs/psxrt_evlog.c */
 
 /* Hotkeys (F5 save, F9 load, F6/F7 slot -/+) and the pad chord; see psxrt_io.c. */
-enum { HK_NONE, HK_SAVE, HK_LOAD, HK_SLOT_PREV, HK_SLOT_NEXT };
+enum { HK_NONE, HK_SAVE, HK_LOAD, HK_SLOT_PREV, HK_SLOT_NEXT, HK_LOAD_NOW };   /* HK_LOAD asks to be confirmed, HK_LOAD_NOW (menu row) does not */
 #define HK_SLOTS 9
 int psxrt_hotkey_key(int key, int mod, int repeat);   /* 1 = consumed */
 void psxrt_hk_run(int act);
@@ -18,7 +18,10 @@ int psxrt_hk_action(int key, int mod, int repeat);
 int psxrt_key_by_name(const char *name);
 int psxrt_slot(void);
 void psxrt_slot_set(int slot);
-int psxrt_chord_step(int *prev, uint16_t word, uint16_t *out);
+typedef struct { int cand, fired, dirty; uint16_t pm; uint32_t t0; } PsxrtChord;   /* zero-initialised */
+int psxrt_chord_step(PsxrtChord *c, uint16_t word, uint32_t now_ms, uint16_t *out);   /* HK_SAVE / HK_LOAD on the clean-chord fire, else HK_NONE */
+uint32_t psxrt_now_ms(void);
+int psxrt_load_gate(int slot, uint32_t now_ms, int confirm);   /* 1 = load now, 0 = armed: ask again within 3 s */
 #define PSXRT_CONTINUE continue;   /* in a macro because the CMake patch strings cannot contain a semicolon */
 
 /* Pause menu model (drawing and actions: psxrt_menu_ui.inc). Input codes equal the runtime's PsxRuntimeMenuInput. */
@@ -37,7 +40,9 @@ extern const int psxrt_widths[5];
 /* settings.ini rewrite: only the one value changes, comments/other keys/line ends stay; persist is atomic (temp + replace). */
 int psxrt_ini_valid(const char *key, const char *val);
 char *psxrt_ini_set(const char *text, const char *key, const char *val);   /* malloc'd, NULL if invalid */
-int psxrt_ini_persist(const char *key, const char *val);   /* PSXRT_SETTINGS_INI: 1 saved, 0 failed, -1 no file configured */
+int psxrt_ini_persist(const char *key, const char *val);   /* PSXRT_SETTINGS_INI: 1 saved, 0 failed, -1 no file configured, -2 file is UTF-16 (left untouched) */
+void psxrt_ini_queue(const char *key, const char *val, uint32_t now_ms);   /* debounced persist: latest value per key */
+int psxrt_ini_flush(uint32_t now_ms, int force);   /* writes after 400 ms of quiet or when forced; 2 = nothing written, else the persist result */
 int psxrt_launch_fullscreen(void);
 int psxrt_scale_mode(void);
 void psxrt_scale_mode_set(int mode);

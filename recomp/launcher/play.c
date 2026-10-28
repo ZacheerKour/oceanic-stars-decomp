@@ -122,6 +122,7 @@ static int ok_onoff(const char *v) { return !strcmp(v, "on") || !strcmp(v, "off"
 static int ok_wmode(const char *v) { return !strcmp(v, "windowed") || !strcmp(v, "borderless"); }
 static int ok_mode(const char *v) { return !strcmp(v, "fit") || !strcmp(v, "integer") || !strcmp(v, "stretch"); }
 static int ok_audio(const char *v) { return all_digits(v, 6) && atoi(v) >= 30 && atoi(v) <= 500; }   /* the runtime rejects values outside this */
+static int ok_01(const char *v) { return !strcmp(v, "0") || !strcmp(v, "1"); }
 static int ok_dz(const char *v) { return all_digits(v, 6) && atoi(v) <= 32767; }
 static char *pick(const char *k, const char *def, int (*ok)(const char *)) {
     char *v = lower(get(k)); if (!*v) return _strdup(def);
@@ -185,6 +186,7 @@ static int prepare(const char *root, Prep *o) {
     put("env.PSXRT_WINDOW_WIDTH", ww);
     put("env.PSXRT_SETTINGS_INI", ini);
     if (strcmp(get("hint_shown"), "1")) put("env.PSXRT_HINT", "1");   /* first-start toast, the game then writes hint_shown = 1 */
+    put("env.PSXRT_CONFIRM_QUICKLOAD", pick("confirm_quickload", "1", ok_01));   /* F9 / Select+L1 load asks a second press within 3 s; 0 = off */
     {   /* (?m)^\[video\].*$ -> $0 + the three keys; .* takes a CR too, so the inserted text lands after it */
         Sb b = { 0 }; const char *c = tb.p;
         while (*c) {
@@ -247,6 +249,12 @@ static HANDLE take_lock(const char *root) {   /* NULL when another launcher alre
     return m;
 }
 
+/* last.log / last.err -> last.1.log / last.1.err (the older previous run is replaced), so a crash is still readable after a restart */
+static void rotate_logs(const char *run) {
+    static const char *n[2][2] = { { "last.log", "last.1.log" }, { "last.err", "last.1.err" } };
+    for (int i = 0; i < 2; i++) MoveFileExW(W(fmt("%s\\%s", run, n[i][0])), W(fmt("%s\\%s", run, n[i][1])), MOVEFILE_REPLACE_EXISTING);
+}
+
 /* ---------- self-test ---------- */
 static int tfail;
 #define CHECK(c) do { if (!(c)) { tfail++; fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #c); } } while (0)
@@ -305,6 +313,24 @@ static int selftest(void) {
     CHECK(has(root, "play\\game.toml", "window_width = 1440\nsupersampling = 3\nantialiasing = false"));
     CHECK(has(root, "play\\launch.txt", "PSXRT_SCALE_MODE=integer\nPSX_SCANLINES=1\nPSXRT_FULLSCREEN=1\nPSXRT_WINDOW_WIDTH=1440\n"));
     CHECK(!has(root, "play\\launch.txt", "PSXRT_HINT") && !has(root, "play\\settings.warn", "settings.ini"));
+    tree(root, "confirm_quickload = 0\n");
+    CHECK(prepare(root, &o) && has(root, "play\\launch.txt", "PSXRT_CONFIRM_QUICKLOAD=0\n"));
+    tree(root, "confirm_quickload = yes\n");
+    CHECK(prepare(root, &o) && has(root, "play\\launch.txt", "PSXRT_CONFIRM_QUICKLOAD=1\n") && has(root, "play\\settings.warn", "confirm_quickload = yes is not valid; using 1\n"));
+    tree(root, "x = 1\n");
+    CHECK(prepare(root, &o) && has(root, "play\\launch.txt", "PSXRT_CONFIRM_QUICKLOAD=1\n"));   /* default: confirm */
+    { /* non-ASCII game folder: the settings.ini path reaches the game as UTF-8 text in the (wide) environment */
+        char *r2 = fmt("%s_\xC3\xA9" "\xE4\xB8\xAD", root); tree(r2, "x = 1\n");
+        CHECK(prepare(r2, &o) && has(r2, "play\\launch.txt", "PSXRT_SETTINGS_INI=") && has(r2, "play\\launch.txt", "\xC3\xA9" "\xE4\xB8\xAD\\settings.ini\n"));
+    }
+    { /* log rotation keeps exactly one previous run */
+        mk(root, "play\\last.log", "run A log"); mk(root, "play\\last.err", "run A err");
+        rotate_logs(fmt("%s\\play", root));
+        CHECK(has(root, "play\\last.1.log", "run A log") && has(root, "play\\last.1.err", "run A err") && !exists(fmt("%s\\play\\last.log", root)));
+        mk(root, "play\\last.log", "run B log"); mk(root, "play\\last.err", "run B err");
+        rotate_logs(fmt("%s\\play", root));
+        CHECK(has(root, "play\\last.1.log", "run B log") && !has(root, "play\\last.1.log", "run A") && has(root, "play\\last.1.err", "run B err"));
+    }
     tree(root, "scanlines = maybe\nwindow_mode = full\n");
     CHECK(prepare(root, &o) && has(root, "play\\settings.warn", "scanlines = maybe is not valid; using off\n") && has(root, "play\\settings.warn", "window_mode = full is not valid; using windowed\n"));
     /* UTF-16 / BOM / ANSI settings.ini, and a command line over the Win32 limit */
@@ -360,6 +386,7 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
     for (int i = 0; i < o.nenv; i++) { char *eq = strchr(o.env[i], '='); *eq = 0; SetEnvironmentVariableW(W(o.env[i]), W(eq + 1)); }
     wchar_t *cmd = W(fmt("\"%s\" %s", o.exe, o.args));
     SECURITY_ATTRIBUTES sa = { sizeof sa, NULL, TRUE };   /* game output -> play\last.log / last.err */
+    rotate_logs(o.run);
     HANDLE out = CreateFileW(W(fmt("%s\\last.log", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
     HANDLE err = CreateFileW(W(fmt("%s\\last.err", o.run)), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, 0, NULL);
     STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi; DWORD rc = 1;
