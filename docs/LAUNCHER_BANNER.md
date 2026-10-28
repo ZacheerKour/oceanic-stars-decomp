@@ -5,3 +5,5 @@ The launcher draws its own header art (starfield, planet, gold moon). To use you
 If the file is missing or cannot be read, the drawn banner is used silently. Do not commit banner art you do not own: the repo ships none.
 
 `PLAYTHISGAME.exe --shot out.png --page 0|1|2` renders a launcher page to a PNG without opening a window (handy for checking the look).
+
+Extra `--shot` flags: `--scale 1.5` (render at 150% DPI), `--open N` (show dropdown N, 0-4, open), `--root <dir>` (render that folder's state).
