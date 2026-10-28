@@ -59,3 +59,4 @@ __pycache__/
 
 # ---- Built by INSTALL.bat ----
 /recomp/launcher/_build/
+/_shots/

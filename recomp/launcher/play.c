@@ -351,6 +351,26 @@ static void status_rows(const char *root, int ok[4], char *txt[4]) {
     txt[3] = fmt(ok[3] ? "Game: built" : "Game: not built (run INSTALL.bat)");
 }
 
+/* ---------- launcher option tables: plain-English labels <-> settings.ini values (no window needed, so --selftest covers them) ---------- */
+typedef struct { const char *val, *label; } Opt;
+typedef struct { const char *key, *label; const Opt *o; int n; } Dd;
+static const Opt O_WMODE[] = { { "windowed", "Windowed" }, { "borderless", "Borderless fullscreen" } };
+static const Opt O_SIZE[] = { { "960", "720p  960 x 720" }, { "1280", "960p  1280 x 960" }, { "1440", "1080p  1440 x 1080" }, { "1920", "1440p  1920 x 1440" }, { "2880", "2160p  2880 x 2160" } };
+static const Opt O_SCALE[] = { { "1", "Native PS1 - 1x (320 x 240)" }, { "2", "2x (640 x 480)" }, { "3", "3x (960 x 720)" }, { "4", "4x (1280 x 960)" },
+    { "5", "5x (1600 x 1200)" }, { "6", "6x (1920 x 1440)" }, { "7", "7x (2240 x 1680)" }, { "8", "8x (2560 x 1920)" } };
+static const Opt O_FIT[] = { { "fit", "Fit (keep 4:3)" }, { "integer", "Pixel perfect (integer)" }, { "stretch", "Stretch to window" } };
+static const Opt O_FILT[] = { { "linear", "Smooth" }, { "nearest", "Sharp pixels" } };
+enum { D_WMODE, D_SIZE, D_SCALE, D_FIT, D_FILT };
+static const Dd DDS[] = { { "window_mode", "Window mode", O_WMODE, 2 }, { "window_width", "Window size", O_SIZE, 5 }, { "render_scale", "Render resolution", O_SCALE, 8 },
+    { "scale_mode", "Picture fit", O_FIT, 3 }, { "filter", "Smoothing", O_FILT, 2 } };
+static int opt_find(const Opt *o, int n, const char *v) { for (int i = 0; i < n; i++) if (!_stricmp(o[i].val, v)) return i; return -1; }
+static int dd_cur(int d) {   /* index of the current settings.ini value (needs ini_load); bad/missing -> the default; a window width between sizes -> the nearest */
+    const Dd *x = &DDS[d]; const char *v = get(x->key);
+    if (d == D_SIZE) { int w = ok_width(v) ? atoi(v) : 960, b = 0, bd = 1 << 30; for (int i = 0; i < x->n; i++) { int e = abs(atoi(x->o[i].val) - w); if (e < bd) { bd = e; b = i; } } return b; }
+    int i = opt_find(x->o, x->n, v); if (i < 0) i = opt_find(x->o, x->n, field_of(x->key)->def); return i < 0 ? 0 : i;
+}
+static int best_size(int cx, int cy) { int b = 0; for (int i = 0; i < 5; i++) { int w = atoi(O_SIZE[i].val); if (w <= cx && w * 3 / 4 <= cy - 80) b = i; } return b; }   /* largest window that fits, leaving room for the title bar and taskbar */
+
 /* ---------- self-test ---------- */
 static int tfail;
 #define CHECK(c) do { if (!(c)) { tfail++; fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #c); } } while (0)
@@ -464,6 +484,18 @@ static int selftest(void) {
         hh = CreateFileW(W(fmt("%s\\settings.ini", root)), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL); memset(bb, 0, 3); ReadFile(hh, bb, 2, &g, NULL); CloseHandle(hh);
         CHECK(bb[0] == 0xFF && bb[1] == 0xFE);
         for (int i = 0; i < NFIELDS; i++) CHECK(FIELDS[i].ok(FIELDS[i].def));   /* every default passes its own validator */
+    { /* launcher option tables: every label value is accepted by the validator and round-trips through settings.ini */
+        tree(root, "x = 1\n");
+        for (int d = 0; d < 5; d++) {
+            CHECK(dd_cur(d) == opt_find(DDS[d].o, DDS[d].n, field_of(DDS[d].key)->def));   /* empty ini -> default */
+            for (int i = 0; i < DDS[d].n; i++) {
+                CHECK(field_of(DDS[d].key)->ok(DDS[d].o[i].val) && ini_write(root, DDS[d].key, DDS[d].o[i].val) == 1);
+                ini_load(root); CHECK(dd_cur(d) == i);
+            }
+        }
+        CHECK(ini_write(root, "window_width", "1100") == 1); ini_load(root); CHECK(dd_cur(D_SIZE) == 0);   /* between sizes: nearest (1100 is 140 from 960, 180 from 1280) */
+        CHECK(best_size(2560, 1440) == 2 && best_size(3840, 2160) == 3 && best_size(1920, 1080) == 1 && best_size(800, 600) == 0);
+    }
     }
     fprintf(stderr, tfail ? "selftest: %d FAILED\n" : "selftest: all passed\n", tfail);
     return tfail ? 1 : 0;
@@ -494,101 +526,323 @@ static int launch_game(const char *root, int *rc) {
     GetExitCodeProcess(pi.hProcess, &c); *rc = (int)c; return 1;
 }
 
-/* ---------- the window ---------- */
-#define ID_PLAY 900
-#define ID_SIZE 910
-#define ID_QUAL 911
-#define ID_SKIP 912
-static struct { HWND play, msg, st[4], size, qual, skip; const char *root; int rc; } G;
-static const struct { const char *label; int w; } SIZES[] = {   /* w 0 = fullscreen; windows are 4:3 */
-    { "Small window (960 x 720)", 960 }, { "Medium window (1280 x 960)", 1280 }, { "Large window (1440 x 1080)", 1440 },
-    { "Huge window (1920 x 1440)", 1920 }, { "Fullscreen", 0 } };
-static const struct { const char *label; int scale; } QUAL[] = {
-    { "Normal", 1 }, { "Sharp (needs a decent graphics card)", 2 }, { "Sharper (needs a fast graphics card)", 4 } };
-#define NSIZES ((int)(sizeof SIZES / sizeof SIZES[0]))
-#define NQUAL ((int)(sizeof QUAL / sizeof QUAL[0]))
-static void ui_status(void) {
-    int ok[4]; char *tx[4]; ini_load(G.root); status_rows(G.root, ok, tx);
-    for (int i = 0; i < 4; i++) SetWindowTextW(G.st[i], W(fmt("%s  %s", ok[i] ? "\xE2\x9C\x94" : "\xE2\x9C\x96", tx[i])));
-    EnableWindow(G.play, ok[0] && ok[1] && ok[2] && ok[3]);
+/* ---------- the window: custom-painted with GDI+ (flat API, declared here so no C++ headers are needed), double-buffered, one hit-test list ---------- */
+#define GP __stdcall
+typedef struct { UINT32 v; void *cb; BOOL st, sc; } GsIn;
+typedef struct { float x, y, w, h; } RectF;
+int GP GdiplusStartup(ULONG_PTR *, const GsIn *, void *);
+int GP GdipCreateFromHDC(HDC, void **); int GP GdipDeleteGraphics(void *);
+int GP GdipSetSmoothingMode(void *, int); int GP GdipSetTextRenderingHint(void *, int); int GP GdipSetInterpolationMode(void *, int);
+int GP GdipScaleWorldTransform(void *, float, float, int);
+int GP GdipCreateSolidFill(UINT, void **); int GP GdipDeleteBrush(void *);
+int GP GdipFillRectangle(void *, void *, float, float, float, float); int GP GdipFillEllipse(void *, void *, float, float, float, float);
+int GP GdipCreatePath(int, void **); int GP GdipDeletePath(void *);
+int GP GdipAddPathArc(void *, float, float, float, float, float, float); int GP GdipClosePathFigure(void *);
+int GP GdipAddPathEllipse(void *, float, float, float, float); int GP GdipAddPathLine(void *, float, float, float, float);
+int GP GdipFillPath(void *, void *, void *); int GP GdipDrawPath(void *, void *, void *);
+int GP GdipCreatePen1(UINT, float, int, void **); int GP GdipDeletePen(void *);
+int GP GdipDrawLine(void *, void *, float, float, float, float); int GP GdipDrawArc(void *, void *, float, float, float, float, float, float);
+int GP GdipCreateLineBrushFromRect(const RectF *, UINT, UINT, int, int, void **);
+int GP GdipCreatePathGradientFromPath(void *, void **); int GP GdipSetPathGradientCenterColor(void *, UINT);
+int GP GdipSetPathGradientSurroundColorsWithCount(void *, const UINT *, int *);
+int GP GdipCreateFontFamilyFromName(const WCHAR *, void *, void **); int GP GdipGetGenericFontFamilySansSerif(void **); int GP GdipGetGenericFontFamilySerif(void **);
+int GP GdipCreateFont(void *, float, int, int, void **);
+int GP GdipCreateStringFormat(int, int, void **); int GP GdipStringFormatGetGenericTypographic(void **);
+int GP GdipSetStringFormatAlign(void *, int); int GP GdipSetStringFormatLineAlign(void *, int); int GP GdipSetStringFormatFlags(void *, int);
+int GP GdipDrawString(void *, const WCHAR *, int, void *, const RectF *, void *, void *);
+int GP GdipMeasureString(void *, const WCHAR *, int, void *, const RectF *, void *, RectF *, int *, int *);
+int GP GdipCreateBitmapFromFile(const WCHAR *, void **); int GP GdipGetImageWidth(void *, UINT *); int GP GdipGetImageHeight(void *, UINT *);
+int GP GdipDrawImageRectRect(void *, void *, float, float, float, float, float, float, float, float, int, void *, void *, void *);
+int GP GdipSetClipRect(void *, float, float, float, float, int); int GP GdipResetClip(void *);
+int GP GdipCreateBitmapFromHBITMAP(HBITMAP, HPALETTE, void **); int GP GdipSaveImageToFile(void *, const WCHAR *, const CLSID *, const void *);
+
+#define RGBA(c, a) (((UINT)(a) << 24) | ((UINT)(c) & 0xFFFFFF))
+#define C_BG 0xFF0B1020u
+#define C_PANEL 0xFF111A36u
+#define C_LINE 0xFF2A3560u
+#define C_TXT 0xFFE6EAF7u
+#define C_MUT 0xFF8D97B8u
+#define C_TEAL 0xFF3DD6C6u
+#define C_GOLD 0xFFE8B857u
+#define C_GREEN 0xFF4CD08Au
+#define C_RED 0xFFE0566Bu
+enum { K_NAV, K_DD, K_CHK, K_PLAY };
+enum { F_BODY, F_SM, F_H1, F_NAV, F_BTN, F_LOGO, F_TAG, F_LAB, F_SUBLOGO, NF };
+typedef struct { int kind, id, en; float x, y, w, h; } It;
+static struct { HWND h; const char *root; int rc, page, focus, hover, nit, ok[4], track; char *tx[4]; char toast[128]; int toast_err; float s; It it[16]; void *banner, *fnt[NF], *sf, *tf; } G;
+static void *gg;   /* the Graphics being painted */
+static const char *NAVS[3] = { "Game", "Graphics", "Controls" };
+
+static void refresh(void) { ini_load(G.root); status_rows(G.root, G.ok, G.tx); }
+static int all_ready(void) { return G.ok[0] && G.ok[1] && G.ok[2] && G.ok[3]; }
+static int fs_mode(void) { return dd_cur(D_WMODE) == 1; }
+static void layout(void) {
+    It *t = G.it; int n = 0;
+    for (int i = 0; i < 3; i++) t[n++] = (It){ K_NAV, i, 1, 12, 290 + i * 56, 216, 48 };
+    if (G.page == 0) { t[n++] = (It){ K_PLAY, 0, all_ready(), 280, 510, 680, 62 }; t[n++] = (It){ K_CHK, 1, 1, 280, 440, 680, 30 }; }
+    else if (G.page == 1) {
+        t[n++] = (It){ K_DD, D_WMODE, 1, 280, 284, 320, 38 }; t[n++] = (It){ K_DD, D_SIZE, !fs_mode(), 280, 368, 320, 38 };
+        t[n++] = (It){ K_DD, D_SCALE, 1, 280, 452, 320, 38 }; t[n++] = (It){ K_DD, D_FIT, 1, 640, 284, 320, 38 };
+        t[n++] = (It){ K_DD, D_FILT, 1, 640, 368, 320, 38 }; t[n++] = (It){ K_CHK, 0, 1, 640, 452, 320, 38 };
+    }
+    G.nit = n;
 }
-static void ui_reload(void) {
-    ui_status();
-    int s = 1, w = ok_width(get("window_width")) ? atoi(get("window_width")) : 960;
-    if (!strcmp(get("window_mode"), "borderless")) s = NSIZES - 1;
-    else { int best = 1 << 30; for (int i = 0; i < NSIZES - 1; i++) if (abs(SIZES[i].w - w) < best) { best = abs(SIZES[i].w - w); s = i; } }
-    SendMessageW(G.size, CB_SETCURSEL, s, 0);
-    int q = 0; for (int i = 0; i < NQUAL; i++) if (ok_scale(get("render_scale")) && atoi(get("render_scale")) >= QUAL[i].scale) q = i;
-    SendMessageW(G.qual, CB_SETCURSEL, q, 0);
-    SendMessageW(G.skip, BM_SETCHECK, !strcmp(get("skip_launcher"), "1") ? BST_CHECKED : BST_UNCHECKED, 0);
+static int chk_on(int id) { return id == 0 ? !strcmp(get("scanlines"), "on") : !strcmp(get("skip_launcher"), "1"); }
+
+/* ---- drawing helpers (logical 1000 x 640 units; the world transform scales them to the DPI) ---- */
+static void fillr(UINT c, float x, float y, float w, float h) { void *b; GdipCreateSolidFill(c, &b); GdipFillRectangle(gg, b, x, y, w, h); GdipDeleteBrush(b); }
+static void fille(UINT c, float x, float y, float w, float h) { void *b; GdipCreateSolidFill(c, &b); GdipFillEllipse(gg, b, x, y, w, h); GdipDeleteBrush(b); }
+static void line_(UINT c, float pw, float x1, float y1, float x2, float y2) { void *p; GdipCreatePen1(c, pw, 2, &p); GdipDrawLine(gg, p, x1, y1, x2, y2); GdipDeletePen(p); }
+static void arc_(UINT c, float pw, float x, float y, float w, float h, float a, float sw) { void *p; GdipCreatePen1(c, pw, 2, &p); GdipDrawArc(gg, p, x, y, w, h, a, sw); GdipDeletePen(p); }
+static void vgrad(float x, float y, float w, float h, UINT c1, UINT c2) { RectF r = { x, y, w, h }; void *b; GdipCreateLineBrushFromRect(&r, c1, c2, 1, 3, &b); GdipFillRectangle(gg, b, x, y, w, h); GdipDeleteBrush(b); }
+static void glow(float cx, float cy, float rx, float ry, UINT rgb, int a) {   /* soft radial glow */
+    void *p, *b; UINT sur = RGBA(rgb, 0); int one = 1;
+    GdipCreatePath(0, &p); GdipAddPathEllipse(p, cx - rx, cy - ry, rx * 2, ry * 2); GdipCreatePathGradientFromPath(p, &b);
+    GdipSetPathGradientCenterColor(b, RGBA(rgb, a)); GdipSetPathGradientSurroundColorsWithCount(b, &sur, &one);
+    GdipFillPath(gg, b, p); GdipDeleteBrush(b); GdipDeletePath(p);
 }
-static void ui_save(int id) {
-    int r = 1;
-    if (id == ID_SIZE) {
-        int s = (int)SendMessageW(G.size, CB_GETCURSEL, 0, 0); if (s < 0) return;
-        if (SIZES[s].w) { r = ini_write(G.root, "window_width", fmt("%d", SIZES[s].w)); if (r == 1) r = ini_write(G.root, "window_mode", "windowed"); }
-        else r = ini_write(G.root, "window_mode", "borderless");
-    } else if (id == ID_QUAL) {
-        int q = (int)SendMessageW(G.qual, CB_GETCURSEL, 0, 0); if (q < 0) return;
-        r = ini_write(G.root, "render_scale", fmt("%d", QUAL[q].scale));
-    } else r = ini_write(G.root, "skip_launcher", SendMessageW(G.skip, BM_GETCHECK, 0, 0) == BST_CHECKED ? "1" : "0");
-    SetWindowTextW(G.msg, W(r == 1 ? "Saved. It applies the next time you press Play." : r == -2 ? "Not saved: settings.ini is UTF-16. Save it as UTF-8." : "Not saved: cannot write settings.ini"));
-    if (r != 1) { ini_load(G.root); ui_reload(); }
+static void *rrpath(float x, float y, float w, float h, float r) {
+    void *p; GdipCreatePath(0, &p); float d = r * 2;
+    GdipAddPathArc(p, x, y, d, d, 180, 90); GdipAddPathArc(p, x + w - d, y, d, d, 270, 90); GdipAddPathArc(p, x + w - d, y + h - d, d, d, 0, 90); GdipAddPathArc(p, x, y + h - d, d, d, 90, 90);
+    GdipClosePathFigure(p); return p;
 }
+static void rr(UINT fill, UINT stroke, float sw, float x, float y, float w, float h, float r) {
+    void *p = rrpath(x, y, w, h, r);
+    if (fill) { void *b; GdipCreateSolidFill(fill, &b); GdipFillPath(gg, b, p); GdipDeleteBrush(b); }
+    if (stroke) { void *pen; GdipCreatePen1(stroke, sw, 2, &pen); GdipDrawPath(gg, pen, p); GdipDeletePen(pen); }
+    GdipDeletePath(p);
+}
+static void rrgrad(float x, float y, float w, float h, float r, UINT c1, UINT c2) {   /* vertical gradient in a rounded rectangle */
+    RectF rc = { x, y, w, h }; void *b, *p = rrpath(x, y, w, h, r);
+    GdipCreateLineBrushFromRect(&rc, c1, c2, 1, 3, &b); GdipFillPath(gg, b, p); GdipDeleteBrush(b); GdipDeletePath(p);
+}
+static void text(const char *s, float x, float y, float w, float h, int font, UINT c, int ha, int va) {   /* ha/va 0 near, 1 centre, 2 far */
+    static wchar_t wb[1024]; MultiByteToWideChar(CP_UTF8, 0, s, -1, wb, 1024);
+    RectF r = { x, y, w, h }; void *b; GdipCreateSolidFill(c, &b);
+    GdipSetStringFormatAlign(G.sf, ha); GdipSetStringFormatLineAlign(G.sf, va);
+    GdipDrawString(gg, wb, -1, G.fnt[font], &r, G.sf, b); GdipDeleteBrush(b);
+}
+static void spaced(const char *s, float x, float y, int font, UINT c, float sp, int centre) {   /* letter-spaced caps; x is the left edge, or the centre if centre */
+    int n = (int)strlen(s); float wd[64], tot = 0; if (n > 63) n = 63;
+    for (int i = 0; i < n; i++) { WCHAR ch = (unsigned char)s[i]; RectF l = { 0, 0, 1000, 100 }, o = { 0 }; GdipMeasureString(gg, &ch, 1, G.fnt[font], &l, G.tf, &o, NULL, NULL); wd[i] = o.w; tot += o.w + sp; }
+    tot -= sp; if (centre) x -= tot / 2;
+    for (int i = 0; i < n; i++) { char one[2] = { s[i], 0 }; text(one, x, y, 60, 40, font, c, 0, 0); x += wd[i] + sp; }
+}
+static void stars(float x, float y, float w, float h, int n, unsigned seed, float maxsz) {   /* deterministic starfield */
+    for (int i = 0; i < n; i++) {
+        seed = seed * 1664525u + 1013904223u; float fx = (seed >> 8 & 0xFFFF) / 65535.f;
+        seed = seed * 1664525u + 1013904223u; float fy = (seed >> 8 & 0xFFFF) / 65535.f;
+        seed = seed * 1664525u + 1013904223u; float fs = (seed >> 8 & 0xFFFF) / 65535.f;
+        UINT col = (i % 9 == 0) ? 0xF2D38A : 0xDDE6FF; float sz = 0.7f + fs * fs * maxsz;
+        fille(RGBA(col, 70 + (int)(fs * 185)), x + fx * w, y + fy * h, sz, sz);
+        if (sz > maxsz * 0.7f) { line_(RGBA(col, 60), 1, x + fx * w - sz * 2.5f, y + fy * h + sz / 2, x + fx * w + sz * 3.5f, y + fy * h + sz / 2); line_(RGBA(col, 60), 1, x + fx * w + sz / 2, y + fy * h - sz * 2.5f, x + fx * w + sz / 2, y + fy * h + sz * 3.5f); }
+    }
+}
+static void star4(float cx, float cy, float R, float r, UINT c) {   /* four-pointed star */
+    void *p, *b; GdipCreatePath(0, &p); float q = r * .45f, pt[8][2] = { { 0, -R }, { q, -q }, { R, 0 }, { q, q }, { 0, R }, { -q, q }, { -R, 0 }, { -q, -q } };
+    for (int i = 0; i < 8; i++) { int j = (i + 1) % 8; GdipAddPathLine(p, cx + pt[i][0], cy + pt[i][1], cx + pt[j][0], cy + pt[j][1]); }
+    GdipClosePathFigure(p); GdipCreateSolidFill(c, &b); GdipFillPath(gg, b, p); GdipDeleteBrush(b); GdipDeletePath(p);
+}
+static void draw_banner(float x, float y, float w, float h) {
+    GdipSetClipRect(gg, x, y, w, h, 0);
+    if (G.banner) {   /* the optional user-supplied banner.png, cover-scaled and centred */
+        UINT iw, ih; GdipGetImageWidth(G.banner, &iw); GdipGetImageHeight(G.banner, &ih);
+        float sc = (w / iw > h / ih) ? w / iw : h / ih, sw = w / sc, sh = h / sc;
+        GdipDrawImageRectRect(gg, G.banner, x, y, w, h, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 2, NULL, NULL, NULL);
+    } else {
+        vgrad(x, y, w, h, 0xFF050818, 0xFF1B2B6B);
+        glow(x + w * 0.25f, y + h * 0.45f, 260, 120, 0x6B3FA0, 70); glow(x + w * 0.62f, y + h * 0.9f, 300, 110, 0x2AA9C0, 80);
+        stars(x, y, w, h, 150, 20261027u, 2.2f);
+        float px = x + w * 0.74f, py = y + h * 1.55f, pr = 230;   /* planet rising from below, with atmosphere glow and a golden ring */
+        glow(px, py, pr + 60, pr + 60, 0x3DD6C6, 110);
+        { RectF r = { px - pr, py - pr, pr * 2, pr * 2 }; void *b; GdipCreateLineBrushFromRect(&r, 0xFF48C9C0, 0xFF0A1633, 1, 3, &b); GdipFillEllipse(gg, b, px - pr, py - pr, pr * 2, pr * 2); GdipDeleteBrush(b); }
+        arc_(RGBA(0xA8FFF4, 200), 2.5f, px - pr, py - pr, pr * 2, pr * 2, 195, 150);
+        arc_(RGBA(C_GOLD, 120), 1.5f, px - pr - 70, py - pr - 18, (pr + 70) * 2, (pr + 18) * 2, 205, 130);
+        glow(x + w * 0.42f, y + 38, 26, 26, 0xF2D38A, 120); fille(0xFFF6E3AE, x + w * 0.42f - 8, y + 30, 16, 16);   /* a small gold moon */
+        line_(RGBA(C_GOLD, 170), 1.5f, x + w * 0.12f, y + 30, x + w * 0.12f + 70, y + 52); line_(RGBA(C_GOLD, 60), 1, x + w * 0.12f - 50, y + 12, x + w * 0.12f, y + 30);
+    }
+    vgrad(x, y + h - 60, w, 60, RGBA(C_BG, 0), C_BG);
+    GdipResetClip(gg);
+}
+
+static void render(HDC dc) {
+    GdipCreateFromHDC(dc, &gg); GdipSetSmoothingMode(gg, 4); GdipSetTextRenderingHint(gg, 4); GdipSetInterpolationMode(gg, 7); GdipScaleWorldTransform(gg, G.s, G.s, 0);
+    layout();
+    fillr(C_BG, 0, 0, 1000, 640);
+    /* sidebar */
+    vgrad(0, 0, 240, 640, 0xFF060A18, 0xFF0A1230); stars(0, 0, 240, 640, 55, 777u, 1.6f);
+    line_(0xFF1A2347, 1, 240, 0, 240, 640);
+    glow(120, 190, 100, 100, 0x3DD6C6, 40);
+    spaced("STAR OCEAN", 120, 36, F_LOGO, C_TXT, 2.5f, 1);
+    line_(RGBA(C_GOLD, 140), 1, 40, 82, 104, 82); line_(RGBA(C_GOLD, 140), 1, 136, 82, 200, 82); star4(120, 82, 6, 5, C_GOLD);
+    spaced("THE SECOND STORY", 120, 94, F_SUBLOGO, C_GOLD, 2.2f, 1);
+    arc_(RGBA(C_TEAL, 150), 2, 80, 140, 80, 80, 0, 360); arc_(RGBA(C_GOLD, 120), 1.2f, 66, 150, 108, 60, 160, 220); star4(120, 180, 22, 10, 0xFFF6E3AE);
+    for (int i = 0; i < 3; i++) {
+        const It *t = &G.it[i]; int sel = G.page == i;
+        if (sel) { rr(RGBA(C_TEAL, 38), RGBA(C_TEAL, 90), 1, t->x, t->y, t->w, t->h, 8); fillr(C_GOLD, t->x, t->y + 10, 4, t->h - 20); }
+        else if (G.hover == i) rr(RGBA(0xFFFFFF, 14), 0, 0, t->x, t->y, t->w, t->h, 8);
+        star4(t->x + 34, t->y + t->h / 2, 7, 4, sel ? C_GOLD : RGBA(C_MUT, 200));
+        text(NAVS[i], t->x + 56, t->y, 150, t->h, F_NAV, sel ? C_TXT : 0xFFB3BCD8, 0, 1);
+    }
+    text("Not affiliated with Square Enix", 0, 556, 240, 18, F_SM, RGBA(C_MUT, 200), 1, 1);
+    spaced("UNOFFICIAL NATIVE PC PORT", 120, 584, F_TAG, RGBA(C_GOLD, 200), 1.6f, 1);
+    /* content */
+    draw_banner(241, 0, 759, 150);
+    static const char *T1[3] = { "Ready to play", "Graphics settings", "Controls" };
+    static const char *T2[3] = { "Check that everything is in place, then press Play.", "Tune the picture to your screen. Changes save automatically.", "Your current keyboard layout." };
+    text(T1[G.page], 280, 160, 680, 44, F_H1, C_TXT, 0, 1); text(T2[G.page], 280, 204, 680, 24, F_BODY, C_MUT, 0, 1);
+    line_(0xFF1F2850, 1, 280, 244, 960, 244);
+    if (G.page == 0) {
+        for (int i = 0; i < 4; i++) {
+            float y = 262 + i * 40; UINT c = G.ok[i] ? C_GREEN : C_RED;
+            rr(C_PANEL, 0xFF1D2650, 1, 280, y, 680, 34, 8); rr(RGBA(c, 45), c, 1.5f, 292, y + 5, 24, 24, 12);
+            if (G.ok[i]) { line_(c, 2.4f, 299, y + 17, 303, y + 21); line_(c, 2.4f, 303, y + 21, 310, y + 12); } else { line_(c, 2.4f, 299, y + 11, 309, y + 23); line_(c, 2.4f, 309, y + 11, 299, y + 23); }
+            text(G.tx[i], 330, y, 620, 34, F_BODY, G.ok[i] ? C_TXT : 0xFFF0A0AC, 0, 1);
+        }
+        char hint[256] = "All set. Press Play to start.";
+        if (!all_ready()) { static const char *nm[4] = { "Disc 1", "Disc 2", "BIOS", "the built game" }; int first = 1; strcpy(hint, "Cannot start yet. Missing: ");
+            for (int i = 0; i < 4; i++) if (!G.ok[i]) { if (!first) strcat(hint, ", "); strcat(hint, nm[i]); first = 0; } strcat(hint, ". Run INSTALL.bat to fix this."); }
+        text(hint, 280, 478, 680, 24, F_BODY, all_ready() ? C_GREEN : 0xFFF0A0AC, 0, 1);
+    } else if (G.page == 1) {
+        text(fs_mode() ? "Fullscreen uses your desktop resolution" : "", 280, 346, 320, 20, F_SM, C_GOLD, 2, 1);
+        int dw = GetSystemMetrics(SM_CXSCREEN), dh = GetSystemMetrics(SM_CYSCREEN);
+        text("Higher render resolution looks sharper but needs a faster graphics card.", 280, 494, 680, 20, F_SM, C_MUT, 0, 1);
+        text("The game picture is 4:3, so on a 16:9 monitor you will see bars at the sides.", 280, 534, 680, 20, F_SM, C_MUT, 0, 1);
+        text(fmt("Your desktop is %d x %d. Biggest window that fits: %s.", dw, dh, O_SIZE[best_size(dw, dh)].label), 280, 556, 680, 20, F_SM, C_MUT, 0, 1);
+    } else {
+        for (int i = 0, n = 0; i < NFIELDS; i++) {
+            if (FIELDS[i].page != 1 || strncmp(FIELDS[i].key, "key.", 4)) continue;
+            float x = 280 + (n / 8) * 350, y = 262 + (n % 8) * 36; const char *v = *get(FIELDS[i].key) ? get(FIELDS[i].key) : FIELDS[i].def; n++;
+            text(FIELDS[i].label, x, y, 100, 30, F_BODY, 0xFFB3BCD8, 0, 1); rr(C_PANEL, 0xFF1D2650, 1, x + 110, y, 220, 30, 7); text(v, x + 122, y, 200, 30, F_BODY, C_TXT, 0, 1);
+        }
+        text("Change them in-game with F10, or edit settings.ini.", 280, 556, 680, 22, F_BODY, C_GOLD, 0, 1);
+    }
+    for (int i = 3; i < G.nit; i++) {
+        const It *t = &G.it[i]; int hv = G.hover == i && t->en;
+        if (t->kind == K_DD) {
+            const Dd *d = &DDS[t->id]; UINT ac = t->en ? C_MUT : RGBA(C_MUT, 90);
+            text(d->label, t->x, t->y - 24, t->w, 20, F_LAB, 0xFFB8C2E0, 0, 1);
+            rr(hv ? 0xFF16214A : C_PANEL, hv ? C_TEAL : C_LINE, 1.3f, t->x, t->y, t->w, t->h, 7);
+            text(d->o[dd_cur(t->id)].label, t->x + 14, t->y, t->w - 44, t->h, F_BODY, t->en ? C_TXT : RGBA(C_MUT, 150), 0, 1);
+            line_(ac, 1.8f, t->x + t->w - 28, t->y + 16, t->x + t->w - 22, t->y + 22); line_(ac, 1.8f, t->x + t->w - 22, t->y + 22, t->x + t->w - 16, t->y + 16);
+        } else if (t->kind == K_CHK) {
+            float by = t->y + (t->h - 24) / 2; int on = chk_on(t->id);
+            rr(on ? C_TEAL : C_PANEL, on ? C_TEAL : (hv ? C_TEAL : C_LINE), 1.5f, t->x, by, 24, 24, 6);
+            if (on) { line_(C_BG, 2.8f, t->x + 6, by + 12.5f, t->x + 10.5f, by + 17); line_(C_BG, 2.8f, t->x + 10.5f, by + 17, t->x + 18.5f, by + 7); }
+            text(t->id ? "Start the game right away next time (skip this window)" : "Scanlines (retro CRT look)", t->x + 36, t->y, t->w - 40, t->h, F_BODY, C_TXT, 0, 1);
+        } else if (t->kind == K_PLAY) {
+            if (t->en) rrgrad(t->x, t->y, t->w, t->h, 10, hv ? 0xFF58E8D8 : C_TEAL, hv ? 0xFF2DA4A8 : 0xFF22939A);
+            else rr(0xFF1A2342, 0xFF2A3560, 1, t->x, t->y, t->w, t->h, 10);
+            spaced("PLAY", t->x + t->w / 2, t->y + 14, F_BTN, t->en ? 0xFF06121C : RGBA(C_MUT, 160), 6, 1);
+        }
+    }
+    /* footer */
+    line_(0xFF1F2850, 1, 241, 598, 1000, 598);
+    text("Changes save automatically and apply the next time you press Play.", 280, 600, 480, 40, F_SM, C_MUT, 0, 1);
+    if (*G.toast) text(G.toast, 640, 600, 320, 40, F_BODY, G.toast_err ? C_RED : C_GREEN, 2, 1);
+    if (G.focus >= 0 && G.focus < G.nit && G.it[G.focus].en) { const It *t = &G.it[G.focus]; rr(0, C_GOLD, 2, t->x - 3, t->y - 3, t->w + 6, t->h + 6, 9); }
+    GdipDeleteGraphics(gg); gg = NULL;
+}
+static void gp_init(void) {
+    ULONG_PTR tok; GsIn in = { 1, NULL, FALSE, FALSE }; GdiplusStartup(&tok, &in, NULL);
+    static const struct { const wchar_t *fam; float sz; int style, serif; } FD[NF] = {
+        { L"Segoe UI", 15, 0, 0 }, { L"Segoe UI", 13, 0, 0 }, { L"Georgia", 30, 0, 1 }, { L"Segoe UI", 17, 0, 0 }, { L"Georgia", 26, 1, 1 },
+        { L"Georgia", 25, 1, 1 }, { L"Segoe UI", 10.5f, 1, 0 }, { L"Segoe UI", 14, 1, 0 }, { L"Georgia", 12.5f, 0, 1 } };
+    for (int i = 0; i < NF; i++) {
+        void *fam = NULL; if (GdipCreateFontFamilyFromName(FD[i].fam, NULL, &fam)) { if (FD[i].serif) GdipGetGenericFontFamilySerif(&fam); else GdipGetGenericFontFamilySansSerif(&fam); }
+        GdipCreateFont(fam, FD[i].sz, FD[i].style, 2, &G.fnt[i]);
+    }
+    GdipCreateStringFormat(0, 0, &G.sf); GdipSetStringFormatFlags(G.sf, 0x1000);
+    GdipStringFormatGetGenericTypographic(&G.tf); GdipSetStringFormatFlags(G.tf, 0x800 | 0x1000);
+    char *b = fmt("%s\\launcher\\banner.png", G.root); if (!exists(b)) b = fmt("%s\\recomp\\launcher\\banner.png", G.root);
+    void *img = NULL; UINT iw = 0, ih = 0;   /* missing or corrupt: silently keep the drawn banner */
+    if (exists(b) && !GdipCreateBitmapFromFile(W(b), &img) && img && !GdipGetImageWidth(img, &iw) && !GdipGetImageHeight(img, &ih) && iw && ih) G.banner = img;
+}
+static int shot(const char *png, int page) {   /* --shot: render a page to a PNG without showing a window */
+    G.s = 1; G.page = page; G.focus = 3; G.hover = -1; gp_init(); refresh();
+    HDC sd = GetDC(NULL), dc = CreateCompatibleDC(sd); HBITMAP bm = CreateCompatibleBitmap(sd, 1000, 640); SelectObject(dc, bm);
+    render(dc);
+    void *img; static const CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+    if (GdipCreateBitmapFromHBITMAP(bm, NULL, &img)) return 1;
+    return GdipSaveImageToFile(img, W(png), &png_clsid, NULL) ? 1 : 0;
+}
+static void set_toast(const char *s, int err) { snprintf(G.toast, sizeof G.toast, "%s", s); G.toast_err = err; SetTimer(G.h, 1, 2500, NULL); }
+static void save_key(const char *k, const char *v) {
+    int r = ini_write(G.root, k, v);
+    if (r == 1) set_toast("Saved", 0); else set_toast(r == -2 ? "Not saved: settings.ini is UTF-16" : "Not saved: cannot write settings.ini", 1);
+    refresh(); InvalidateRect(G.h, NULL, FALSE);
+}
+static void dd_set(int d, int i) { if (i >= 0 && i < DDS[d].n && i != dd_cur(d)) save_key(DDS[d].key, DDS[d].o[i].val); }
+static void activate(int i) {
+    const It *t = &G.it[i]; if (!t->en) return; G.focus = i;
+    if (t->kind == K_NAV) { G.page = t->id; G.hover = -1; InvalidateRect(G.h, NULL, FALSE); }
+    else if (t->kind == K_CHK) save_key(t->id ? "skip_launcher" : "scanlines", chk_on(t->id) ? (t->id ? "0" : "off") : (t->id ? "1" : "on"));
+    else if (t->kind == K_DD) {
+        HMENU m = CreatePopupMenu(); int cur = dd_cur(t->id), d = t->id;
+        for (int k = 0; k < DDS[d].n; k++) AppendMenuW(m, MF_STRING | (k == cur ? MF_CHECKED : 0), k + 1, W(DDS[d].o[k].label));
+        POINT p = { (int)(t->x * G.s), (int)((t->y + t->h) * G.s) }; ClientToScreen(G.h, &p);
+        int r = TrackPopupMenu(m, TPM_RETURNCMD | TPM_LEFTALIGN | TPM_TOPALIGN, p.x, p.y, 0, G.h, NULL); DestroyMenu(m);
+        if (r > 0) dd_set(d, r - 1); else InvalidateRect(G.h, NULL, FALSE);
+    } else if (t->kind == K_PLAY) {
+        g_hide = G.h; int rc = 0;
+        if (launch_game(G.root, &rc)) { G.rc = rc; DestroyWindow(G.h); }
+        else { MessageBoxW(G.h, W(errmsg), L"Star Ocean: not ready", MB_OK | MB_ICONERROR); refresh(); InvalidateRect(G.h, NULL, FALSE); }
+    }
+}
+static int hit(LPARAM lp) { float x = (short)LOWORD(lp) / G.s, y = (short)HIWORD(lp) / G.s; layout(); for (int i = G.nit - 1; i >= 0; i--) { const It *t = &G.it[i]; if (t->en && x >= t->x && x < t->x + t->w && y >= t->y && y < t->y + t->h) return i; } return -1; }
+static void move_focus(int dir) { layout(); int from = G.focus < 0 ? (dir > 0 ? -1 : 0) : G.focus; for (int k = 1; k <= G.nit; k++) { int i = (from + dir * k + G.nit * 2) % G.nit; if (G.it[i].en) { G.focus = i; break; } } InvalidateRect(G.h, NULL, FALSE); }
 static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM wp, LPARAM lp) {
     switch (m) {
-    case WM_CREATE: {
-        NONCLIENTMETRICSW nm = { sizeof nm }; SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof nm, &nm, 0);
-        HFONT font = CreateFontIndirectW(&nm.lfMessageFont), big = (nm.lfMessageFont.lfHeight *= 2, CreateFontIndirectW(&nm.lfMessageFont));
-        HINSTANCE hi = GetModuleHandleW(NULL);
-        for (int i = 0; i < 4; i++) { G.st[i] = CreateWindowExW(0, L"STATIC", L"", WS_CHILD | WS_VISIBLE, 16, 10 + i * 22, 470, 20, h, NULL, hi, NULL); SendMessageW(G.st[i], WM_SETFONT, (WPARAM)font, 0); }
-        G.play = CreateWindowExW(0, L"BUTTON", L"Play", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 16, 104, 470, 56, h, (HMENU)ID_PLAY, hi, NULL);
-        SendMessageW(G.play, WM_SETFONT, (WPARAM)big, 0);
-        HWND l1 = CreateWindowExW(0, L"STATIC", L"Screen size", WS_CHILD | WS_VISIBLE, 16, 182, 130, 20, h, NULL, hi, NULL);
-        HWND l2 = CreateWindowExW(0, L"STATIC", L"Picture quality", WS_CHILD | WS_VISIBLE, 16, 216, 130, 20, h, NULL, hi, NULL);
-        G.size = CreateWindowExW(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | CBS_DROPDOWNLIST | WS_VSCROLL, 150, 178, 336, 200, h, (HMENU)ID_SIZE, hi, NULL);
-        G.qual = CreateWindowExW(0, L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | CBS_DROPDOWNLIST | WS_VSCROLL, 150, 212, 336, 200, h, (HMENU)ID_QUAL, hi, NULL);
-        for (int i = 0; i < NSIZES; i++) SendMessageW(G.size, CB_ADDSTRING, 0, (LPARAM)W(SIZES[i].label));
-        for (int i = 0; i < NQUAL; i++) SendMessageW(G.qual, CB_ADDSTRING, 0, (LPARAM)W(QUAL[i].label));
-        G.skip = CreateWindowExW(0, L"BUTTON", L"Start the game right away next time (skip this window)", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX, 16, 252, 470, 22, h, (HMENU)ID_SKIP, hi, NULL);
-        G.msg = CreateWindowExW(0, L"STATIC", L"Controls and more: press F10 in the game.", WS_CHILD | WS_VISIBLE, 16, 286, 470, 20, h, NULL, hi, NULL);
-        HWND all[] = { l1, l2, G.size, G.qual, G.skip, G.msg }; for (int i = 0; i < 6; i++) SendMessageW(all[i], WM_SETFONT, (WPARAM)font, 0);
-        ui_reload(); return 0; }
-    case WM_COMMAND: {
-        int id = LOWORD(wp), nc = HIWORD(wp);
-        if (id == ID_PLAY) {
-            g_hide = h; int rc = 0;
-            if (launch_game(G.root, &rc)) { G.rc = rc; DestroyWindow(h); }
-            else { MessageBoxW(h, W(errmsg), L"Star Ocean: not ready", MB_OK | MB_ICONERROR); ui_status(); }
-        } else if ((id == ID_SIZE || id == ID_QUAL) && nc == CBN_SELCHANGE) ui_save(id);
-        else if (id == ID_SKIP && nc == BN_CLICKED) ui_save(id);
+    case WM_CREATE: G.h = h; refresh(); layout(); G.focus = G.nit > 3 ? 3 : 0; G.hover = -1; return 0;
+    case WM_ERASEBKGND: return 1;
+    case WM_PAINT: {
+        PAINTSTRUCT ps; HDC dc = BeginPaint(h, &ps); RECT rc; GetClientRect(h, &rc);
+        HDC md = CreateCompatibleDC(dc); HBITMAP bm = CreateCompatibleBitmap(dc, rc.right, rc.bottom), old = SelectObject(md, bm);
+        render(md); BitBlt(dc, 0, 0, rc.right, rc.bottom, md, 0, 0, SRCCOPY);
+        SelectObject(md, old); DeleteObject(bm); DeleteDC(md); EndPaint(h, &ps); return 0; }
+    case WM_MOUSEMOVE: {
+        if (!G.track) { TRACKMOUSEEVENT te = { sizeof te, TME_LEAVE, h, 0 }; TrackMouseEvent(&te); G.track = 1; }
+        int i = hit(lp); if (i != G.hover) { G.hover = i; InvalidateRect(h, NULL, FALSE); } return 0; }
+    case WM_MOUSELEAVE: G.track = 0; G.hover = -1; InvalidateRect(h, NULL, FALSE); return 0;
+    case WM_SETCURSOR: if (LOWORD(lp) == HTCLIENT && G.hover >= 0) { SetCursor(LoadCursorW(NULL, (LPCWSTR)IDC_HAND)); return TRUE; } break;
+    case WM_LBUTTONDOWN: { int i = hit(lp); if (i >= 0) activate(i); return 0; }
+    case WM_TIMER: if (wp == 1) { KillTimer(h, 1); G.toast[0] = 0; InvalidateRect(h, NULL, FALSE); } return 0;
+    case WM_KEYDOWN: {
+        layout(); const It *t = (G.focus >= 0 && G.focus < G.nit) ? &G.it[G.focus] : NULL;
+        if (wp == VK_TAB) move_focus(GetKeyState(VK_SHIFT) < 0 ? -1 : 1);
+        else if (wp == VK_DOWN) move_focus(1); else if (wp == VK_UP) move_focus(-1);
+        else if ((wp == VK_LEFT || wp == VK_RIGHT) && t && t->kind == K_DD && t->en) dd_set(t->id, dd_cur(t->id) + (wp == VK_RIGHT ? 1 : -1));
+        else if ((wp == VK_RETURN || wp == VK_SPACE) && t) activate(G.focus);
         return 0; }
     case WM_DESTROY: PostQuitMessage(0); return 0;
     }
     return DefWindowProcW(h, m, wp, lp);
 }
 static int run_gui(const char *root) {
-    INITCOMMONCONTROLSEX ic = { sizeof ic, ICC_STANDARD_CLASSES }; InitCommonControlsEx(&ic);
-    HINSTANCE hi = GetModuleHandleW(NULL); G.root = root;
-    WNDCLASSW wc = { 0 }; wc.lpfnWndProc = wndproc; wc.hInstance = hi; wc.hCursor = LoadCursorW(NULL, (LPCWSTR)IDC_ARROW); wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+    SetProcessDPIAware(); G.root = root;
+    HDC sd = GetDC(NULL); G.s = GetDeviceCaps(sd, LOGPIXELSX) / 96.0f; ReleaseDC(NULL, sd); if (G.s < 1) G.s = 1;
+    gp_init();
+    HINSTANCE hi = GetModuleHandleW(NULL);
+    WNDCLASSW wc = { 0 }; wc.lpfnWndProc = wndproc; wc.hInstance = hi; wc.hCursor = LoadCursorW(NULL, (LPCWSTR)IDC_ARROW); wc.hbrBackground = NULL;
     wc.lpszClassName = L"SO2Launcher"; wc.hIcon = LoadIconW(hi, MAKEINTRESOURCEW(1)); RegisterClassW(&wc);
-    RECT r = { 0, 0, 502, 320 }; AdjustWindowRect(&r, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
-    HWND h = CreateWindowW(L"SO2Launcher", L"Star Ocean: The Second Story", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, r.right - r.left, r.bottom - r.top, NULL, NULL, hi, NULL);
+    DWORD st = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX; RECT r = { 0, 0, (LONG)(1000 * G.s), (LONG)(640 * G.s) }; AdjustWindowRect(&r, st, FALSE);
+    HWND h = CreateWindowW(L"SO2Launcher", L"Star Ocean: The Second Story", st | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, r.right - r.left, r.bottom - r.top, NULL, NULL, hi, NULL);
     if (!h) return 1;
-    MSG msg; while (GetMessageW(&msg, NULL, 0, 0) > 0) { if (!IsDialogMessageW(h, &msg)) { TranslateMessage(&msg); DispatchMessageW(&msg); } }
+    MSG msg; while (GetMessageW(&msg, NULL, 0, 0) > 0) { TranslateMessage(&msg); DispatchMessageW(&msg); }
     return G.rc;
 }
 
 int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
     int argc; wchar_t **av = CommandLineToArgvW(GetCommandLineW(), &argc);
-    int self = 0, only = 0, play = 0; char *root = NULL;
+    int self = 0, only = 0, play = 0, pg = 0; char *root = NULL, *shotp = NULL;
     for (int i = 1; i < argc; i++) {
         if (!wcscmp(av[i], L"--selftest")) self = 1;
         else if (!wcscmp(av[i], L"--prepare")) only = 1;
         else if (!wcscmp(av[i], L"--play")) play = 1;
         else if (!wcscmp(av[i], L"--quiet")) quiet = 1;
         else if (!wcscmp(av[i], L"--root") && i + 1 < argc) root = U(av[++i]);
+        else if (!wcscmp(av[i], L"--shot") && i + 1 < argc) shotp = U(av[++i]);   /* render a page to a PNG, no window (to check the look) */
+        else if (!wcscmp(av[i], L"--page") && i + 1 < argc) pg = _wtoi(av[++i]) % 3;
     }
     if ((self || only || quiet) && !GetStdHandle(STD_ERROR_HANDLE) && AttachConsole(ATTACH_PARENT_PROCESS)) { freopen("CONOUT$", "w", stdout); freopen("CONOUT$", "w", stderr); }   /* redirected stderr (pipe, file) is kept */
     if (self) return selftest();
@@ -600,6 +854,7 @@ int WINAPI wWinMain(HINSTANCE hi, HINSTANCE hp, LPWSTR cl, int sw) {
         if (!root) die("Cannot find the game folder: the path to PLAYTHISGAME.exe is too long. Move the folder somewhere shorter.");
     }
     { char *fr = full_path(root); if (!fr) die("The game folder path is not usable (too long?)."); root = fr; }
+    if (shotp) { G.root = root; return shot(shotp, pg); }
     if (!only && !take_lock(root)) {   /* nothing below runs: the first instance keeps its files and log */
         if (!quiet) MessageBoxW(NULL, L"Star Ocean is already running from this folder.", L"Star Ocean", MB_OK | MB_ICONINFORMATION);
         fprintf(stderr, "PLAY: already running from this folder\n"); return 3;
