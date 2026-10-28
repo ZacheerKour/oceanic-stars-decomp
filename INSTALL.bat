@@ -11,10 +11,11 @@ set "ROOT=%CD%"
 set "PF86=%ProgramFiles(x86)%"
 if not exist ".install" mkdir ".install"
 set "DBLCLICK="
-if not defined SO2_NOASK echo %cmdcmdline% | find /i "/c" >nul && set "DBLCLICK=1"
+if not defined SO2_NOASK call :isdbl
 
 call :findvs
 if defined VS goto :build
+if defined VSPART goto :nocmake
 echo.
 echo The Visual Studio C++ compiler is needed to build the game, and was not found.
 where winget >nul 2>nul || goto :nowinget
@@ -32,6 +33,22 @@ echo yourself (https://aka.ms/vs/17/release/vs_BuildTools.exe), then run INSTALL
 set "SO2RC=1" & goto :end
 :declined
 echo Install the Visual Studio 2022 Build Tools with the "Desktop development with C++" workload (see README), then run INSTALL.bat again.
+set "SO2RC=1" & goto :end
+
+:nocmake
+echo.
+echo Visual Studio is installed, but without the "C++ CMake tools for Windows" component that the build needs:
+echo   "%VSPART%"
+if defined SO2_NOASK goto :cmakehow
+choice /c YN /m "Add that component now? Windows will ask for approval"
+if errorlevel 2 goto :cmakehow
+"%PF86%\Microsoft Visual Studio\Installer\setup.exe" modify --installPath "%VSPART%" --add Microsoft.VisualStudio.Component.VC.CMake.Project --passive --wait --norestart
+call :findvs
+if defined VS goto :build
+echo The component is still missing (the change failed, was cancelled, or Windows needs a restart). Restart if asked, then run INSTALL.bat again.
+set "SO2RC=1" & goto :end
+:cmakehow
+echo Open "Visual Studio Installer", choose Modify on that install, tick "C++ CMake tools for Windows", apply, then run INSTALL.bat again.
 set "SO2RC=1" & goto :end
 
 :build
@@ -55,12 +72,24 @@ endlocal
 set "SO2RC=0"
 exit /b 0
 
-:findvs
-set "VS="
-if exist "%PF86%\Microsoft Visual Studio\Installer\vswhere.exe" for /f "usebackq delims=" %%i in (`"%PF86%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 Microsoft.VisualStudio.Component.VC.CMake.Project -property installationPath`) do set "VS=%%i"
-if not defined VS if exist "%PF86%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set "VS=%PF86%\Microsoft Visual Studio\2022\BuildTools"
+:isdbl
+rem delayed expansion only here: cmdcmdline may contain & ^ ( ) that must not be parsed as commands
+setlocal EnableDelayedExpansion
+echo(!cmdcmdline!| find /i "/c" >nul && (endlocal & set "DBLCLICK=1" & exit /b 0)
+endlocal
 exit /b 0
 
+:findvs
+set "VS=" & set "VSPART="
+set "VW=%PF86%\Microsoft Visual Studio\Installer\vswhere.exe"
+set "CMK=Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
+rem same test as recomp\installer\install.c find_vs: compiler AND cmake.exe
+if exist "%VW%" for /f "usebackq delims=" %%i in (`"%VW%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 Microsoft.VisualStudio.Component.VC.CMake.Project -property installationPath`) do if exist "%%i\VC\Auxiliary\Build\vcvars64.bat" if exist "%%i\%CMK%" set "VS=%%i"
+if not defined VS if exist "%PF86%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" if exist "%PF86%\Microsoft Visual Studio\2022\BuildTools\%CMK%" set "VS=%PF86%\Microsoft Visual Studio\2022\BuildTools"
+if defined VS exit /b 0
+if exist "%VW%" for /f "usebackq delims=" %%i in (`"%VW%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do if exist "%%i\VC\Auxiliary\Build\vcvars64.bat" set "VSPART=%%i"
+if not defined VSPART if exist "%PF86%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set "VSPART=%PF86%\Microsoft Visual Studio\2022\BuildTools"
+exit /b 0
 :end
 if defined DBLCLICK (echo. & pause)
 exit /b %SO2RC%

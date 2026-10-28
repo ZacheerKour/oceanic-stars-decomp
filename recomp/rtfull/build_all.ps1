@@ -53,11 +53,29 @@ Step 'SCPH-5501 BIOS C' {   # optional: without the user's own dump the exe link
 $cp = Join-Path $repo 'recomp\aot\_psxrecomp'
 $patch = Join-Path $repo 'recomp\aot\psxrecomp_overlay.patch'
 Step 'overlay C (final seeds, 89 chunks combined)' {
-    if (-not (Test-Path "$cp\.git")) {
-        & git clone -q --no-checkout $src $cp; & git -C $cp checkout -q $Commit
+    function Test-Clone($d) { if (-not (Test-Path "$d\.git")) { return $false }; $h = & git --git-dir="$d\.git" rev-parse --verify -q 'HEAD^{commit}'; return ($LASTEXITCODE -eq 0 -and "$h" -match '^[0-9a-f]{40}$') }
+    function Set-Aside($d, $why) {   # never deletes: renames and lists the leftover for the player
+        $n = 1; while (Test-Path "${d}_broken_$n") { $n++ }
+        Move-Item $d "${d}_broken_$n"
+        $rel = "${d}_broken_$n".Substring($repo.Length + 1)
+        New-Item -ItemType Directory -Force (Join-Path $repo '.install') | Out-Null
+        Add-Content (Join-Path $repo '.install\CLEANUP_LATER.md') "- $rel ($why)"
+        "$why. Kept it as $rel and making a new copy."
+    }
+    $good = (Test-Clone $cp) -and ((& git --git-dir="$cp\.git" rev-parse HEAD) -eq $Commit)
+    if ($good) { & git -C $cp apply --reverse --check $patch; $good = ($LASTEXITCODE -eq 0) }   # carries exactly the patch
+    if (-not $good -and (Test-Path $cp)) {
+        $why = if (-not (Test-Clone $cp)) { 'the earlier overlay work copy is incomplete (interrupted clone)' } else { "the earlier overlay work copy is not psxrecomp $($Commit.Substring(0,8)) plus psxrecomp_overlay.patch" }
+        Set-Aside $cp $why
+    }
+    if (-not (Test-Path $cp)) {
+        # the pinned clone must hold the pinned commit (the installer fetches it; a hand-made clone may predate it)
+        & git --git-dir="$src\.git" cat-file -e "$Commit^{commit}"
+        if ($LASTEXITCODE) { "psxrecomp at $src lacks $($Commit.Substring(0,8)); fetching it"; & git -C $src fetch -q origin $Commit; if ($LASTEXITCODE) { throw "cannot fetch psxrecomp $Commit into $src (offline?)" } }
+        & git clone -q --no-checkout $src $cp; if ($LASTEXITCODE) { throw "git clone of $src into $cp failed" }
+        & git -C $cp checkout -q $Commit; if ($LASTEXITCODE) { throw "checkout of $Commit in $cp failed" }
         & git -C $cp apply $patch; if ($LASTEXITCODE) { throw 'psxrecomp_overlay.patch did not apply' }
     }
-    if ((& git -C $cp rev-parse HEAD) -ne $Commit) { throw "$cp is not at $Commit" }
     & git -C $cp apply --reverse --check $patch 2>$null; if ($LASTEXITCODE) { throw "$cp does not carry exactly psxrecomp_overlay.patch" }
     Copy-Item "$repo\analysis\slz.py" "$cp\tools\slz.py" -Force
     New-Item -ItemType Directory -Force "$cp\_work\proj" | Out-Null

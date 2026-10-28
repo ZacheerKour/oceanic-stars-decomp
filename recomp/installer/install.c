@@ -54,6 +54,7 @@ static int in_list(List *l, const char *s) { for (int i = 0; i < l->n; i++) if (
 
 /* ---------- globals, console, log ---------- */
 static char *root, *logp;
+#define MAX_ROOT 120   /* the build tools (cmd, MSVC, git, PowerShell 5) are not long-path aware and nested build paths add ~120 characters */
 static int con_out, noask, verbose;
 static void say(const char *f, ...) {
     va_list a; va_start(a, f); int n = vsnprintf(NULL, 0, f, a); va_end(a);
@@ -78,7 +79,12 @@ static void tail_lines(int n) {
     if (*p == '\n') p++;
     for (char *l = strtok(p, "\r\n"); l; l = strtok(NULL, "\r\n")) say("  %s", ascii(l));
 }
+static char *unpack_dir;   /* roms\_unpack while a disc is being unpacked: our own temp folder, removed on failure too */
 static void fail(const char *f, ...) {
+    if (unpack_dir && GetFileAttributesW(W(unpack_dir)) != INVALID_FILE_ATTRIBUTES) {
+        wchar_t *c = W(fmt("cmd.exe /d /c rmdir /s /q \"%s\"", unpack_dir)); STARTUPINFOW si = { sizeof si }; PROCESS_INFORMATION pi;
+        if (CreateProcessW(NULL, c, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { WaitForSingleObject(pi.hProcess, 60000); CloseHandle(pi.hProcess); CloseHandle(pi.hThread); }
+    }
     va_list a; va_start(a, f); int n = vsnprintf(NULL, 0, f, a); va_end(a);
     char *m = malloc(n + 1); va_start(a, f); vsnprintf(m, n + 1, f, a); va_end(a);
     say(""); say("The install did not finish."); say("%s", m); log_note(m);
@@ -145,7 +151,7 @@ static void download(const char *url, const char *sha, const char *dest) {
     char *part = fmt("%s.part", dest), *e = http_get(url, part);
     if (e) fail("Could not download %s (%s). Check your internet connection.", url, e);
     if (!verify(part, sha)) { DeleteFileW(W(part)); fail("The download from %s does not match its expected SHA-256 fingerprint (%s), so it was discarded.", url, sha); }
-    MoveFileExW(W(part), W(dest), MOVEFILE_REPLACE_EXISTING);
+    if (!MoveFileExW(W(part), W(dest), MOVEFILE_REPLACE_EXISTING)) fail("Could not move the finished download to %s (error %lu). Is the folder read-only or locked by antivirus?", dest, GetLastError());
 }
 
 /* ---------- processes ---------- */
@@ -188,9 +194,11 @@ static char *capture(const char *cmdline) {   /* stdout+stderr of a direct (non-
     return out;
 }
 static void setenv_(const char *k, const char *v) { SetEnvironmentVariableW(W(k), W(v)); }
-static void path_prepend(const char *dir) {
-    wchar_t *old = _wgetenv(L"PATH"); setenv_("PATH", fmt("%s;%s", dir, old ? U(old) : ""));
+static char *getenv_(const char *k) {   /* live process environment: _wgetenv/getenv keep a startup copy that SetEnvironmentVariableW does not update */
+    DWORD n = GetEnvironmentVariableW(W(k), NULL, 0); if (!n) return NULL;
+    wchar_t *w = malloc(n * 2); DWORD got = GetEnvironmentVariableW(W(k), w, n); if (!got || got >= n) return NULL; return U(w);
 }
+static void path_prepend(const char *dir) { char *old = getenv_("PATH"); setenv_("PATH", fmt("%s;%s", dir, old ? old : "")); }
 static int on_path(const wchar_t *exe) { wchar_t b[MAX_PATH]; return SearchPathW(NULL, exe, NULL, MAX_PATH, b, NULL) != 0; }
 
 /* ---------- stamps: SHA-1 of the tracked inputs, so a git pull rebuilds only what changed ---------- */
@@ -291,7 +299,7 @@ static void step_discs(List *given) {
         if (given->n) say("  Found %d file(s) in roms\\.", given->n);
         else { say("  No disc files found in roms\\."); disc_help(); if (noask) fail("No disc files found. Put both disc images in %s\\roms and run INSTALL.bat again.", root); say("  Opening a file picker as a fallback..."); }
     }
-    char *tmp = fmt("%s\\roms\\_unpack", root); int attempt = 0, k = 0;
+    char *tmp = fmt("%s\\roms\\_unpack", root); int attempt = 0, k = 0; unpack_dir = tmp;
     while (!(disc_ok(1) && disc_ok(2))) {
         attempt++;
         if (given->n == 0) {
@@ -327,7 +335,7 @@ static void step_discs(List *given) {
         for (int i = 0; i < uniq.n; i++) {
             char *im = images.v[i]; const char *name = base(im);
             if (!strcmp(lower(ext_of(im)), ".chd")) {
-                wchar_t cm[MAX_PATH]; if (!SearchPathW(NULL, L"chdman.exe", NULL, MAX_PATH, cm, NULL))
+                wchar_t cm[MAX_PATH]; DWORD cl = SearchPathW(NULL, L"chdman.exe", NULL, MAX_PATH, cm, NULL); if (!cl || cl >= MAX_PATH)
                     fail("%s is a CHD file and converting it needs chdman.exe (part of MAME), which was not found. Convert it to .bin/.cue first, or use the .7z/.bin files.", name);
                 char *d2 = fmt("%s\\chd%d", tmp, ++k); mkdirs(d2); say("  Converting %s...", ascii(name));
                 if (run("chdman", NULL, fmt("\"%s\" extractcd -i \"%s\" -o \"%s\\d.cue\" -ob \"%s\\d.bin\"", U(cm), im, d2, d2))) fail("chdman could not convert %s.", name);
@@ -344,22 +352,43 @@ static void step_discs(List *given) {
         if (exists(tmp)) run("cleanup unpack dir", NULL, fmt("rmdir /s /q \"%s\"", tmp));
         given->n = 0; if (!interactive) break;
     }
+    if (exists(tmp)) run("cleanup unpack dir", NULL, fmt("rmdir /s /q \"%s\"", tmp));
+    unpack_dir = NULL;
     for (int n = 1; n <= 2; n++) if (!disc_ok(n)) { disc_help(); fail("Disc %d was not found among the files you gave. Star Ocean 2 (USA) has two discs; give me both (any order), as .7z or .bin/.cue files.", n); }
 }
 
 /* ---------- tools ---------- */
-static char *find_vs(void) {   /* installation path with MSVC + the CMake component and vcvars64.bat, else NULL */
+static const char CMAKE_COMPONENT[] = "Microsoft.VisualStudio.Component.VC.CMake.Project";
+static const char *vs_partial;   /* set by find_vs: an install that has the C++ compiler but not the CMake component */
+static int has_cl(const char *vs) { return exists(fmt("%s\\VC\\Auxiliary\\Build\\vcvars64.bat", vs)); }
+static int has_cmake(const char *vs) { return exists(fmt("%s\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe", vs)); }
+static char *find_vs(void) {   /* installation path with MSVC + the CMake component (the same test INSTALL.bat makes), else NULL */
+    vs_partial = NULL;
     const char *pf86 = getenv("ProgramFiles(x86)"); char *vw = fmt("%s\\Microsoft Visual Studio\\Installer\\vswhere.exe", pf86 ? pf86 : "C:\\Program Files (x86)");
     if (exists(vw)) {
         path_prepend(parent(vw));   /* vcvars64.bat and build_all.ps1 need vswhere on PATH */
-        char *o = capture(fmt("\"%s\" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 Microsoft.VisualStudio.Component.VC.CMake.Project -property installationPath", vw));
-        if (o && *o && exists(fmt("%s\\VC\\Auxiliary\\Build\\vcvars64.bat", o)) && exists(fmt("%s\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe", o))) return o;
+        char *o = capture(fmt("\"%s\" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 %s -property installationPath", vw, CMAKE_COMPONENT));
+        if (o && *o && has_cl(o) && has_cmake(o)) return o;
+        o = capture(fmt("\"%s\" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath", vw));
+        if (o && *o && has_cl(o)) vs_partial = o;
     }
     char *bt = fmt("%s\\Microsoft Visual Studio\\2022\\BuildTools", pf86 ? pf86 : "C:\\Program Files (x86)");
-    return exists(fmt("%s\\VC\\Auxiliary\\Build\\vcvars64.bat", bt)) && exists(fmt("%s\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe", bt)) ? bt : NULL;
+    if (has_cl(bt)) { if (has_cmake(bt)) return bt; if (!vs_partial) vs_partial = bt; }
+    return NULL;
 }
+#define MINGIT_SHA "50b04b55425b5c465d076cdb184f63a0cd0f86f6ec8bb4d5860114a713d2c29a"
+#define PYTHON_SHA "009d6bf7e3b2ddca3d784fa09f90fe54336d5b60f0e0f305c37f400bf83cfd3b"
 static char *step_tools(void) {
     char *vs = find_vs();
+    if (!vs && vs_partial) {
+        const char *pf86 = getenv("ProgramFiles(x86)");
+        say("  Visual Studio is installed (%s) but it lacks the \"C++ CMake tools for Windows\" component, which the build needs.", vs_partial);
+        if (!ask("  Add that component now? Windows will ask for your approval."))
+            fail("The \"C++ CMake tools for Windows\" component is missing. Open Visual Studio Installer, choose Modify, tick that component, then run INSTALL.bat again.");
+        if (run("add cmake component", NULL, fmt("\"%s\\Microsoft Visual Studio\\Installer\\setup.exe\" modify --installPath \"%s\" --add %s --passive --wait --norestart", pf86 ? pf86 : "C:\\Program Files (x86)", vs_partial, CMAKE_COMPONENT)))
+            fail("Adding the CMake component failed or was cancelled. Open Visual Studio Installer, choose Modify, tick \"C++ CMake tools for Windows\", then run INSTALL.bat again.");
+        vs = find_vs(); if (!vs) fail("The CMake component is still missing after the change (a restart may be needed). Restart Windows if asked, then run INSTALL.bat again.");
+    }
     if (!vs) {
         /* shortcut: no own MSVC download (plan option 2); winget Build Tools behind a Y/N, see the follow-up note in docs/notes */
         if (!on_path(L"winget.exe")) fail("The Visual Studio C++ compiler is needed but winget is not available. Install the Visual Studio 2022 Build Tools with the \"Desktop development with C++\" workload yourself (see README), then run INSTALL.bat again.");
@@ -373,23 +402,60 @@ static char *step_tools(void) {
     setenv_("SO2_VS", vs); log_note(fmt("compiler: %s", vs));
     if (!on_path(L"git.exe")) {   /* private MinGit, no admin and no winget needed */
         char *dir = fmt("%s\\tools\\mingit", root);
-        if (!exists(fmt("%s\\cmd\\git.exe", dir))) {
+        if (!exists(fmt("%s\\cmd\\git.exe", dir)) || !stamp_ok("mingit.stamp", MINGIT_SHA)) {   /* stamp = unpack finished; git.exe alone can be left by a killed unpack */
             say("  Fetching a private Git..."); char *zip = tools_dl("MinGit-2.47.1-64-bit.zip"); mkdirs(dir);
-            download("https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.1/MinGit-2.47.1-64-bit.zip", "50b04b55425b5c465d076cdb184f63a0cd0f86f6ec8bb4d5860114a713d2c29a", zip);
+            download("https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.1/MinGit-2.47.1-64-bit.zip", MINGIT_SHA, zip);
             if (run("unpack mingit", NULL, fmt("\"%s\" -xf \"%s\" -C \"%s\"", tar_exe(), zip, dir))) fail("Could not unpack the private Git.");
+            stamp_set("mingit.stamp", MINGIT_SHA);
         }
         path_prepend(fmt("%s\\cmd", dir));
     }
     char *py = fmt("%s\\tools\\python", root);   /* private Python 3.11.9 embeddable, SHA-256 checked */
-    if (!exists(fmt("%s\\python.exe", py))) {
+    if (!exists(fmt("%s\\python.exe", py)) || !stamp_ok("python.stamp", PYTHON_SHA)) {
         say("  Fetching a private Python..."); char *zip = tools_dl("python-embed.zip"); mkdirs(py);
-        download("https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip", "009d6bf7e3b2ddca3d784fa09f90fe54336d5b60f0e0f305c37f400bf83cfd3b", zip);
+        download("https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip", PYTHON_SHA, zip);
         if (run("unpack python", NULL, fmt("\"%s\" -xf \"%s\" -C \"%s\"", tar_exe(), zip, py))) fail("Could not unpack the private Python.");
+        stamp_set("python.stamp", PYTHON_SHA);
     }
     /* the embeddable build's ._pth stops scripts importing sibling modules; without it Python behaves normally */
-    char *pth = fmt("%s\\python311._pth", py); if (exists(pth)) MoveFileW(W(pth), W(fmt("%s.off", pth)));
+    char *pth = fmt("%s\\python311._pth", py); if (exists(pth) && !MoveFileExW(W(pth), W(fmt("%s.off", pth)), MOVEFILE_REPLACE_EXISTING)) fail("Could not prepare the private Python (error %lu).", GetLastError());
     path_prepend(py); setenv_("SO2_DATA", root); setenv_("PYTHONUTF8", "1");
     return vs;
+}
+
+/* ---------- psxrecomp: pinned clone ---------- */
+static void note_cleanup(const char *line) {   /* nothing is ever deleted for the player: leftovers are listed here */
+    char *p = fmt("%s\\.install\\CLEANUP_LATER.md", root), *old = read_file(p, NULL);
+    char *t = fmt("%s- %s\r\n", old && *old ? old : "# Safe to delete later (the installer never deletes these itself)\r\n", line); write_file(p, t, strlen(t));
+}
+static char *clone_head(const char *px) {   /* HEAD commit of a usable clone, else NULL (missing, or half-made by an interrupted clone) */
+    if (!is_dir(fmt("%s\\.git", px))) return NULL;   /* --git-dir below: never let git walk up into another repository */
+    char *h = capture(fmt("git --git-dir=\"%s\\.git\" rev-parse --verify -q HEAD^{commit}", px));
+    return h && strlen(h) == 40 && strspn(h, "0123456789abcdef") == 40 ? h : NULL;
+}
+static void step_psxrecomp(const char *px, const char *commit) {
+    char *head = clone_head(px);
+    if (!head && exists(px)) {
+        int n = 1; char *b; while (exists(b = fmt("%s_broken_%d", px, n))) n++;
+        say("  The earlier psxrecomp download is incomplete. Keeping it as %s and downloading again.", base(b));
+        if (!MoveFileW(W(px), W(b))) fail("Could not rename the incomplete folder %s (error %lu). Close programs using it or rename it yourself, then run INSTALL.bat again.", px, GetLastError());
+        note_cleanup(fmt("tools\\ref\\%s (incomplete psxrecomp download)", base(b)));
+    }
+    if (!head) {
+        say("  Downloading psxrecomp...");
+        if (run("clone psxrecomp", NULL, fmt("git clone -q --filter=blob:none --no-checkout https://github.com/RetroPortingToolKit/psxrecomp \"%s\"", px)))
+            fail("Could not download psxrecomp from github.com. Check your internet connection.");
+        if (!(head = clone_head(px))) fail("The psxrecomp download finished but the copy is unusable (see the log).");
+    }
+    if (strcmp(head, commit)) {
+        char *t = capture(fmt("git --git-dir=\"%s\\.git\" cat-file -t %s", px, commit));
+        if (!t || strcmp(t, "commit")) {
+            say("  The saved psxrecomp copy lacks the pinned version %.8s. Fetching it...", commit);
+            if (run("fetch psxrecomp pin", px, fmt("git fetch -q origin %s", commit)) && run("fetch psxrecomp all", px, "git fetch -q --all --tags"))
+                fail("Could not fetch the pinned psxrecomp version %s from github.com. Check your internet connection.", commit);
+        }
+        if (run("checkout psxrecomp", NULL, fmt("git -C \"%s\" -c advice.detachedHead=false checkout -q %s", px, commit))) fail("Could not check out the pinned psxrecomp version %s.", commit);
+    }
 }
 
 /* ---------- icon for PLAYTHISGAME.exe (generated, so no binary asset is tracked) ---------- */
@@ -427,39 +493,44 @@ static int fetch_cmd(wchar_t **av, int ac, int i) {
 int wmain(int argc, wchar_t **argv) {
     con_out = GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &(DWORD){ 0 }) != 0;
     noask = getenv("SO2_NOASK") != NULL; verbose = getenv("SO2_VERBOSE") != NULL;
-    List given = { 0 }; char *r = NULL;
+    List given = { 0 }; char *r = NULL; int sync_only = 0;
     for (int i = 1; i < argc; i++) {
         if (!wcscmp(argv[i], L"--root") && i + 1 < argc) r = U(argv[++i]);
         else if (!wcscmp(argv[i], L"--selftest")) return selftest();
+        else if (!wcscmp(argv[i], L"--sync-psxrecomp")) sync_only = 1;
         else if (!wcscmp(argv[i], L"--fetch")) { root = "."; logp = "install.log"; return fetch_cmd(argv, argc, i); }
         else push(&given, U(argv[i]));
     }
-    if (!r) { wchar_t d[MAX_PATH]; GetModuleFileNameW(NULL, d, MAX_PATH); *wcsrchr(d, L'\\') = 0; r = U(d); }
+    if (!r) { static wchar_t d[32768]; DWORD n = GetModuleFileNameW(NULL, d, 32768); wchar_t *sl = n && n < 32768 ? wcsrchr(d, L'\\') : NULL; if (!sl) { fprintf(stderr, "Cannot find the folder this program is in. Start INSTALL.bat instead.\n"); return 1; } *sl = 0; r = U(d); }
     path_prepend(fmt("%s\\System32", getenv("SystemRoot") ? getenv("SystemRoot") : "C:\\Windows"));   /* build_all.ps1 calls bare `tar`: use bsdtar, not a GNU tar from Git Bash/MSYS */
-    root = r; SetCurrentDirectoryW(W(root)); logp = fmt("%s\\install.log", root); mkdirs(fmt("%s\\.install", root));
+    root = r;
+    if (strlen(root) > MAX_ROOT) { fprintf(stderr, "The folder path is too long (%d characters, the limit is %d): %s\nThe compiler tools used for the build cannot handle long paths. Move the game folder to a short path such as C:\\StarOcean2 and run INSTALL.bat again.\n", (int)strlen(root), MAX_ROOT, root); if (!noask && con_out) system("pause"); return 1; }
+    SetCurrentDirectoryW(W(root)); logp = fmt("%s\\install.log", root); mkdirs(fmt("%s\\.install", root));
     char *hdr = fmt("Star Ocean 2 install log (INSTALL.bat)\r\n"); write_file(logp, hdr, strlen(hdr));
     const char *commit = "f42d2c004b3dd6ef6ccb83101b40ede55f24bf59";   /* audited psxrecomp pin (RECOMP_NOTES '2026-10-26 psxrecomp safety audit') */
     say("Star Ocean: The Second Story - PC install"); say("A detailed log is written to install.log."); say("");
     if (!exists(fmt("%s\\recomp\\rtfull\\build_all.ps1", root))) fail("This folder does not look like the game repository (recomp\\rtfull\\build_all.ps1 is missing). Keep INSTALL.bat at the top of the cloned folder.");
 
+    if (sync_only) { step_tools(); step_psxrecomp(fmt("%s\\tools\\ref\\psxrecomp", root), commit); say("psxrecomp is at the pinned version."); return 0; }   /* test hook */
     say("[1/6] Checking your discs..."); step_discs(&given);
     say("[2/6] Checking tools..."); char *vs = step_tools();
 
     say("[3/6] Reading game data from the discs...");
     char *d1 = fmt("roms\\disc1\\%s.bin", disc_name(1));
-    if (!exists(fmt("%s\\extracted\\SCUS_944.21", root))) {
+    char *xh = hash_file(fmt("%s\\analysis\\extract.py", root), 1), *bootm = fmt("boot %s %s", DISC_SHA1[1], hash_file(fmt("%s\\analysis\\extract_boot.py", root), 1)), *extm = fmt("extract %s %s %s", DISC_SHA1[1], DISC_SHA1[2], xh);
+    if (!exists(fmt("%s\\extracted\\SCUS_944.21", root)) || !stamp_ok("boot.stamp", bootm)) {   /* stamps are written only after the step succeeded */
         mkdirs(fmt("%s\\extracted", root));
         if (run("boot exe", NULL, fmt("\"%s\\tools\\python\\python.exe\" -I analysis\\extract_boot.py \"%s\" extracted\\SCUS_944.21", root, d1))) fail("Could not read the boot program from disc 1.");
+        stamp_set("boot.stamp", bootm);
     }
-    if (!exists(fmt("%s\\analysis\\out\\d1\\0001_312.dec", root)))
+    if (!exists(fmt("%s\\analysis\\out\\d1\\0001_312.dec", root)) || !stamp_ok("extract.stamp", extm)) {
         if (run("extract", NULL, fmt("\"%s\\tools\\python\\python.exe\" -E -s analysis\\extract.py", root))) fail("Could not unpack the game archive from the discs. The disc images may be damaged.");
+        stamp_set("extract.stamp", extm);
+    }
 
     say("[4/6] Downloading build components (checked against fixed fingerprints)...");
     char *px = fmt("%s\\tools\\ref\\psxrecomp", root);
-    if (!exists(fmt("%s\\.git", px)) && run("clone psxrecomp", NULL, fmt("git clone -q --filter=blob:none --no-checkout https://github.com/RetroPortingToolKit/psxrecomp \"%s\"", px)))
-        fail("Could not download psxrecomp from github.com. Check your internet connection.");
-    char *head = capture(fmt("git -C \"%s\" rev-parse HEAD", px));
-    if (!head || strcmp(head, commit) && run("checkout psxrecomp", NULL, fmt("git -C \"%s\" -c advice.detachedHead=false checkout -q %s", px, commit))) fail("Could not check out the pinned psxrecomp version %s.", commit);
+    step_psxrecomp(px, commit);
     download("https://github.com/libsdl-org/SDL/releases/download/release-3.4.10/SDL3-3.4.10.tar.gz", "12b34280415ec8418c864408b93d008a20a6530687ee613d60bfbd20411f2785", tools_dl("SDL3-3.4.10.tar.gz"));
     download("https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz", "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23", tools_dl("zlib-1.3.1.tar.gz"));
 
@@ -517,6 +588,7 @@ static int selftest(void) {
     List l = { 0 }; wchar_t m1[] = L"C:\\x\\disc.7z\0\0"; CHECK(split_multiselect(m1, &l) == 1 && !strcmp(l.v[0], "C:\\x\\disc.7z"));
     List l2 = { 0 }; wchar_t m2[] = L"C:\\x\0a.7z\0b.7z\0"; CHECK(split_multiselect(m2, &l2) == 2 && !strcmp(l2.v[1], "C:\\x\\b.7z"));
     CHECK(in_star(0, 0) && !in_star(.8, .8) && in_star(0, -.8));
+    { path_prepend("C:\\so2_t_a"); path_prepend("C:\\so2_t_b"); char *pv = getenv_("PATH"); CHECK(pv && !strncmp(pv, "C:\\so2_t_b;C:\\so2_t_a;", 22)); }
     CHECK(!strcmp(base("C:\\a\\b.cue"), "b.cue") && !strcmp(ext_of("C:\\a.b\\c"), ""));
     fprintf(stderr, tfail ? "selftest: %d FAILED\n" : "selftest: all passed\n", tfail); return tfail ? 1 : 0;
 }
