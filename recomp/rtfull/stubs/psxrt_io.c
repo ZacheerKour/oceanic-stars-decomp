@@ -191,7 +191,8 @@ char *psxrt_ini_set(const char *t, const char *key, const char *val) {
 int psxrt_ini_persist(const char *key, const char *val) {
     const wchar_t *path = _wgetenv(L"PSXRT_SETTINGS_INI");   /* wide: a game folder with non-ANSI characters must still open */
     if (!path || !*path) return -1;
-    FILE *f = _wfopen(path, L"rb");
+    FILE *f = NULL;
+    for (int t = 0; t < 3 && !(f = _wfopen(path, L"rb")); t++) Sleep(100);   /* OneDrive/AV may hold the ini for a moment */
     if (!f) return 0;
     char *buf = (char *)malloc(1 << 20);
     size_t n = buf ? fread(buf, 1, (1 << 20) - 1, f) : 0;
@@ -201,7 +202,8 @@ int psxrt_ini_persist(const char *key, const char *val) {
     const unsigned char *u = (const unsigned char *)buf;   /* UTF-16 (BOM or NULs): this ANSI/UTF-8 rewrite would truncate it, so refuse */
     if ((n >= 2 && ((u[0] == 0xFF && u[1] == 0xFE) || (u[0] == 0xFE && u[1] == 0xFF))) || memchr(buf, 0, n)) { free(buf); return -2; }
     buf[n] = 0;
-    char *out = psxrt_ini_set(buf, key, val);
+    const int bom = n >= 3 && u[0] == 0xEF && u[1] == 0xBB && u[2] == 0xBF;   /* UTF-8 BOM would hide a first-line key: match past it, write it back */
+    char *out = psxrt_ini_set(buf + (bom ? 3 : 0), key, val);
     free(buf);
     if (!out) return 0;
     wchar_t *tmp = (wchar_t *)malloc((wcslen(path) + 5) * sizeof(wchar_t));
@@ -212,11 +214,14 @@ int psxrt_ini_persist(const char *key, const char *val) {
     int ok = 0;
     f = _wfopen(tmp, L"wb");
     if (f) {
-        ok = fwrite(out, 1, on, f) == on && fflush(f) == 0 && FlushFileBuffers((HANDLE)_get_osfhandle(_fileno(f))) != 0;
+        ok = (!bom || fwrite("\357\273\277", 1, 3, f) == 3) && fwrite(out, 1, on, f) == on && fflush(f) == 0 && FlushFileBuffers((HANDLE)_get_osfhandle(_fileno(f))) != 0;
         ok = fclose(f) == 0 && ok;
     }
     free(out);
-    if (ok) ok = MoveFileExW(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+    for (int t = 0; ok && t < 3; t++) {   /* replace fails while another program has the ini open: retry ~300 ms */
+        if (MoveFileExW(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) break;
+        if (t == 2) ok = 0; else Sleep(100);
+    }
     if (!ok) _wremove(tmp);   /* only our own temp file */
     free(tmp);
     return ok;
@@ -227,9 +232,12 @@ int psxrt_ini_persist(const char *key, const char *val) {
 static struct { char k[32], v[32]; } s_pq[8];
 static int s_pn;
 static uint32_t s_pq_t;
+static void psxrt_ini_flush_exit(void) { psxrt_ini_flush(0, 1); }
 void psxrt_ini_queue(const char *key, const char *val, uint32_t now) {
     int i;
     for (i = 0; i < s_pn && strcmp(s_pq[i].k, key); i++) {}
+    static int s_atexit;
+    if (!s_atexit) { s_atexit = 1; atexit(psxrt_ini_flush_exit); }   /* window-X / quit inside the 400 ms debounce must not lose the setting */
     if (i == 8) { psxrt_ini_flush(now, 1); i = 0; }
     snprintf(s_pq[i].k, sizeof s_pq[i].k, "%s", key);
     snprintf(s_pq[i].v, sizeof s_pq[i].v, "%s", val);
@@ -887,6 +895,20 @@ int main(void) {   /* cl /DPSXRT_IO_SELFTEST psxrt_io.c && psxrt_io.exe */
                 CHECK(psxrt_ini_flush(9001, 1) == 1);
                 f = _wfopen(file, L"rb"); n = f ? fread(b, 1, sizeof b - 1, f) : 0; if (f) fclose(f); b[n] = 0;
                 CHECK(strstr(b, "scanlines = off\n") != NULL);
+                /* UTF-8 BOM before a first-line key: the key still matches and the BOM is kept */
+                f = _wfopen(file, L"wb"); if (f) { fputs("\xEF\xBB\xBF" "filter = linear\n", f); fclose(f); }
+                CHECK(psxrt_ini_persist("filter", "nearest") == 1);
+                f = _wfopen(file, L"rb"); n = f ? fread(b, 1, sizeof b - 1, f) : 0; if (f) fclose(f); b[n] = 0;
+                CHECK(!strcmp(b, "\xEF\xBB\xBF" "filter = nearest\n"));
+                /* locked ini: held past the retries it reports failure, once released it saves */
+                f = _wfopen(file, L"wb"); if (f) { fputs("filter = linear\n", f); fclose(f); }
+                {
+                    HANDLE h = CreateFileW(file, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);   /* no sharing */
+                    CHECK(h != INVALID_HANDLE_VALUE);
+                    CHECK(psxrt_ini_persist("filter", "nearest") != 1);
+                    if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+                    CHECK(psxrt_ini_persist("filter", "nearest") == 1);
+                }
                 _wputenv_s(L"PSXRT_SETTINGS_INI", L"");
             }
         }

@@ -13,32 +13,35 @@ function Fail($m) {
     if ($Prepare) { New-Item -ItemType Directory -Force (Join-Path $root 'play') | Out-Null; [IO.File]::WriteAllText((Join-Path $root 'play\prepare.err'), $m) }
     else { Write-Host "PLAY: $m" -ForegroundColor Red }
     exit 1 }
-if (-not (Test-Path $exe)) { Fail 'the game is not built yet: run INSTALL.bat first' }
-$cue = foreach ($n in 1, 2) { $c = Join-Path $root ("roms\disc$n\$name.cue" -f $n); if (-not (Test-Path $c)) { Fail "missing $($c): run INSTALL.bat with your discs" }; $c -replace '\\', '/' }
+if (-not (Test-Path -LiteralPath $exe)) { Fail 'the game is not built yet: run INSTALL.bat first' }
+$cue = foreach ($n in 1, 2) { $c = Join-Path $root ("roms\disc$n\$name.cue" -f $n); if (-not (Test-Path -LiteralPath $c)) { Fail "missing $($c): run INSTALL.bat with your discs" }; $c -replace '\\', '/' }
 
 $ini = Join-Path $root 'settings.ini'
-if (-not (Test-Path $ini)) { Copy-Item (Join-Path $root 'settings.default.ini') $ini }
+if (-not (Test-Path -LiteralPath $ini)) { Copy-Item -LiteralPath (Join-Path $root 'settings.default.ini') -Destination $ini }
 $set = @{}
-foreach ($l in Get-Content $ini) { if ($l -match '^\s*([A-Za-z_][\w.]*)\s*=\s*(.*?)\s*$') { $set[$Matches[1]] = $Matches[2] } }
+foreach ($l in Get-Content -LiteralPath $ini) { if ($l -match '^\s*([A-Za-z_][\w.]*)\s*=\s*(.*?)\s*$') { $set[$Matches[1]] = $Matches[2] } }
 
 $P = Join-Path $root 'play'; $S = Join-Path $root 'saves'
 New-Item -ItemType Directory -Force $P, $S, (Join-Path (Split-Path $exe) 'bios') | Out-Null
 $bios = "$($set['bios'])"; if (-not $bios) { $bios = 'auto' }
 $own = Join-Path $root 'roms\scph5501.bin'
 if ($bios -eq 'auto') {   # own dump only when the build linked its backend (build_all saw it)
-    $bios = if ((Test-Path $own) -and (Test-Path (Join-Path $root 'recomp\bios\_gen\generated\SCPH5501_full.c'))) { $own } else { 'openbios' } }
-$t = Get-Content (Join-Path $root 'recomp\game.toml') -Raw
+    $bios = if ((Test-Path -LiteralPath $own) -and (Test-Path -LiteralPath (Join-Path $root 'recomp\bios\_gen\generated\SCPH5501_full.c'))) { $own } else { 'openbios' } }
+$t = Get-Content -LiteralPath (Join-Path $root 'recomp\game.toml') -Raw
 $t = $t.Replace("`"disc/$($name -f 1).cue`"", "`"$($cue[0])`"").Replace("`"disc/$($name -f 2).cue`"", "`"$($cue[1])`"")
 $t = $t.Replace('exe = "disc/SCUS_944.21"', "exe = `"$((Join-Path $root 'recomp\host\_out\proj\disc\SCUS_944.21') -replace '\\', '/')`"")
 if ($bios -eq 'openbios') {
     $t = $t -replace '(?m)^openbios = false', 'openbios = true '   # recomp/game.toml pins retail; OpenBIOS must be allowed
     $bios = Join-Path (Split-Path $exe) 'bios\openbios.bin'
-    Copy-Item (Join-Path $psx 'bios\openbios.bin') $bios -Force
-} elseif (-not (Test-Path $bios)) { Fail "settings.ini bios = $bios does not exist" }
+    Copy-Item -LiteralPath (Join-Path $psx 'bios\openbios.bin') -Destination $bios -Force
+} elseif (-not (Test-Path -LiteralPath $bios)) { Fail "settings.ini bios = $bios does not exist" }
 # Controllers: P1 = first SDL gamepad (hot-plug), digital pad so the left stick folds onto the d-pad. The keyboard stays live.
-$dz = if ($set['pad.deadzone']) { [int]$set['pad.deadzone'] } else { 9000 }
+function Num($k, $def, $lo, $hi) {   # non-numeric or out-of-range settings.ini values clamp/fall back instead of throwing
+    $n = 0; if (-not [int]::TryParse("$($set[$k])".Trim(), [ref]$n)) { return $def }
+    [Math]::Min($hi, [Math]::Max($lo, $n)) }
+$dz = Num 'pad.deadzone' 9000 0 32767
 $t += "`n[controller]`np1_device = `"auto`"`np1_mode = `"digital`"`ndeadzone = $dz`n"
-$abuf = if ($set['audio.buffer_ms']) { [int]$set['audio.buffer_ms'] } else { 180 }   # the runtime rejects values outside 30..500
+$abuf = Num 'audio.buffer_ms' 180 30 500   # the runtime rejects values outside 30..500
 $t += "`n[audio]`nbuffer_ms = $abuf`n"
 # Display (settings.ini, see settings.default.ini): game.toml [video] keys, plus the scale mode for stubs/psxrt_video.h.
 function Pick($k, $def, $ok) {   # a bad or missing value falls back to the default (never aborts); the note goes to play\settings.warn
@@ -79,10 +82,10 @@ foreach ($k in 'ls_up', 'ls_down', 'ls_left', 'ls_right', 'rs_up', 'rs_down', 'r
 
 # Odd gamepads: gamecontrollerdb.txt next to PLAY.bat or the game exe (SDL mapping lines; env SDL_GAMECONTROLLERCONFIG also works).
 foreach ($d in @($root, (Split-Path $exe))) { $f = Join-Path $d 'gamecontrollerdb.txt'
-    if ((Test-Path $f) -and -not $env:SDL_GAMECONTROLLERCONFIG_FILE) { $env:SDL_GAMECONTROLLERCONFIG_FILE = $f } }
+    if ((Test-Path -LiteralPath $f) -and -not $env:SDL_GAMECONTROLLERCONFIG_FILE) { $env:SDL_GAMECONTROLLERCONFIG_FILE = $f } }
 
 foreach ($k in $set.Keys) { if ($k -like 'env.*') { Set-Item "env:$($k.Substring(4))" $set[$k] } }   # env.PSX_VSYNC = 1 etc.
-$a = @('--no-launcher', '--game', (Join-Path $P 'game.toml'), '--memcard-dir', $S, '--bios', (Resolve-Path $bios).Path)
+$a = @('--no-launcher', '--game', (Join-Path $P 'game.toml'), '--memcard-dir', $S, '--bios', (Resolve-Path -LiteralPath $bios).Path)
 if ($set['extra_args']) { $a += $set['extra_args'].Trim() -split '\s+' }
 if ($Prepare) {   # PLAYTHISGAME.exe starts the game itself (a direct child, so Steam sees the process): exe, args, run dir, env lines
     $env_ = foreach ($k in $set.Keys) { if ($k -like 'env.*') { "$($k.Substring(4))=$($set[$k])" } }
