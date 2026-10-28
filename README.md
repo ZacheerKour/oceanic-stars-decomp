@@ -119,7 +119,7 @@ from other pads; it only sees SDL3 gamepads. What to do:
    hardware is untested.
 
 ## Saves and settings
-- Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAYTHISGAME.exe`. Cards are also copied automatically to `savesackups\` (newest 30, see `docs/BACKUPS.md`); back up the whole folder anyway.
+- Memory cards (`card1.mcd`, `card2.mcd`) and savestates live in `saves\` next to `PLAYTHISGAME.exe`. Cards are also copied automatically to `saves\backups\` (newest 30, see `docs/BACKUPS.md`); back up the whole folder anyway.
 - `settings.ini` (created on the first start from `settings.default.ini`): `bios = auto | openbios | <path>`, `key.*` keyboard binds, `pad.deadzone`, `audio.buffer_ms` (sound buffer, default 180),
   `extra_args = ...` for the runtime, and `env.NAME = value` lines for runtime environment options.
 - Display, also in `settings.ini`: `window_width` (starting width, height follows 4:3), `render_scale` (1 = native .. 8, sharper 3D,
