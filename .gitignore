@@ -8,6 +8,10 @@
 *.cue
 *.iso
 *.chd
+*.rar
+*.rom
+*.pbp
+*.ecm
 
 # ---- Generated from the game (regenerated locally) ----
 /analysis/out/
@@ -30,6 +34,9 @@ __pycache__/
 /saves/
 /play/
 /PLAYTHISGAME.exe
+/PLAY.exe
+/StarOcean.exe
+/*.exe
 
 # ---- Dev scratch / superseded (kept locally, not published) ----
 /analysis/cc/

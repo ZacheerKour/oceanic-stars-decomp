@@ -7,11 +7,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Repo guard (no game data, no privacy leaks)
         run: python -I scripts/repo_guard.py
+      - name: Repo guard self-test (every rule fires)
+        run: python -I scripts/repo_guard.py --selftest
+      - name: Repo guard history (new commits: identity, names, added lines)
+        run: |
+          if [ "${{ github.event_name }}" = pull_request ]; then r="origin/${{ github.base_ref }}..HEAD"
+          elif [ "${{ github.event.before }}" != 0000000000000000000000000000000000000000 ] && git cat-file -e "${{ github.event.before }}" 2>/dev/null; then r="${{ github.event.before }}..${{ github.sha }}"
+          else r=HEAD; fi
+          python -I scripts/repo_guard.py --history "$r"
       - name: SLZ decoder tests
         run: python -I tests/slz/run_tests.py
       - name: Decomp rules (known baseline - 1 FAIL, WARNs tolerated)

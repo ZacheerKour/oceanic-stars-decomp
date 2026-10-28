@@ -79,8 +79,8 @@ the exe path and Start In to its folder. What the exe must do:
 ## Phase 1 as implemented (2026-10-27)
 - `recomp/installer/install.c` is INSTALL.bat (console app, bcrypt SHA-1/SHA-256, WinHTTP downloads, hidden `cmd /c` runner with
   everything logged to install.log, stamps in `.install\exe_*.stamp`). `INSTALL.bat` is **tracked** (the one allowed binary): it
-  holds no game code or data, and `scripts/repo_guard.py` fails if its SHA-256 differs from `recomp/installer/INSTALL.bat.sha256`
-  (rebuild with `recomp/installer/build.ps1`, commit both). Unsigned, so SmartScreen may warn; `INSTALL.bat` stays as the fallback
+  holds no game code or data. (Superseded: no hash check exists; `INSTALL.bat.sha256` was never created and `repo_guard.py` rejects
+  every `.exe`; the installer is now compiled locally and nothing binary is tracked.) Unsigned, so SmartScreen may warn; `INSTALL.bat` stays as the fallback
   (runs the exe, or install.ps1 when the exe is absent). install.ps1 is kept until the exe has been used by a few people.
 - Compiler: vswhere (needs the C++ and CMake components), else the fixed BuildTools path, else winget Build Tools behind Y/N.
   Child scripts honour `SO2_VS`. Option 2 (own manifest-based MSVC download) is NOT implemented: see follow-up below.
