@@ -441,13 +441,15 @@ static void step_psxrecomp(const char *px, const char *commit) {
         if (!MoveFileW(W(px), W(b))) fail("Could not rename the incomplete folder %s (error %lu). Close programs using it or rename it yourself, then run INSTALL.bat again.", px, GetLastError());
         note_cleanup(fmt("tools\\ref\\%s (incomplete psxrecomp download)", base(b)));
     }
+    int fresh = 0;   /* --no-checkout leaves an empty tree even when HEAD already is the pin */
     if (!head) {
+        fresh = 1;
         say("  Downloading psxrecomp...");
         if (run("clone psxrecomp", NULL, fmt("git clone -q --filter=blob:none --no-checkout https://github.com/RetroPortingToolKit/psxrecomp \"%s\"", px)))
             fail("Could not download psxrecomp from github.com. Check your internet connection.");
         if (!(head = clone_head(px))) fail("The psxrecomp download finished but the copy is unusable (see the log).");
     }
-    if (strcmp(head, commit)) {
+    if (fresh || strcmp(head, commit)) {
         char *t = capture(fmt("git --git-dir=\"%s\\.git\" cat-file -t %s", px, commit));
         if (!t || strcmp(t, "commit")) {
             say("  The saved psxrecomp copy lacks the pinned version %.8s. Fetching it...", commit);
@@ -550,7 +552,7 @@ int wmain(int argc, wchar_t **argv) {
     if (exists(out) && stamp_ok("exe_launcher.stamp", lstamp)) say("[6/6] PLAYTHISGAME.exe is up to date.");
     else {
         say("[6/6] Building PLAYTHISGAME.exe..."); char *ldir = fmt("%s\\recomp\\launcher", root); mkdirs(fmt("%s\\_build", ldir)); write_ico(fmt("%s\\_build\\star.ico", ldir));
-        char *cl = fmt("call \"%s\\VC\\Auxiliary\\Build\\vcvars64.bat\" >nul && rc /nologo /fo _build\\play.res play.rc && cl /nologo /O2 /MT /GS- /utf-8 /wd4996 /Fo_build\\ \"/Fe%s\" play.c _build\\play.res /link /MANIFEST:NO /SUBSYSTEM:WINDOWS user32.lib kernel32.lib shell32.lib", vs, out);
+        char *cl = fmt("call \"%s\\VC\\Auxiliary\\Build\\vcvars64.bat\" >nul && rc /nologo /fo _build\\play.res play.rc && cl /nologo /O2 /MT /GS- /utf-8 /wd4996 /Fo_build\\ \"/Fe%s\" play.c _build\\play.res /link /MANIFEST:NO /SUBSYSTEM:WINDOWS user32.lib kernel32.lib shell32.lib gdi32.lib gdiplus.lib", vs, out);
         if (run("PLAYTHISGAME.exe", ldir, cl) || !exists(out)) fail("Building PLAYTHISGAME.exe failed.");
         if (run("PLAYTHISGAME selftest", NULL, fmt("\"%s\" --selftest", out))) fail("PLAYTHISGAME.exe was built but its self-test failed.");
         stamp_set("exe_launcher.stamp", lstamp);
