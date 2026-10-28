@@ -28,6 +28,17 @@ int psxrt_launch_fullscreen(void);     /* settings.ini window_mode = borderless 
     if (mw_ > (ww)) { mw_ = (ww); mh_ = (ww) * 3 / 4; } \
     gl_draw_osd_image((px), (ow), (oh), mw_, mh_, ((ww) - mw_) / 2, ((wh) - mh_) / 2, (ww), (wh)); } while (0)
 
+/* main.cpp window creation: PSXRT_WINDOW_HEIGHT (settings.ini window_height, 360..4320) with PSXRT_WINDOW_WIDTH opens a w x h window
+ * instead of the 4:3 one; a window larger than the display's usable area shrinks keeping its shape. The picture stays the centred
+ * 4:3 rect and the side fill covers the rest. */
+#define PSXRT_WINDOW_HEIGHT(gw, gh) do { \
+    const char *eh_ = getenv("PSXRT_WINDOW_HEIGHT"), *ew_ = getenv("PSXRT_WINDOW_WIDTH"); \
+    long long h_ = eh_ ? atoi(eh_) : 0, w_ = ew_ ? atoi(ew_) : 0; SDL_Rect b_; \
+    if (h_ >= 360 && h_ <= 4320 && w_ >= 640) { \
+        if (SDL_GetDisplayUsableBounds(0, &b_) == 0 && b_.w > 0 && b_.h > 0 && (w_ > b_.w || h_ > b_.h)) { \
+            if ((long long)b_.w * h_ < (long long)b_.h * w_) { h_ = h_ * b_.w / w_; w_ = b_.w; } else { w_ = w_ * b_.h / h_; h_ = b_.h; } } \
+        (gw) = (int)w_; (gh) = (int)h_; } } while (0)
+
 /* after the fit: integer keeps k*240 rows (k >= 1) and the aspect; windows under 240 rows keep the fit */
 #define PSXRT_LETTERBOX_INTEGER(num, den, dw, dh) \
     if (psxrt_scale_mode() == 1 && (dh) >= 240) { (dh) -= (dh) % 240; (dw) = (dh) * (num) / (den); }
