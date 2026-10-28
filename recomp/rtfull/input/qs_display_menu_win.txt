@@ -1,0 +1,4 @@
+# F10 menu in the composed window, windowed (960x720 hidden window)
+12500 MENU open
+12500 DUMP menu_windowed
+12700 -
