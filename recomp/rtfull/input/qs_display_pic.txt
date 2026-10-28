@@ -1,0 +1,3 @@
+# game picture in the composed window under PSXRT_SCALE_MODE (run with PSXRT_WINDOW_AT=12300:3440x1439)
+12500 DUMP pic
+12700 -

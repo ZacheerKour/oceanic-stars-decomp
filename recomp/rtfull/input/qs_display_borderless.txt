@@ -1,0 +1,12 @@
+# Fullscreen row -> borderless in a hidden window: composed window size after the menu closes
+12500 MENU open
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU down
+12500 MENU accept
+12500 MENU accept
+12500 MENU close
+12700 DUMP borderless
+13000 -

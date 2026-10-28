@@ -22,6 +22,12 @@ int psxrt_launch_fullscreen(void);     /* settings.ini window_mode = borderless 
 #define PSXRT_LETTERBOX_ADJUST(ww, wh, num, den) \
     if (psxrt_scale_mode() == 2 && (ww) > 0 && (wh) > 0) { (num) = (ww); (den) = (wh); }
 
+/* F10 menu panel (640x480, square pixels): centred 4:3 box, whatever the window shape or scale_mode */
+#define PSXRT_DRAW_MENU(px, ow, oh, ww, wh) do { \
+    int mw_ = (wh) * 4 / 3, mh_ = (wh); \
+    if (mw_ > (ww)) { mw_ = (ww); mh_ = (ww) * 3 / 4; } \
+    gl_draw_osd_image((px), (ow), (oh), mw_, mh_, ((ww) - mw_) / 2, ((wh) - mh_) / 2, (ww), (wh)); } while (0)
+
 /* after the fit: integer keeps k*240 rows (k >= 1) and the aspect; windows under 240 rows keep the fit */
 #define PSXRT_LETTERBOX_INTEGER(num, den, dw, dh) \
     if (psxrt_scale_mode() == 1 && (dh) >= 240) { (dh) -= (dh) % 240; (dw) = (dh) * (num) / (den); }

@@ -247,7 +247,16 @@ psxrt_patch(runtime/src/gpu_gl_renderer.c
     "    int dw = ww, dh = (ww * den) / num"
     "    PSXRT_LETTERBOX_ADJUST(ww, wh, num, den)\n    int dw = ww, dh = (ww * den) / num"
     "    *x = (ww - dw) / 2"
-    "    PSXRT_LETTERBOX_INTEGER(num, den, dw, dh)\n    *x = (ww - dw) / 2")
+    "    PSXRT_LETTERBOX_INTEGER(num, den, dw, dh)\n    *x = (ww - dw) / 2"
+    # F10 menu panel is a 640x480 image (square font pixels): draw it in a centred 4:3 box, never stretched to the window.
+    "gl_draw_osd_image(px, ow, oh, ww, wh, 0, 0, ww, wh)"
+    "PSXRT_DRAW_MENU(px, ow, oh, ww, wh)")
+# Borderless fullscreen (docs/notes/2026-10-27-display-fixes.md): a popup window that exactly covers its monitor is promoted by
+# Windows and the GPU driver to fullscreen (flip presentation, display ownership), which blanked multi-monitor setups on alt-tab.
+# Stay one row short of the monitor so it is an ordinary desktop window; the video mode is never changed.
+psxrt_patch(runtime/include/window_fullscreen.h
+    "SDL_SetWindowSize(window, desktop.w, desktop.h)@SC@"
+    "SDL_SetWindowSize(window, desktop.w, desktop.h - 1)@SC@ /* psxrt: not exactly monitor-sized, see CMakeLists.txt */")
 set_property(SOURCE "${PATCHED}/main.cpp" "${PATCHED}/gpu_gl_renderer.c" APPEND PROPERTY COMPILE_OPTIONS
     "/FI${CMAKE_CURRENT_SOURCE_DIR}/stubs/psxrt_video.h")
 
